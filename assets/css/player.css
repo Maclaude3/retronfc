@@ -1,0 +1,328 @@
+﻿/* ==========================================================================
+   RetroNFC.com.br — Player Stylesheet (play.html)
+   Interface Arcade Fullscreen, CRT Shader e Controles Otimizados
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;700&display=swap');
+
+:root {
+  --player-bg: #05070d;
+  --cyan: #00f0ff;
+  --pink: #ff007f;
+  --purple: #8b5cf6;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--player-bg);
+  font-family: 'Outfit', sans-serif;
+  color: #fff;
+}
+
+/* Screen Wrapper */
+#player-viewport {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at center, #0f172a 0%, #05070d 100%);
+}
+
+/* Top Arcade HUD Bar */
+.arcade-hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 52px;
+  background: rgba(7, 10, 18, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 50;
+  transition: opacity 0.4s ease;
+}
+
+.arcade-hud.auto-hide {
+  opacity: 0.2;
+}
+
+.arcade-hud.auto-hide:hover {
+  opacity: 1;
+}
+
+.hud-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.hud-logo {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  color: var(--cyan);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+.hud-game-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  border-left: 2px solid rgba(255, 255, 255, 0.15);
+  padding-left: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.hud-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.hud-btn:hover {
+  background: var(--cyan);
+  color: #000;
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+}
+
+/* Game Canvas Container */
+#game-container {
+  flex: 1;
+  width: 100%;
+  height: calc(100% - 52px);
+  margin-top: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* CRT Scanline Overlay Effect */
+.crt-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 40;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px;
+  opacity: 0.6;
+}
+
+/* Authentic NFC Loading Screen */
+#nfc-loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #07090e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+  text-align: center;
+}
+
+.loader-cartridge-icon {
+  font-size: 4.5rem;
+  margin-bottom: 24px;
+  animation: float-cartridge 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 25px rgba(0, 240, 255, 0.6));
+}
+
+.loader-status-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.9rem;
+  color: var(--cyan);
+  margin-bottom: 12px;
+  line-height: 1.6;
+  text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+}
+
+.loader-subtext {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  margin-bottom: 30px;
+}
+
+.progress-bar-wrap {
+  width: 100%;
+  max-width: 380px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.progress-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--pink));
+  box-shadow: 0 0 15px var(--cyan);
+  transition: width 0.3s ease;
+}
+
+.loader-tips {
+  margin-top: 36px;
+  font-size: 0.85rem;
+  color: #64748b;
+  max-width: 400px;
+}
+
+/* Game Picker Modal (quando não há tag ou para trocar de jogo) */
+#game-picker-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(16px);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+#game-picker-modal.active {
+  display: flex;
+}
+
+.picker-card {
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  background: #0e1422;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 240, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.picker-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.picker-header h3 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.85rem;
+  color: var(--cyan);
+}
+
+.picker-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.picker-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.picker-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: #fff;
+}
+
+.picker-item:hover {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--cyan);
+  transform: translateY(-2px);
+}
+
+.picker-icon {
+  font-size: 1.8rem;
+}
+
+.picker-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.picker-console {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+/* Animations */
+@keyframes float-cartridge {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(-3deg); }
+}
+
+@media (max-width: 600px) {
+  .picker-list {
+    grid-template-columns: 1fr;
+  }
+  .hud-game-title {
+    max-width: 140px;
+  }
+}

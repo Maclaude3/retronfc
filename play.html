@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RetroNFC Player — Clássicos Retrô em Alta Performance</title>
+  
+  <link rel="stylesheet" href="assets/css/player.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+</head>
+<body>
+
+  <div id="player-viewport">
+    
+    <!-- Top Arcade HUD Bar -->
+    <header class="arcade-hud">
+      <div class="hud-left">
+        <a href="index.html" class="hud-logo" title="Voltar para RetroNFC.com.br">
+          <span>⚡</span> RETRONFC
+        </a>
+        <div id="hud-game-title" class="hud-game-title">Carregando Jogo...</div>
+      </div>
+
+      <div class="hud-right">
+        <button id="btn-toggle-crt" class="hud-btn" title="Ativar/Desativar Efeito CRT de TV de Tubo">
+          📺 CRT
+        </button>
+        <button onclick="openGamePicker()" class="hud-btn" title="Trocar de Jogo">
+          🕹️ Trocar Jogo
+        </button>
+        <button id="btn-fullscreen" class="hud-btn" title="Tela Cheia">
+          ⛶ Cheia
+        </button>
+      </div>
+    </header>
+
+    <!-- Game Container (EmulatorJS Canvas) -->
+    <main id="game-container">
+      <!-- O motor do emulador será renderizado aqui -->
+    </main>
+
+    <!-- CRT Scanline Shader Overlay -->
+    <div class="crt-overlay"></div>
+
+    <!-- Authentic NFC Reading Screen -->
+    <div id="nfc-loader">
+      <div class="loader-cartridge-icon">🎮</div>
+      <div id="loader-status-text" class="loader-status-text">
+        CONECTANDO À TAG RETRONFC...
+      </div>
+      <div class="loader-subtext">
+        Iniciando motor de alta velocidade WebAssembly...
+      </div>
+
+      <div class="progress-bar-wrap">
+        <div id="progress-bar-fill" class="progress-bar-fill"></div>
+      </div>
+
+      <div class="loader-tips">
+        💡 <strong>Dica Gamer:</strong> No celular, use o aparelho na horizontal (modo paisagem) para uma empunhadura perfeita igual ao controle original!
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Game Picker Modal (Caso acesse sem parâmetro na tag) -->
+  <div id="game-picker-modal">
+    <div class="picker-card">
+      <div class="picker-header">
+        <h3>ESCOLHA UM CLÁSSICO RETRO</h3>
+        <button class="picker-close" onclick="closeGamePicker()" aria-label="Fechar">&times;</button>
+      </div>
+      <div id="picker-games-list" class="picker-list">
+        <!-- Renderizado dinamicamente via assets/js/player.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets/js/player.js"></script>
+</body>
+</html>

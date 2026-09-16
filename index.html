@@ -1,0 +1,434 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RetroNFC.com.br — Chaveiros e Mini Cartuchos Colecionáveis com NFC. Aproxime o smartphone e jogue clássicos do Super Nintendo, Mega Drive e Game Boy direto no navegador sem instalar nada.">
+  <meta name="keywords" content="RetroNFC, chaveiro gamer, nfc super nintendo, mini cartuchos 3d, emulador online, snes nfc, chaveiro nfc atacado">
+  <meta name="author" content="RetroNFC Brasil">
+  
+  <!-- Open Graph / Meta Social -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://retronfc.com.br/">
+  <meta property="og:title" content="RetroNFC.com.br — Colecionáveis Retrô & Tecnologia NFC">
+  <meta property="og:description" content="Aproxime o celular do mini cartucho e jogue na hora. Super Nintendo, Mega Drive e Game Boy direto no navegador!">
+  
+  <title>RetroNFC.com.br — Colecionáveis Retrô & Tecnologia NFC</title>
+  
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+
+  <!-- Retro Grid Background -->
+  <div class="retro-grid-bg"></div>
+
+  <!-- Header / Navbar -->
+  <header class="header">
+    <div class="container nav-container">
+      <a href="index.html" class="logo">
+        <div class="logo-badge">NFC</div>
+        <div class="logo-text">
+          <span class="logo-brand">Retro<span>NFC</span></span>
+          <span class="logo-domain">RetroNFC.com.br</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#inicio" class="nav-link active">Início</a></li>
+        <li><a href="#como-funciona" class="nav-link">Como Funciona</a></li>
+        <li><a href="#catalogo" class="nav-link">Catálogo</a></li>
+        <li><a href="#atacado" class="nav-link">Atacado & B2B</a></li>
+        <li><a href="nfc-tool.html" class="nav-link">Gravar Tags</a></li>
+        <li><a href="#faq" class="nav-link">FAQ</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="play.html" target="_blank" class="btn btn-glass btn-sm">
+          ▶ Testar Player
+        </a>
+        <button onclick="orderViaWhatsApp()" class="btn btn-cyan btn-sm">
+          Fazer Pedido
+        </button>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Abrir Menu">
+          ☰
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="inicio" class="hero">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="hero-pill">
+          <span class="hero-pill-dot"></span>
+          <span class="hero-pill-text">Tecnologia NFC + Impressão 3D de Precisão</span>
+        </div>
+
+        <h1 class="hero-title">
+          Aproxime e Jogue.<br>
+          <span class="gradient-text-cyan">A Magia Retrô</span><br>
+          em um Toque.
+        </h1>
+
+        <p class="hero-desc">
+          Mini cartuchos e chaveiros em escala com chip NFC embutido. Ao aproximar qualquer smartphone <strong>Android</strong> ou <strong>iPhone</strong>, o jogo clássico inicia instantaneamente no seu navegador, <strong>sem precisar instalar nenhum aplicativo</strong>.
+        </p>
+
+        <div class="hero-cta">
+          <a href="#catalogo" class="btn btn-cyan btn-lg">
+            Ver Catálogo de Jogos
+          </a>
+          <a href="#simulador" class="btn btn-glass btn-lg">
+            Testar Simulador NFC
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <h4>+50</h4>
+            <p>Clássicos SNES & Mega Drive</p>
+          </div>
+          <div class="stat-item">
+            <h4>100%</h4>
+            <p>Direto no Navegador</p>
+          </div>
+          <div class="stat-item">
+            <h4>0 Apps</h4>
+            <p>Basta Encostar o Celular</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live NFC Interactive Smartphone Simulator -->
+      <div id="simulador" class="simulator-box">
+        <div class="simulator-header">
+          <span class="simulator-title">SIMULADOR NFC ONLINE</span>
+          <span class="simulator-badge">AO VIVO</span>
+        </div>
+
+        <!-- Virtual Phone Display -->
+        <div class="phone-mockup">
+          <div class="phone-notch"></div>
+          <div id="phone-screen" class="phone-screen">
+            <div class="nfc-radar-pulse">
+              <span class="nfc-radar-icon">📶</span>
+            </div>
+            <p class="phone-instruction">
+              <strong>Aproxime um mini cartucho:</strong><br>
+              Clique em um dos jogos abaixo para simular a leitura da Tag NFC!
+            </p>
+          </div>
+        </div>
+
+        <!-- Mini Cartridges to Tap -->
+        <div class="cartridge-selector-tray">
+          <div class="tray-item active" data-game="super_mario" title="Super Mario World">
+            <div class="tray-icon">🍄</div>
+            <div class="tray-label">Mario World</div>
+          </div>
+          <div class="tray-item" data-game="top_gear" title="Top Gear">
+            <div class="tray-icon">🏎️</div>
+            <div class="tray-label">Top Gear</div>
+          </div>
+          <div class="tray-item" data-game="donkey_kong" title="Donkey Kong Country">
+            <div class="tray-icon">🍌</div>
+            <div class="tray-label">Donkey Kong</div>
+          </div>
+          <div class="tray-item" data-game="sonic_2" title="Sonic 2">
+            <div class="tray-icon">🦔</div>
+            <div class="tray-label">Sonic 2</div>
+          </div>
+          <div class="tray-item" data-game="zelda_alttp" title="Zelda">
+            <div class="tray-icon">🗡️</div>
+            <div class="tray-label">Zelda</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="como-funciona" class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">ENGENHARIA DO PROJETO</div>
+        <h2 class="section-title">Como a Mágica Acontece?</h2>
+        <p class="section-desc">
+          Entenda como combinamos tecnologia de rádio frequência (NFC) e emulação WebAssembly para criar a experiência mais fluida do mercado.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <span class="step-number">01</span>
+          <div class="step-icon-wrap">⚡</div>
+          <h3 class="step-title">O Chip NFC Embutido</h3>
+          <p class="step-desc">
+            Cada mini cartucho é impresso em 3D com precisão milimétrica e abriga internamente um chip adesivo <strong>NTAG213</strong> com proteção contra desmagnetização e umidade.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <span class="step-number">02</span>
+          <div class="step-icon-wrap">📶</div>
+          <h3 class="step-title">Aproximação Sem Fio</h3>
+          <p class="step-desc">
+            Ao encostar a traseira do seu smartphone no cartucho, o sensor NFC lê o link exclusivo instantaneamente e aciona o navegador padrão (Chrome ou Safari) em menos de 1 segundo.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <span class="step-number">03</span>
+          <div class="step-icon-wrap">🎮</div>
+          <h3 class="step-title">Emulador WebAssembly</h3>
+          <p class="step-desc">
+            O motor <strong>EmulatorJS</strong> decodifica a ROM na memória do aparelho e injeta controles touch na tela. Sem anúncios, sem instalações e com som estéreo cristalino!
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Product Catalog Section -->
+  <section id="catalogo" class="section" style="background: rgba(14, 20, 34, 0.4);">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">VITRINE EXCLUSIVA</div>
+        <h2 class="section-title">Escolha os Seus Clássicos Favoritos</h2>
+        <p class="section-desc">
+          Todos os chaveiros acompanham argola metálica reforçada, carcaça em PLA de alta densidade e label adesiva com proteção UV laminada anti-risco.
+        </p>
+      </div>
+
+      <!-- Filters -->
+      <div class="catalog-filters">
+        <button class="filter-btn active" onclick="filterCatalog('all', this)">Todos os Consoles</button>
+        <button class="filter-btn" onclick="filterCatalog('snes', this)">Super Nintendo (SNES)</button>
+        <button class="filter-btn" onclick="filterCatalog('genesis', this)">Mega Drive (Genesis)</button>
+        <button class="filter-btn" onclick="filterCatalog('gameboy', this)">Game Boy Color</button>
+      </div>
+
+      <!-- Dynamic Grid -->
+      <div id="products-grid" class="products-grid">
+        <!-- Renderizado dinamicamente via assets/js/main.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Wholesale & B2B Section -->
+  <section id="atacado" class="section">
+    <div class="container">
+      <div class="wholesale-card">
+        <div class="wholesale-content">
+          <div class="wholesale-badge">OPORTUNIDADE DE REVENDA B2B</div>
+          <h2 class="wholesale-title">Lucre Mais de 230% Revendendo na Sua Região</h2>
+          <p class="wholesale-desc">
+            Ideal para tabacarias, bancas de jornal, lojas de informática, estandes de eventos geek e quiosques de shopping. Fornecemos os lotes com <strong>Expositor Giratório de Balcão</strong> incluso!
+          </p>
+
+          <ul class="wholesale-perks">
+            <li class="wholesale-perk-item">
+              <span class="perk-check">✓</span>
+              <span><strong>Preço de Atacado:</strong> R$ 7,50 por chaveiro montado e programado com NFC.</span>
+            </li>
+            <li class="wholesale-perk-item">
+              <span class="perk-check">✓</span>
+              <span><strong>Expositor Giratório:</strong> Incluso gratuitamente em pedidos a partir de 50 peças.</span>
+            </li>
+            <li class="wholesale-perk-item">
+              <span class="perk-check">✓</span>
+              <span><strong>Garantia Total:</strong> Tags testadas individualmente antes do envio.</span>
+            </li>
+            <li class="wholesale-perk-item">
+              <span class="perk-check">✓</span>
+              <span><strong>Personalização:</strong> Pode incluir o logotipo da sua loja na embalagem ou no site.</span>
+            </li>
+          </ul>
+
+          <button onclick="orderWholesaleWhatsApp()" class="btn btn-pink btn-lg">
+            Falar com Consultor de Atacado
+          </button>
+        </div>
+
+        <!-- Profit Calculator -->
+        <div class="calc-box">
+          <div class="calc-title">📊 SIMULADOR DE LUCRO DO LOJISTA</div>
+
+          <div class="calc-row">
+            <label class="calc-label" for="wholesale-qty-slider">Quantidade no Lote:</label>
+            <span id="wholesale-qty-val" class="calc-value" style="color: var(--yellow);">50 unidades</span>
+          </div>
+          <input type="range" id="wholesale-qty-slider" min="30" max="200" step="10" value="50" style="width: 100%; accent-color: var(--cyan); cursor: pointer;">
+
+          <div class="calc-row">
+            <span class="calc-label">Investimento (a R$ 7,50 un):</span>
+            <span id="wholesale-total-cost" class="calc-value">R$ 375,00</span>
+          </div>
+
+          <div class="calc-row">
+            <span class="calc-label">Faturamento (venda a R$ 25,00 un):</span>
+            <span id="wholesale-total-rev" class="calc-value" style="color: var(--green);">R$ 1.250,00</span>
+          </div>
+
+          <div class="calc-highlight">
+            <div class="calc-row">
+              <span class="calc-label" style="font-weight: 700; color: #fff;">LUCRO LÍQUIDO ESTIMADO:</span>
+              <span id="wholesale-total-profit" class="calc-profit">+ R$ 875,00</span>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--cyan); margin-top: 6px;">
+              * Retorno sobre investimento de 233% com giro rápido no balcão!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Compatibility Guide -->
+  <section class="section" style="background: rgba(14, 20, 34, 0.3);">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">COMPATIBILIDADE UNIVERSAL</div>
+        <h2 class="section-title">Funciona no Meu Celular?</h2>
+        <p class="section-desc">
+          Nosso sistema foi desenvolvido para funcionar com a tecnologia nativa dos smartphones modernos.
+        </p>
+      </div>
+
+      <div class="devices-grid">
+        <div class="device-card">
+          <h4>📱 Celulares Android</h4>
+          <p style="color: var(--cyan); font-weight: 600; margin-bottom: 16px;">Samsung, Motorola, Xiaomi, Realme e outros</p>
+          <ul>
+            <li>✓ Compatível com qualquer Android com sensor NFC (Android 8 ou superior).</li>
+            <li>✓ Basta ativar a opção "NFC" na barra de notificações do aparelho.</li>
+            <li>✓ Ao aproximar, o Google Chrome abre automaticamente o jogo.</li>
+          </ul>
+        </div>
+
+        <div class="device-card">
+          <h4>🍏 Apple iPhone</h4>
+          <p style="color: var(--pink); font-weight: 600; margin-bottom: 16px;">iPhone 7 até iPhone 16 Pro Max</p>
+          <ul>
+            <li>✓ Leitura em segundo plano nativa no iOS (do iPhone XR em diante).</li>
+            <li>✓ Não precisa abrir nenhum aplicativo: basta encostar o topo do iPhone.</li>
+            <li>✓ O Safari exibe uma notificação suave e inicia o jogo em tela cheia.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">DÚVIDAS FREQUENTES</div>
+        <h2 class="section-title">Perguntas Frequentes</h2>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item open">
+          <div class="faq-question">
+            <span>Preciso baixar algum aplicativo para jogar?</span>
+            <span>+</span>
+          </div>
+          <div class="faq-answer">
+            Não! Essa é a maior vantagem do sistema RetroNFC. Ao aproximar o chaveiro, o celular abre direto o navegador (Chrome ou Safari) e o jogo carrega em segundos com controles virtuais na tela.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span>A ROM fica gravada dentro do chip NFC?</span>
+            <span>+</span>
+          </div>
+          <div class="faq-answer">
+            Não. As tags NFC possuem memória pequena (144 bytes), enquanto uma ROM de SNES tem de 1MB a 4MB. O chip grava um link inteligente criptografado que aponta para o nosso player online, carregando a ROM diretamente na memória temporária do seu aparelho.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span>Posso pedir chaveiros de outros jogos que não estão na lista?</span>
+            <span>+</span>
+          </div>
+          <div class="faq-answer">
+            Com certeza! Fabricamos sob encomenda para qualquer jogo de Super Nintendo, Mega Drive, Game Boy, NES e até PlayStation 1. Basta chamar nosso time no WhatsApp e informar o título desejado.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span>Qual a durabilidade da impressão 3D e da tag?</span>
+            <span>+</span>
+          </div>
+          <div class="faq-answer">
+            Utilizamos filamento PLA biodegradável de alta densidade e etiquetas laminadas resistentes a água e atrito. As tags NFC possuem vida útil de mais de 10 anos e suportam até 100.000 leituras.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="logo-text" style="margin-bottom: 12px;">
+            <span class="logo-brand">Retro<span>NFC</span></span>
+            <span class="logo-domain">RetroNFC.com.br</span>
+          </div>
+          <p class="footer-desc">
+            A melhor experiência de colecionáveis gamers do Brasil. Unindo a nostalgia física dos cartuchos com a modernidade das conexões por aproximação NFC.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h5>Navegação</h5>
+          <ul class="footer-links">
+            <li><a href="#inicio">Início</a></li>
+            <li><a href="#catalogo">Catálogo</a></li>
+            <li><a href="#como-funciona">Como Funciona</a></li>
+            <li><a href="#atacado">Atacado</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Ferramentas</h5>
+          <ul class="footer-links">
+            <li><a href="play.html" target="_blank">Player Emulador</a></li>
+            <li><a href="nfc-tool.html">Gravador Web NFC</a></li>
+            <li><a href="#faq">Suporte Técnico</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Contato & Pedidos</h5>
+          <ul class="footer-links">
+            <li><a href="javascript:void(0)" onclick="orderViaWhatsApp()">WhatsApp Oficial</a></li>
+            <li><a href="mailto:contato@retronfc.com.br">contato@retronfc.com.br</a></li>
+            <li><a href="https://github.com" target="_blank">Hospedado no GitHub</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; 2026 RetroNFC.com.br — Todos os direitos reservados.</span>
+        <span>Feito com paixão pela comunidade retrô gamer brasileira 🇧🇷</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp Action -->
+  <a href="javascript:void(0)" onclick="orderViaWhatsApp()" class="whatsapp-float" title="Fale Conosco no WhatsApp">
+    💬
+  </a>
+
+  <!-- Script Principal -->
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
