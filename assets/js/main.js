@@ -129,12 +129,12 @@ function renderCatalog() {
             <span class="price-value">${CONFIG.currencySymbol} ${game.price.toFixed(2).replace('.', ',')}</span>
           </div>
 
-          <div class="product-actions">
-            <a href="play.html?game=${game.romParam}" target="_blank" class="btn btn-glass btn-sm" title="Testar no Navegador" onclick="SoundFX.playClick()">
-              ▶ Testar
-            </a>
-            <button onclick="openCustomizeModal('${game.id}')" class="btn btn-cyan btn-sm">
-              Pedir
+                    <div class="product-actions">
+            <button onclick="openPreviewModal('${game.id}')" class="btn btn-glass btn-sm" title="Ver Prévia Nostálgica">
+              🎬 Prévia
+            </button>
+            <button onclick="openCustomizeModal('${game.id}')" class="btn btn-cyan btn-sm" title="Comprar Chaveiro NFC">
+              🛒 Pedir
             </button>
           </div>
         </div>
@@ -443,4 +443,68 @@ function toggleMobileMenu() {
     nav.style.padding = '20px';
     nav.style.borderBottom = '1px solid var(--border-glow)';
   }
+}
+
+// ============================================================
+// Modal de Prévia Nostálgica & Conversão de Venda do Chaveiro NFC
+// ============================================================
+let activePreviewGame = null;
+
+function openPreviewModal(gameId) {
+  SoundFX.playClick();
+  activePreviewGame = GAMES_DATABASE.find(g => g.id === gameId) || GAMES_DATABASE[0];
+  if (!activePreviewGame) return;
+
+  const modal = document.getElementById('preview-game-modal');
+  if (!modal) return;
+
+  // Atualiza Textos e Badges
+  const titleEl = document.getElementById('preview-game-title');
+  const badgeEl = document.getElementById('preview-console-badge');
+  const canvas = document.getElementById('preview-game-canvas');
+
+  if (titleEl) titleEl.textContent = activePreviewGame.title;
+  if (badgeEl) {
+    badgeEl.textContent = activePreviewGame.consoleName.toUpperCase();
+    badgeEl.className = `product-badge ${activePreviewGame.badgeClass}`;
+    badgeEl.style.position = 'static';
+  }
+
+  // Inicia a Prévia 60 FPS no Canvas Retrô da TV CRT
+  if (canvas && typeof GameplayPreviews !== 'undefined') {
+    GameplayPreviews.startPreview(canvas, activePreviewGame.romParam);
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closePreviewModal() {
+  const modal = document.getElementById('preview-game-modal');
+  if (modal) modal.style.display = 'none';
+
+  if (typeof GameplayPreviews !== 'undefined') {
+    GameplayPreviews.stopPreview();
+  }
+}
+
+function orderCurrentPreviewGame() {
+  if (!activePreviewGame) return;
+  SoundFX.playClick();
+
+  const message = `Olá! Vi a prévia nostálgica do jogo *${activePreviewGame.title}* (${activePreviewGame.consoleName}) no site RetroNFC.com.br e quero encomendar o Chaveiro Físico NFC dele!
+
+Poderia me informar as opções de envio e chaveiro disponíveis?`;
+
+  const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+  closePreviewModal();
+}
+
+function customizeCurrentPreviewGame() {
+  if (!activePreviewGame) return;
+  const gameId = activePreviewGame.id;
+  closePreviewModal();
+  setTimeout(() => {
+    openCustomizeModal(gameId);
+  }, 100);
 }

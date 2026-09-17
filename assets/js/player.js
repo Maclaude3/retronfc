@@ -244,7 +244,23 @@ if (typeof GAMES_DATABASE !== 'undefined') {
 let currentGame = null;
 let crtActive = true;
 
+
+function isMobileOrSimulator() {
+  // Permite mobile real ou telas reduzidas simulando smartphone
+  const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isSmallScreen = window.innerWidth <= 820;
+  const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  return isMobileUA || (isSmallScreen && hasTouch);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  if (!isMobileOrSimulator()) {
+    const guard = document.getElementById('desktop-guard-screen');
+    if (guard) guard.style.display = 'flex';
+    const loader = document.getElementById('nfc-loader');
+    if (loader) loader.style.display = 'none';
+    return;
+  }
   parseUrlAndBoot();
   initHudControls();
   renderGamePickerList();

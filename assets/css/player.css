@@ -326,3 +326,151 @@ body, html {
     max-width: 140px;
   }
 }
+
+/* ============================================================
+   TELA DE PROTEÇÃO DESKTOP (EXCLUSIVIDADE NFC MOBILE)
+   ============================================================ */
+.desktop-guard-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, #0e1526 0%, #05070d 100%);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.guard-card {
+  background: rgba(13, 19, 34, 0.95);
+  border: 1px solid var(--cyan, #00f0ff);
+  border-radius: 20px;
+  max-width: 580px;
+  width: 100%;
+  padding: 36px 30px;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 240, 255, 0.25);
+  animation: modalPopIn 0.3s ease-out;
+}
+
+.guard-badge {
+  display: inline-block;
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  color: #00f0ff;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+
+.guard-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.4));
+}
+
+.guard-title {
+  font-size: 1.4rem;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+
+.guard-desc {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.guard-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
+  text-align: left;
+}
+
+.guard-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #00f0ff;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.guard-step strong {
+  color: #fff;
+  font-size: 0.9rem;
+  display: block;
+}
+
+.guard-step p {
+  color: #94a3b8;
+  font-size: 0.82rem;
+  margin: 2px 0 0;
+}
+
+.guard-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-cyan {
+  background: #00f0ff;
+  color: #05070d;
+  font-weight: 700;
+  padding: 12px 22px;
+  border-radius: 10px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.btn-cyan:hover {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-pink {
+  background: #ff0055;
+  color: #fff;
+  font-weight: 700;
+  padding: 12px 22px;
+  border-radius: 10px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.btn-pink:hover {
+  box-shadow: 0 0 20px rgba(255, 0, 85, 0.6);
+  transform: translateY(-2px);
+}

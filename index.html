@@ -530,6 +530,60 @@
     </div>
   </div>
 
+  
+  <!-- Modal de Prévia Nostálgica & Compra Exclusiva do Chaveiro -->
+  <div id="preview-game-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); backdrop-filter: blur(18px); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
+    <div class="preview-modal-card">
+      <button onclick="closePreviewModal()" class="modal-close-btn" title="Fechar Prévia">&times;</button>
+      
+      <div class="preview-header">
+        <div class="preview-title-wrap">
+          <span id="preview-console-badge" class="product-badge badge-snes" style="position: static;">SUPER NINTENDO</span>
+          <h3 id="preview-game-title">Super Mario World</h3>
+        </div>
+        <span class="preview-chip-tag">🏷️ Chip NTAG213</span>
+      </div>
+
+      <!-- TV Retrô CRT para Prévia Nostálgica -->
+      <div class="preview-tv-frame">
+        <div class="preview-tv-bezel">
+          <canvas id="preview-game-canvas" width="240" height="180"></canvas>
+          <div class="tv-crt-lines"></div>
+          <div class="tv-glare"></div>
+        </div>
+        <div class="preview-tv-badge">
+          <span class="pulse-dot"></span> PRÉVIA DEMO 16-BIT 60FPS
+        </div>
+      </div>
+
+      <!-- Aviso de Exclusividade do Chaveiro Físico -->
+      <div class="preview-exclusive-notice">
+        <div class="exclusive-icon">🔒</div>
+        <div class="exclusive-content">
+          <h4>Gameplay Completa Exclusiva no Celular</h4>
+          <p>O jogo completo com controles virtuais touch é liberado <strong>exclusivamente por aproximação</strong> com o nosso <strong>Chaveiro Físico RetroNFC</strong> no seu Smartphone. Zero instalações!</p>
+        </div>
+      </div>
+
+      <!-- Preço & Ações de Compra -->
+      <div class="preview-pricing-row">
+        <div>
+          <span class="pricing-label">Preço do Chaveiro Físico:</span>
+          <div class="pricing-value">R$ 29,90 <span class="pricing-sub">(Varejo)</span></div>
+          <span class="pricing-wholesale-tip">A partir de R$ 7,50 no atacado (100 un.)</span>
+        </div>
+        <div class="preview-action-btns">
+          <button id="btn-order-this-game" onclick="orderCurrentPreviewGame()" class="btn btn-cyan btn-md">
+            🛒 Pedir no WhatsApp
+          </button>
+          <button id="btn-custom-this-game" onclick="customizeCurrentPreviewGame()" class="btn btn-glass btn-md">
+            ⚙️ Personalizar 3D
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
@@ -557,7 +611,7 @@
         <div class="footer-col">
           <h5>Ferramentas</h5>
           <ul class="footer-links">
-            <li><a href="play.html" target="_blank">Player Emulador</a></li>
+            <li><a href="#como-funciona">Tecnologia NFC</a></li>
             <li><a href="nfc-tool.html">Gravador Web NFC</a></li>
             <li><a href="#faq">Suporte Técnico</a></li>
           </ul>
@@ -586,6 +640,8 @@
   </a>
 
   <!-- Script Principal -->
-  <script src="assets/js/games-data.js"></script>`r`n  <script src="assets/js/gameplay-preview.js"></script>`r`n  <script src="assets/js/main.js"></script>
+  <script src="assets/js/games-data.js"></script>
+  <script src="assets/js/gameplay-preview.js"></script>
+  <script src="assets/js/main.js"></script>
 </body>
 </html>

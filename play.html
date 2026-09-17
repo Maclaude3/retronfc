@@ -1,14 +1,187 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>RetroNFC Player — Clássicos Retrô em Alta Performance</title>
+  <title>RetroNFC Player - Clássicos Retrô em Alta Performance</title>
   
-  <link rel="stylesheet" href="assets/css/player.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+  <link rel="stylesheet" href="assets/css/player.css?v=3.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%200%20100%20100%22><text y=%22.9em%22 font-size=%2290%22>🕹️</text></svg>">
+  <style>
+    /* Estilos Embutidos Garantidos para a Tela de Proteção Desktop */
+    .desktop-guard-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at center, #0e1526 0%, #05070d 100%);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    .guard-card {
+      background: rgba(13, 19, 34, 0.96);
+      border: 1px solid #00f0ff;
+      border-radius: 20px;
+      max-width: 600px;
+      width: 100%;
+      padding: 36px 32px;
+      text-align: center;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 40px rgba(0, 240, 255, 0.35);
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    .guard-badge {
+      display: inline-block;
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      color: #00f0ff;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .guard-icon {
+      font-size: 3.5rem;
+      margin-bottom: 14px;
+      filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.5));
+    }
+    .guard-title {
+      font-size: 1.35rem;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin: 0 0 12px;
+    }
+    .guard-desc {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      margin: 0 0 24px;
+    }
+    .guard-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
+      text-align: left;
+    }
+    .guard-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 12px;
+      padding: 12px 16px;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #00f0ff;
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .guard-step strong {
+      color: #fff;
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .guard-step p {
+      color: #94a3b8;
+      font-size: 0.84rem;
+      margin: 0;
+      line-height: 1.4;
+    }
+    .guard-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .guard-btn-cyan {
+      background: #00f0ff;
+      color: #05070d;
+      font-weight: 700;
+      padding: 12px 22px;
+      border-radius: 10px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    .guard-btn-cyan:hover {
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+      transform: translateY(-2px);
+    }
+    .guard-btn-pink {
+      background: #ff0055;
+      color: #fff;
+      font-weight: 700;
+      padding: 12px 22px;
+      border-radius: 10px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    .guard-btn-pink:hover {
+      box-shadow: 0 0 20px rgba(255, 0, 85, 0.6);
+      transform: translateY(-2px);
+    }
+  </style>
 </head>
 <body>
+
+  <!-- Desktop Incompatibility Guard Screen (Proteção de Exclusividade NFC Mobile) -->
+  <div id="desktop-guard-screen" class="desktop-guard-screen" style="display: none;">
+    <div class="guard-card">
+      <div class="guard-badge">📱 TECNOLOGIA NFC EXCLUSIVA</div>
+      <div class="guard-icon">🎮🔒</div>
+      <h2 class="guard-title">EXPERIÊNCIA EXCLUSIVA PARA SMARTPHONES</h2>
+      <p class="guard-desc">
+        O <strong>RetroNFC Player</strong> foi desenvolvido para ser executado exclusivamente através de 
+        <strong>aproximação física do seu Chaveiro RetroNFC</strong> na traseira do seu <strong>Smartphone (Android ou iPhone)</strong>.
+      </p>
+      
+      <div class="guard-steps">
+        <div class="guard-step">
+          <span class="step-num">1</span>
+          <div>
+            <strong>Sem NFC no Computador:</strong>
+            <p>Computadores e notebooks não possuem tecnologia NFC de aproximação.</p>
+          </div>
+        </div>
+        <div class="guard-step">
+          <span class="step-num">2</span>
+          <div>
+            <strong>Toque Físico no Smartphone:</strong>
+            <p>Ao aproximar seu mini-cartucho colecionável no celular, o jogo abre instantaneamente com controles virtuais na tela!</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="guard-actions">
+        <a href="index.html" class="guard-btn-cyan">🛍️ Ver Loja de Chaveiros</a>
+        <a href="https://wa.me/5561991252332?text=Ol%C3%A1!%20Gostaria%20de%20adquirir%20o%20Chaveiro%20RetroNFC!" target="_blank" class="guard-btn-pink">💬 Comprar no WhatsApp</a>
+      </div>
+    </div>
+  </div>
 
   <div id="player-viewport">
     
@@ -36,7 +209,7 @@
 
     <!-- Game Container (EmulatorJS Canvas) -->
     <main id="game-container">
-      <!-- O motor do emulador será renderizado aqui -->
+      <!-- O motor do emulador será renderizado aqui no celular -->
     </main>
 
     <!-- CRT Scanline Shader Overlay -->
@@ -77,6 +250,7 @@
   </div>
 
   <!-- Scripts -->
-  <script src="assets/js/games-data.js"></script>`r`n  <script src="assets/js/player.js"></script>
+  <script src="assets/js/games-data.js"></script>
+  <script src="assets/js/player.js"></script>
 </body>
 </html>

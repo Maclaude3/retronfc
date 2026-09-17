@@ -1197,3 +1197,253 @@ h1, h2, h3, h4 {
   border-color: var(--cyan);
   color: var(--cyan);
 }
+
+/* ============================================================
+   MODAL DE PRÉVIA NOSTÁLGICA (DEMO 16-BIT & MÁQUINA DE VENDAS)
+   ============================================================ */
+.preview-modal-card {
+  background: #0d1322;
+  border: 1px solid var(--cyan);
+  border-radius: 20px;
+  max-width: 620px;
+  width: 100%;
+  padding: 28px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 40px rgba(0, 240, 255, 0.35);
+  position: relative;
+  animation: modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes modalPopIn {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: var(--transition);
+  z-index: 10;
+}
+
+.modal-close-btn:hover {
+  background: var(--pink);
+  border-color: var(--pink);
+  transform: rotate(90deg);
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-right: 40px;
+}
+
+.preview-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.preview-title-wrap h3 {
+  font-size: 1.4rem;
+  color: #fff;
+  font-weight: 700;
+  margin: 0;
+}
+
+.preview-chip-tag {
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: var(--cyan);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+/* TV Retrô CRT Frame */
+.preview-tv-frame {
+  background: linear-gradient(145deg, #182032, #0b0f19);
+  border: 2px solid #2a3854;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 20px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 10px 25px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.preview-tv-bezel {
+  position: relative;
+  background: #05070c;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  max-height: 280px;
+  border: 2px solid #000;
+}
+
+#preview-game-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.tv-crt-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%),
+              linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+.tv-glare {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.preview-tv-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 0.75rem;
+  font-family: var(--font-pixel);
+  color: var(--yellow);
+  justify-content: center;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--yellow);
+  animation: pulseDot 1.4s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.5; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 10px var(--yellow); }
+  100% { transform: scale(0.9); opacity: 0.5; }
+}
+
+/* Exclusive Notice Card */
+.preview-exclusive-notice {
+  background: rgba(255, 0, 85, 0.08);
+  border: 1px solid rgba(255, 0, 85, 0.3);
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.exclusive-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.exclusive-content h4 {
+  font-size: 0.95rem;
+  color: #fff;
+  margin: 0 0 4px;
+  font-weight: 700;
+}
+
+.exclusive-content p {
+  font-size: 0.84rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* Pricing & CTA Row */
+.preview-pricing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(0, 240, 255, 0.06);
+  border: 1px dashed var(--border-glow);
+  border-radius: 14px;
+  padding: 18px 22px;
+  flex-wrap: wrap;
+}
+
+.pricing-label {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  display: block;
+}
+
+.pricing-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--cyan);
+  font-family: var(--font-mono);
+}
+
+.pricing-sub {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.pricing-wholesale-tip {
+  font-size: 0.75rem;
+  color: #10b981;
+  display: block;
+  font-weight: 600;
+}
+
+.preview-action-btns {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .preview-pricing-row {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  .preview-action-btns {
+    flex-direction: column;
+  }
+  .preview-action-btns button {
+    width: 100%;
+  }
+}
