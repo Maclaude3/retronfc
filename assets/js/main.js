@@ -346,6 +346,12 @@ function updateModalTotal() {
   if (totalEl) {
     totalEl.textContent = `${CONFIG.currencySymbol} ${total.toFixed(2).replace('.', ',')}`;
   }
+
+  // Toggle da foto da Base de Mesa
+  const basePreview = document.getElementById('base-mesa-preview');
+  if (basePreview) {
+    basePreview.style.display = attachmentExtra > 0 ? 'block' : 'none';
+  }
 }
 
 function changeOrderQty(delta) {
