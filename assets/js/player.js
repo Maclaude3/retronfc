@@ -389,13 +389,17 @@ function loadEmulatorEngine(game) {
     'video_vsync': 'true'
   };
 
-  // Garante controles touch visíveis e ativos no smartphone
+  // Garante controles touch e menu de 3 barrinhas visíveis e ativos no smartphone
   window.EJS_onGameStart = () => {
     if (window.EJS_emulator) {
       window.EJS_emulator.touch = true;
       if (window.EJS_emulator.virtualGamepad) {
         window.EJS_emulator.virtualGamepad.style.display = 'block';
         window.EJS_emulator.virtualGamepad.style.opacity = '1';
+      }
+      if (window.EJS_emulator.elements && window.EJS_emulator.elements.menuToggle) {
+        window.EJS_emulator.elements.menuToggle.style.display = 'flex';
+        window.EJS_emulator.elements.menuToggle.style.opacity = '1';
       }
     }
     // Suaviza o HUD após o jogo iniciar para dar foco 100% na tela do jogo
@@ -416,6 +420,28 @@ function loadEmulatorEngine(game) {
 
 // Controles do HUD
 function initHudControls() {
+
+  // Conecta o botão flutuante de Sair da Tela Cheia
+  const floatingExitBtn = document.getElementById('btn-floating-exit-fs');
+  if (floatingExitBtn) {
+    floatingExitBtn.addEventListener('click', () => {
+      if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      } else {
+        window.location.href = 'index.html';
+      }
+    });
+
+    // Atualiza o texto do botão conforme entra/sai de tela cheia
+    const updateFsBtnText = () => {
+      const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+      floatingExitBtn.innerHTML = isFs ? '⛶ Sair' : '🏠 Loja';
+    };
+    document.addEventListener('fullscreenchange', updateFsBtnText);
+    document.addEventListener('webkitfullscreenchange', updateFsBtnText);
+  }
+
   const crtBtn = document.getElementById('btn-toggle-crt');
   const fullscreenBtn = document.getElementById('btn-fullscreen');
   const overlay = document.querySelector('.crt-overlay');

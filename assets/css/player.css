@@ -135,7 +135,6 @@ body, html {
   z-index: 10;
 }
 
-#game-container > *,
 .ejs_parent,
 .ejs_main {
   width: 100% !important;
@@ -582,4 +581,139 @@ canvas.ejs_canvas {
   image-rendering: -webkit-optimize-contrast !important;
   image-rendering: crisp-edges !important;
   image-rendering: pixelated !important;
+}
+
+
+/* ==========================================================================
+   RetroNFC Player v8.0 - Controles Nativos, 3 Barrinhas e Layout Portrait HD
+   ========================================================================== */
+
+/* Botão das 3 Barrinhas (Configurações do Emulador) - Referência Lee Games */
+.ejs_virtualGamepad_open {
+  position: fixed !important;
+  top: 14px !important;
+  right: 14px !important;
+  width: 42px !important;
+  height: 42px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(13, 22, 38, 0.85) !important;
+  border: 1.5px solid #00f0ff !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+  opacity: 0.95 !important;
+  z-index: 999999 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition: transform 0.15s ease, background 0.15s ease !important;
+}
+
+.ejs_virtualGamepad_open:hover,
+.ejs_virtualGamepad_open:active {
+  background: rgba(0, 240, 255, 0.35) !important;
+  transform: scale(1.08) !important;
+}
+
+.ejs_virtualGamepad_open svg {
+  width: 22px !important;
+  height: 22px !important;
+  fill: #00f0ff !important;
+  filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.8)) !important;
+}
+
+/* Botão Flutuante de Sair da Tela Cheia / Voltar */
+.btn-floating-exit {
+  position: fixed !important;
+  top: 14px !important;
+  right: 66px !important;
+  height: 42px !important;
+  padding: 0 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 0.85rem !important;
+  font-weight: 800 !important;
+  color: #fff !important;
+  background: rgba(13, 22, 38, 0.85) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+  opacity: 0.95 !important;
+  z-index: 999999 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-floating-exit:hover,
+.btn-floating-exit:active {
+  border-color: #ff0055 !important;
+  color: #ff0055 !important;
+  box-shadow: 0 0 18px rgba(255, 0, 85, 0.5) !important;
+  transform: scale(1.05) !important;
+}
+
+/* Otimização Especial para Celular em Modo Em Pé (Portrait) */
+@media (orientation: portrait), (max-aspect-ratio: 1/1) {
+  #game-container {
+    top: 0 !important;
+    height: 52vh !important;
+    max-height: 52vh !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .ejs_canvas_parent {
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  canvas.ejs_canvas {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    transform: scale(1.12) !important;
+    transform-origin: center center !important;
+  }
+
+  /* Ajusta os botões touch no espaço inferior em modo portrait */
+  .ejs_virtualGamepad_left {
+    bottom: 50px !important;
+    left: 20px !important;
+    transform: scale(1.15) !important;
+    transform-origin: bottom left !important;
+  }
+
+  .ejs_virtualGamepad_right {
+    bottom: 50px !important;
+    right: 20px !important;
+    transform: scale(1.15) !important;
+    transform-origin: bottom right !important;
+  }
+
+  .ejs_virtualGamepad_bottom {
+    bottom: 25px !important;
+    transform: translateX(-50%) scale(1.1) !important;
+  }
+
+  .ejs_virtualGamepad_button.b_l {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 220px !important;
+    left: 20px !important;
+  }
+
+  .ejs_virtualGamepad_button.b_r {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 220px !important;
+    right: 20px !important;
+  }
 }
