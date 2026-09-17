@@ -21,6 +21,13 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
 </head>
 <body>
+  <!-- Ambient Parallax Layer -->
+  <div class="parallax-ambient-layer">
+    <div class="parallax-orb parallax-orb-1"></div>
+    <div class="parallax-orb parallax-orb-2"></div>
+    <div class="parallax-orb parallax-orb-3"></div>
+  </div>
+
 
   <!-- Retro Grid Background -->
   <div class="retro-grid-bg"></div>
@@ -126,28 +133,28 @@
         <!-- Mini Cartridges to Tap -->
         <div class="cartridge-selector-tray">
           <div class="tray-item active" data-game="super_mario" title="Super Mario World">
-            <div class="tray-icon">🍄</div>
+            <img class="tray-thumb-img" src="assets/images/covers/super_mario.jpg" alt="Mario World"/>
             <div class="tray-label">Mario World</div>
           </div>
           <div class="tray-item" data-game="top_gear" title="Top Gear">
-            <div class="tray-icon">🏎️</div>
+            <img class="tray-thumb-img" src="assets/images/covers/top_gear.jpeg" alt="Top Gear"/>
             <div class="tray-label">Top Gear</div>
           </div>
           <div class="tray-item" data-game="donkey_kong" title="Donkey Kong Country">
-            <div class="tray-icon">🍌</div>
+            <img class="tray-thumb-img" src="assets/images/covers/donkey_kong.jpg" alt="Donkey Kong"/>
             <div class="tray-label">Donkey Kong</div>
           </div>
           <div class="tray-item" data-game="sonic_2" title="Sonic 2">
-            <div class="tray-icon">🦔</div>
+            <img class="tray-thumb-img" src="assets/images/covers/sonic_2.jpg" alt="Sonic 2"/>
             <div class="tray-label">Sonic 2</div>
           </div>
           <div class="tray-item" data-game="zelda_alttp" title="Zelda">
-            <div class="tray-icon">🗡️</div>
+            <img class="tray-thumb-img" src="assets/images/covers/zelda_alttp.jpeg" alt="Zelda"/>
             <div class="tray-label">Zelda</div>
           </div>
-          <div class="tray-item" data-game="moonwalker" title="Michael Jackson Moonwalker">
-            <div class="tray-icon">🎩</div>
-            <div class="tray-label">Moonwalker</div>
+          <div class="tray-item" data-game="street_fighter" title="Street Fighter II">
+            <img class="tray-thumb-img" src="assets/images/covers/street_fighter.jpg" alt="Street Fighter II"/>
+            <div class="tray-label">Street Fighter</div>
           </div>
         </div>
       </div>
@@ -242,6 +249,31 @@
             O navegador abre o jogo na hora com controles touch na tela e áudio estéreo nostálgico. Sem instalar aplicativos pesados, sem cadastros e sem ocupar a memória do celular!
           </p>
         </div>
+      </div>
+    </div>
+  </section>
+
+    <!-- 3D Showcase Carousel: Hall da Fama dos Colecionáveis -->
+  <section class="showcase-carousel-section">
+    <div class="container">
+      <div class="carousel-header">
+        <div class="carousel-tag">🏆 HALL DA FAMA DOS COLECIONÁVEIS</div>
+        <h2 class="carousel-title">Os Mais Desejados em <span class="gradient-text-cyan">Artes Originais</span></h2>
+        <p class="carousel-desc">
+          Gire a vitrine 3D ou deslize para conferir as mini carcaças e as labels com acabamento holográfico premium de alta durabilidade.
+        </p>
+      </div>
+
+      <div class="carousel-3d-container">
+        <button class="carousel-nav-btn carousel-nav-prev" onclick="prevCarouselSlide()" aria-label="Anterior">‹</button>
+        <div class="carousel-3d-stage" id="carousel-3d-stage">
+          <!-- Renderizado dinamicamente via main.js -->
+        </div>
+        <button class="carousel-nav-btn carousel-nav-next" onclick="nextCarouselSlide()" aria-label="Próximo">›</button>
+      </div>
+
+      <div class="carousel-dots" id="carousel-dots">
+        <!-- Indicadores dinâmicos -->
       </div>
     </div>
   </section>

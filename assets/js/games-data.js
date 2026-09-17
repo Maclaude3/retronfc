@@ -9,6 +9,7 @@ const GAMES_DATABASE = [
   // ==========================================
   {
     id: 'super_mario',
+    cover: 'assets/images/covers/super_mario.jpg',
     title: 'Super Mario World',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -22,6 +23,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'super_mario_kart',
+    cover: 'assets/images/covers/super_mario_kart.jpeg',
     title: 'Super Mario Kart',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -35,6 +37,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'yoshis_island',
+    cover: 'assets/images/covers/yoshis_island.jpg',
     title: 'Super Mario World 2: Yoshi s Island',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -48,6 +51,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'top_gear',
+    cover: 'assets/images/covers/top_gear.jpeg',
     title: 'Top Gear',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -61,6 +65,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'top_gear_2',
+    cover: 'assets/images/covers/top_gear_2.jpeg',
     title: 'Top Gear 2',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -74,6 +79,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'donkey_kong',
+    cover: 'assets/images/covers/donkey_kong.jpg',
     title: 'Donkey Kong Country',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -87,6 +93,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'donkey_kong_2',
+    cover: 'assets/images/covers/donkey_kong_2.jpeg',
     title: 'Donkey Kong Country 2: Diddy s Kong Quest',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -100,6 +107,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'donkey_kong_3',
+    cover: 'assets/images/covers/donkey_kong_3.jpeg',
     title: 'Donkey Kong Country 3: Dixie Kong s Double Trouble',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -113,6 +121,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'zelda_alttp',
+    cover: 'assets/images/covers/zelda_alttp.jpeg',
     title: 'Zelda: Link to the Past',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -126,6 +135,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'chrono_trigger',
+    cover: 'assets/images/covers/chrono_trigger.jpeg',
     title: 'Chrono Trigger',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -139,6 +149,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'street_fighter',
+    cover: 'assets/images/covers/street_fighter.jpg',
     title: 'Street Fighter II Turbo',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -152,6 +163,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'mortal_kombat_2',
+    cover: 'assets/images/covers/mortal_kombat_2.jpeg',
     title: 'Mortal Kombat II',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -165,6 +177,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'umk3',
+    cover: 'assets/images/covers/umk3.jpeg',
     title: 'Ultimate Mortal Kombat 3',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -178,6 +191,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'super_metroid',
+    cover: 'assets/images/covers/super_metroid.jpeg',
     title: 'Super Metroid',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -191,6 +205,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'mega_man_x',
+    cover: 'assets/images/covers/mega_man_x.png',
     title: 'Mega Man X',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -204,6 +219,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'sunset_riders',
+    cover: 'assets/images/covers/sunset_riders.jpeg',
     title: 'Sunset Riders',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -217,6 +233,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'iss_deluxe',
+    cover: 'assets/images/covers/iss_deluxe.jpeg',
     title: 'International Superstar Soccer Deluxe',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -230,6 +247,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'super_bomberman_3',
+    cover: 'assets/images/covers/super_bomberman_3.jpg',
     title: 'Super Bomberman 3',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -243,6 +261,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'goof_troop',
+    cover: 'assets/images/covers/goof_troop.jpeg',
     title: 'Goof Troop (Pateta e Max)',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -256,6 +275,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'tmnt_turtles_in_time',
+    cover: 'assets/images/covers/tmnt_turtles_in_time.jpeg',
     title: 'TMNT IV: Turtles in Time',
     console: 'snes',
     consoleName: 'Super Nintendo',
@@ -273,6 +293,7 @@ const GAMES_DATABASE = [
   // ==========================================
   {
     id: 'crash_bandicoot',
+    cover: 'assets/images/covers/crash_bandicoot.jpeg',
     title: 'Crash Bandicoot',
     console: 'ps1',
     consoleName: 'PlayStation 1',
@@ -286,6 +307,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'crash_team_racing',
+    cover: 'assets/images/covers/crash_team_racing.jpg',
     title: 'Crash Team Racing (CTR)',
     console: 'ps1',
     consoleName: 'PlayStation 1',
@@ -299,6 +321,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'tekken_3',
+    cover: 'assets/images/covers/tekken_3.jpeg',
     title: 'Tekken 3',
     console: 'ps1',
     consoleName: 'PlayStation 1',
@@ -312,6 +335,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'winning_eleven',
+    cover: 'assets/images/covers/winning_eleven.jpg',
     title: 'Winning Eleven / Bomba Patch',
     console: 'ps1',
     consoleName: 'PlayStation 1',
@@ -325,6 +349,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'gran_turismo_2',
+    cover: 'assets/images/covers/gran_turismo_2.jpeg',
     title: 'Gran Turismo 2',
     console: 'ps1',
     consoleName: 'PlayStation 1',
@@ -338,6 +363,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'resident_evil_3',
+    cover: 'assets/images/covers/resident_evil_3.jpeg',
     title: 'Resident Evil 3: Nemesis',
     console: 'ps1',
     consoleName: 'PlayStation 1',
@@ -351,6 +377,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'castlevania_sotn',
+    cover: 'assets/images/covers/castlevania_sotn.png',
     title: 'Castlevania: Symphony of the Night',
     console: 'ps1',
     consoleName: 'PlayStation 1',
@@ -364,6 +391,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'tony_hawk_2',
+    cover: 'assets/images/covers/tony_hawk_2.jpeg',
     title: 'Tony Hawk s Pro Skater 2',
     console: 'ps1',
     consoleName: 'PlayStation 1',
@@ -377,6 +405,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'yugioh_forbidden',
+    cover: 'assets/images/covers/yugioh_forbidden.jpeg',
     title: 'Yu-Gi-Oh! Forbidden Memories',
     console: 'ps1',
     consoleName: 'PlayStation 1',
@@ -390,6 +419,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'dino_crisis_2',
+    cover: 'assets/images/covers/dino_crisis_2.jpeg',
     title: 'Dino Crisis 2',
     console: 'ps1',
     consoleName: 'PlayStation 1',
@@ -407,6 +437,7 @@ const GAMES_DATABASE = [
   // ==========================================
   {
     id: 'mario_64',
+    cover: 'assets/images/covers/mario_64.jpeg',
     title: 'Super Mario 64',
     console: 'n64',
     consoleName: 'Nintendo 64',
@@ -420,6 +451,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'mario_kart_64',
+    cover: 'assets/images/covers/mario_kart_64.jpeg',
     title: 'Mario Kart 64',
     console: 'n64',
     consoleName: 'Nintendo 64',
@@ -433,6 +465,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'zelda_oot',
+    cover: 'assets/images/covers/zelda_oot.jpg',
     title: 'Zelda: Ocarina of Time',
     console: 'n64',
     consoleName: 'Nintendo 64',
@@ -446,6 +479,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'zelda_majoras',
+    cover: 'assets/images/covers/zelda_majoras.jpeg',
     title: 'Zelda: Majora s Mask',
     console: 'n64',
     consoleName: 'Nintendo 64',
@@ -459,6 +493,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'smash_bros_64',
+    cover: 'assets/images/covers/smash_bros_64.jpeg',
     title: 'Super Smash Bros',
     console: 'n64',
     consoleName: 'Nintendo 64',
@@ -472,6 +507,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'goldeneye_007',
+    cover: 'assets/images/covers/goldeneye_007.jpeg',
     title: '007 GoldenEye',
     console: 'n64',
     consoleName: 'Nintendo 64',
@@ -485,6 +521,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'banjo_kazooie',
+    cover: 'assets/images/covers/banjo_kazooie.jpeg',
     title: 'Banjo-Kazooie',
     console: 'n64',
     consoleName: 'Nintendo 64',
@@ -498,6 +535,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'diddy_kong_racing',
+    cover: 'assets/images/covers/diddy_kong_racing.jpeg',
     title: 'Diddy Kong Racing',
     console: 'n64',
     consoleName: 'Nintendo 64',
@@ -515,6 +553,7 @@ const GAMES_DATABASE = [
   // ==========================================
   {
     id: 'pokemon_firered',
+    cover: 'assets/images/covers/pokemon_firered.jpeg',
     title: 'Pokémon FireRed',
     console: 'gba',
     consoleName: 'Game Boy Advance',
@@ -528,6 +567,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'pokemon_emerald',
+    cover: 'assets/images/covers/pokemon_emerald.jpeg',
     title: 'Pokémon Emerald',
     console: 'gba',
     consoleName: 'Game Boy Advance',
@@ -541,6 +581,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'mario_kart_gba',
+    cover: 'assets/images/covers/mario_kart_gba.jpeg',
     title: 'Mario Kart Super Circuit',
     console: 'gba',
     consoleName: 'Game Boy Advance',
@@ -554,6 +595,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'zelda_minish_cap',
+    cover: 'assets/images/covers/zelda_minish_cap.jpeg',
     title: 'Zelda: The Minish Cap',
     console: 'gba',
     consoleName: 'Game Boy Advance',
@@ -567,6 +609,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'metroid_fusion',
+    cover: 'assets/images/covers/metroid_fusion.jpeg',
     title: 'Metroid Fusion',
     console: 'gba',
     consoleName: 'Game Boy Advance',
@@ -580,6 +623,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'castlevania_aria',
+    cover: 'assets/images/covers/castlevania_aria.jpeg',
     title: 'Castlevania: Aria of Sorrow',
     console: 'gba',
     consoleName: 'Game Boy Advance',
@@ -596,6 +640,7 @@ const GAMES_DATABASE = [
   // MEGA DRIVE (GENESIS)
   {
     id: 'moonwalker',
+    cover: 'assets/images/snes-cartridge-sample.jpeg',
     title: "Michael Jackson's Moonwalker",
     console: 'genesis',
     consoleName: 'Mega Drive',
@@ -610,6 +655,7 @@ const GAMES_DATABASE = [
   // ==========================================
   {
     id: 'sonic_2',
+    cover: 'assets/images/covers/sonic_2.jpg',
     title: 'Sonic the Hedgehog 2',
     console: 'genesis',
     consoleName: 'Mega Drive',
@@ -623,6 +669,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'sonic_3_knuckles',
+    cover: 'assets/images/covers/sonic_3_knuckles.jpeg',
     title: 'Sonic 3 & Knuckles',
     console: 'genesis',
     consoleName: 'Mega Drive',
@@ -636,6 +683,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'streets_of_rage_2',
+    cover: 'assets/images/covers/streets_of_rage_2.jpeg',
     title: 'Streets of Rage 2',
     console: 'genesis',
     consoleName: 'Mega Drive',
@@ -649,6 +697,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'golden_axe',
+    cover: 'assets/images/covers/golden_axe.jpeg',
     title: 'Golden Axe',
     console: 'genesis',
     consoleName: 'Mega Drive',
@@ -662,6 +711,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'shinobi_3',
+    cover: 'assets/images/covers/shinobi_3.jpeg',
     title: 'Shinobi III: Return of the Ninja Master',
     console: 'genesis',
     consoleName: 'Mega Drive',
@@ -675,6 +725,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'altered_beast',
+    cover: 'assets/images/covers/altered_beast.jpeg',
     title: 'Altered Beast',
     console: 'genesis',
     consoleName: 'Mega Drive',
@@ -692,6 +743,7 @@ const GAMES_DATABASE = [
   // ==========================================
   {
     id: 'kof_98',
+    cover: 'assets/images/covers/kof_98.jpg',
     title: 'The King of Fighters 98',
     console: 'arcade',
     consoleName: 'Fliperama / Neo Geo',
@@ -705,6 +757,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'kof_2002',
+    cover: 'assets/images/covers/kof_2002.jpg',
     title: 'The King of Fighters 2002',
     console: 'arcade',
     consoleName: 'Fliperama / Neo Geo',
@@ -718,6 +771,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'metal_slug',
+    cover: 'assets/images/covers/metal_slug.jpeg',
     title: 'Metal Slug Super Vehicle',
     console: 'arcade',
     consoleName: 'Fliperama / Neo Geo',
@@ -731,6 +785,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'cadillacs_dinosaurs',
+    cover: 'assets/images/covers/cadillacs_dinosaurs.png',
     title: 'Cadillacs and Dinosaurs',
     console: 'arcade',
     consoleName: 'Fliperama (CPS1)',
@@ -748,6 +803,7 @@ const GAMES_DATABASE = [
   // ==========================================
   {
     id: 'pokemon_yellow',
+    cover: 'assets/images/covers/pokemon_yellow.jpeg',
     title: 'Pokémon Yellow Special',
     console: 'gameboy',
     consoleName: 'Game Boy Color',
@@ -761,6 +817,7 @@ const GAMES_DATABASE = [
   },
   {
     id: 'zelda_links_awakening',
+    cover: 'assets/images/covers/zelda_links_awakening.jpeg',
     title: 'The Legend of Zelda: Link s Awakening DX',
     console: 'gameboy',
     consoleName: 'Game Boy Color',

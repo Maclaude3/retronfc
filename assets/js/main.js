@@ -56,6 +56,8 @@ let activeCustomizingGame = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   renderCatalog();
+  initShowcaseCarousel();
+  initParallax();
   initSimulator();
   initWholesaleCalc();
   initFaq();
@@ -104,11 +106,21 @@ function renderCatalog() {
     <div class="product-card" data-console="${game.console}" onmousemove="handleTilt(event, this)" onmouseleave="resetTilt(this)">
       <span class="product-badge ${game.badgeClass}">${game.consoleName}</span>
       
-      <div class="cartridge-visual">
+      <div class="cartridge-visual" data-console="${game.console}">
         <div class="cartridge-top-groove"></div>
         <div class="cartridge-sticker">
-          <div class="cartridge-art-icon">${game.icon}</div>
-          <div class="cartridge-game-title">${game.title}</div>
+          ${game.cover ? `
+            <img class="cartridge-skin-img" src="${game.cover}" alt="${game.title}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="cartridge-fallback-art" style="display: none;">
+              <div class="cartridge-art-icon">${game.icon}</div>
+              <div class="cartridge-game-title">${game.title}</div>
+            </div>
+          ` : `
+            <div class="cartridge-art-icon">${game.icon}</div>
+            <div class="cartridge-game-title">${game.title}</div>
+          `}
+          <div class="cartridge-gloss"></div>
+          <div class="cartridge-seal-badge">NFC OFFICIAL</div>
           <span class="nfc-chip-indicator" title="Chip NFC Integrado">⚡ NFC</span>
         </div>
       </div>
@@ -170,6 +182,8 @@ function loadMoreGames() {
   SoundFX.playClick();
   displayLimit += 15;
   renderCatalog();
+  initShowcaseCarousel();
+  initParallax();
 }
 
 // Filtros de Console
@@ -180,6 +194,8 @@ function filterCatalog(consoleType, btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderCatalog();
+  initShowcaseCarousel();
+  initParallax();
 }
 
 // Filtros de Gênero
@@ -190,6 +206,8 @@ function filterByGenre(genre, btn) {
   document.querySelectorAll('.genre-pill').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderCatalog();
+  initShowcaseCarousel();
+  initParallax();
 }
 
 // Busca Instantânea
@@ -200,6 +218,8 @@ function initSearch() {
       currentSearchTerm = e.target.value.toLowerCase().trim();
       displayLimit = 15;
       renderCatalog();
+  initShowcaseCarousel();
+  initParallax();
     });
   }
 }
@@ -535,4 +555,192 @@ function customizeCurrentPreviewGame() {
   setTimeout(() => {
     openCustomizeModal(gameId);
   }, 100);
+}
+
+
+// ==========================================================================
+// 🎠 CARROSSEL 3D — HALL DA FAMA DOS COLECIONÁVEIS
+// ==========================================================================
+const CAROUSEL_FEATURED_IDS = [
+  'super_mario',
+  'top_gear',
+  'donkey_kong',
+  'zelda_alttp',
+  'sonic_2',
+  'crash_bandicoot',
+  'mario_64'
+];
+
+let carouselActiveIndex = 0;
+let carouselAutoplayTimer = null;
+
+function initShowcaseCarousel() {
+  const stage = document.getElementById('carousel-3d-stage');
+  const dotsContainer = document.getElementById('carousel-dots');
+  if (!stage) return;
+
+  const featuredGames = CAROUSEL_FEATURED_IDS
+    .map(id => GAMES_DATABASE.find(g => g.id === id))
+    .filter(Boolean);
+
+  if (!featuredGames.length) return;
+
+  // Render cards
+  stage.innerHTML = featuredGames.map((game, idx) => `
+    <div class="carousel-card-3d" data-index="${idx}" data-game="${game.id}" onclick="onCarouselCardClick(${idx})">
+      <div class="cartridge-visual" data-console="${game.console}" style="height: 180px; margin-bottom: 12px;">
+        <div class="cartridge-top-groove"></div>
+        <div class="cartridge-sticker">
+          <img class="cartridge-skin-img" src="${game.cover || 'assets/images/snes-cartridge-sample.jpeg'}" alt="${game.title}" loading="lazy" />
+          <div class="cartridge-gloss"></div>
+          <div class="cartridge-seal-badge">NFC OFFICIAL</div>
+          <span class="nfc-chip-indicator">⚡ NFC</span>
+        </div>
+      </div>
+      <div class="carousel-card-info">
+        <h4 class="carousel-card-title">${game.title}</h4>
+        <span class="carousel-card-badge ${game.badgeClass}">${game.consoleName}</span>
+        <div class="carousel-card-actions">
+          <button onclick="event.stopPropagation(); openPreviewModal('${game.id}')" class="btn btn-glass btn-sm" title="Ver Prévia">
+            🎬 Prévia
+          </button>
+          <button onclick="event.stopPropagation(); openCustomizeModal('${game.id}')" class="btn btn-cyan btn-sm" title="Pedir Chaveiro">
+            🛒 Pedir
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Render dots
+  if (dotsContainer) {
+    dotsContainer.innerHTML = featuredGames.map((_, idx) => `
+      <span class="carousel-dot ${idx === 0 ? 'active' : ''}" onclick="goToCarouselSlide(${idx})"></span>
+    `).join('');
+  }
+
+  updateCarouselPositions();
+  startCarouselAutoplay();
+
+  // Pause on hover
+  const container = document.querySelector('.carousel-3d-container');
+  if (container) {
+    container.addEventListener('mouseenter', stopCarouselAutoplay);
+    container.addEventListener('mouseleave', startCarouselAutoplay);
+
+    // Touch Swipe
+    let touchStartX = 0;
+    container.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      stopCarouselAutoplay();
+    }, { passive: true });
+
+    container.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 40) {
+        if (diff > 0) nextCarouselSlide();
+        else prevCarouselSlide();
+      }
+      startCarouselAutoplay();
+    }, { passive: true });
+  }
+}
+
+function updateCarouselPositions() {
+  const cards = document.querySelectorAll('.carousel-card-3d');
+  const dots = document.querySelectorAll('.carousel-dot');
+  const total = cards.length;
+  if (!total) return;
+
+  cards.forEach((card, idx) => {
+    card.classList.remove('state-active', 'state-prev', 'state-next', 'state-hidden');
+
+    const prevIndex = (carouselActiveIndex - 1 + total) % total;
+    const nextIndex = (carouselActiveIndex + 1) % total;
+
+    if (idx === carouselActiveIndex) {
+      card.classList.add('state-active');
+    } else if (idx === prevIndex) {
+      card.classList.add('state-prev');
+    } else if (idx === nextIndex) {
+      card.classList.add('state-next');
+    } else {
+      card.classList.add('state-hidden');
+    }
+  });
+
+  dots.forEach((dot, idx) => {
+    dot.classList.toggle('active', idx === carouselActiveIndex);
+  });
+}
+
+function nextCarouselSlide() {
+  SoundFX.playClick();
+  const total = document.querySelectorAll('.carousel-card-3d').length;
+  carouselActiveIndex = (carouselActiveIndex + 1) % total;
+  updateCarouselPositions();
+}
+
+function prevCarouselSlide() {
+  SoundFX.playClick();
+  const total = document.querySelectorAll('.carousel-card-3d').length;
+  carouselActiveIndex = (carouselActiveIndex - 1 + total) % total;
+  updateCarouselPositions();
+}
+
+function goToCarouselSlide(idx) {
+  SoundFX.playClick();
+  carouselActiveIndex = idx;
+  updateCarouselPositions();
+}
+
+function onCarouselCardClick(idx) {
+  if (idx !== carouselActiveIndex) {
+    goToCarouselSlide(idx);
+  }
+}
+
+function startCarouselAutoplay() {
+  stopCarouselAutoplay();
+  carouselAutoplayTimer = setInterval(() => {
+    const total = document.querySelectorAll('.carousel-card-3d').length;
+    if (total) {
+      carouselActiveIndex = (carouselActiveIndex + 1) % total;
+      updateCarouselPositions();
+    }
+  }, 4500);
+}
+
+function stopCarouselAutoplay() {
+  if (carouselAutoplayTimer) {
+    clearInterval(carouselAutoplayTimer);
+    carouselAutoplayTimer = null;
+  }
+}
+
+// ==========================================================================
+// 🌌 PARALLAX SUAVE EM SEGUNDO PLANO
+// ==========================================================================
+function initParallax() {
+  const orb1 = document.querySelector('.parallax-orb-1');
+  const orb2 = document.querySelector('.parallax-orb-2');
+  const orb3 = document.querySelector('.parallax-orb-3');
+
+  if (!orb1 && !orb2 && !orb3) return;
+
+  let ticking = false;
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const scrolled = window.pageYOffset;
+        if (orb1) orb1.style.transform = `translate3d(0, ${scrolled * 0.12}px, 0)`;
+        if (orb2) orb2.style.transform = `translate3d(0, ${scrolled * -0.08}px, 0)`;
+        if (orb3) orb3.style.transform = `translate3d(0, ${scrolled * 0.05}px, 0)`;
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
 }
