@@ -3,8 +3,9 @@
  * Leitor de Parâmetros NFC, Inicializador do EmulatorJS e Controles Virtuais
  */
 
-// Mapeamento Expandido de ROMs e Emuladores (Multiconsoles)
+// Mapeamento Expandido de ROMs e Emuladores (Multiconsoles: SNES, PS1, N64, GBA, Genesis, Arcade)
 const GAMES_MAP = {
+  // SNES
   super_mario: {
     title: 'Super Mario World',
     console: 'snes',
@@ -61,6 +62,135 @@ const GAMES_MAP = {
     romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/metroid.sfc',
     icon: '🚀'
   },
+  mega_man_x: {
+    title: 'Mega Man X',
+    console: 'snes',
+    consoleName: 'Super Nintendo',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/mmx.sfc',
+    icon: '🤖'
+  },
+
+  // PS1
+  crash_bandicoot: {
+    title: 'Crash Bandicoot',
+    console: 'psx',
+    consoleName: 'PlayStation 1',
+    romUrl: 'roms/crash.chd',
+    icon: '🦊'
+  },
+  tekken_3: {
+    title: 'Tekken 3',
+    console: 'psx',
+    consoleName: 'PlayStation 1',
+    romUrl: 'roms/tekken3.chd',
+    icon: '🥋'
+  },
+  winning_eleven: {
+    title: 'Winning Eleven / Bomba Patch',
+    console: 'psx',
+    consoleName: 'PlayStation 1',
+    romUrl: 'roms/we.chd',
+    icon: '⚽'
+  },
+  gran_turismo: {
+    title: 'Gran Turismo',
+    console: 'psx',
+    consoleName: 'PlayStation 1',
+    romUrl: 'roms/gt.chd',
+    icon: '🏎️'
+  },
+  resident_evil: {
+    title: 'Resident Evil Director s Cut',
+    console: 'psx',
+    consoleName: 'PlayStation 1',
+    romUrl: 'roms/re.chd',
+    icon: '🧟'
+  },
+
+  // N64
+  mario_64: {
+    title: 'Super Mario 64',
+    console: 'n64',
+    consoleName: 'Nintendo 64',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/n64/roms/sm64.z64',
+    icon: '⭐'
+  },
+  mario_kart_64: {
+    title: 'Mario Kart 64',
+    console: 'n64',
+    consoleName: 'Nintendo 64',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/n64/roms/mk64.z64',
+    icon: '🏎️'
+  },
+  zelda_oot: {
+    title: 'Zelda: Ocarina of Time',
+    console: 'n64',
+    consoleName: 'Nintendo 64',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/n64/roms/oot.z64',
+    icon: '🧝'
+  },
+  goldeneye_007: {
+    title: '007 GoldenEye',
+    console: 'n64',
+    consoleName: 'Nintendo 64',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/n64/roms/007.z64',
+    icon: '🔫'
+  },
+
+  // GBA
+  pokemon_firered: {
+    title: 'Pokémon FireRed',
+    console: 'gba',
+    consoleName: 'Game Boy Advance',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/gba/roms/firered.gba',
+    icon: '🔥'
+  },
+  pokemon_emerald: {
+    title: 'Pokémon Emerald',
+    console: 'gba',
+    consoleName: 'Game Boy Advance',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/gba/roms/emerald.gba',
+    icon: '🐉'
+  },
+  mario_kart_gba: {
+    title: 'Mario Kart Super Circuit',
+    console: 'gba',
+    consoleName: 'Game Boy Advance',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/gba/roms/mksc.gba',
+    icon: '🍄'
+  },
+  zelda_minish_cap: {
+    title: 'Zelda: The Minish Cap',
+    console: 'gba',
+    consoleName: 'Game Boy Advance',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/gba/roms/minish.gba',
+    icon: '👒'
+  },
+
+  // Arcade
+  kof_98: {
+    title: 'The King of Fighters 98',
+    console: 'fba',
+    consoleName: 'Fliperama / Neo Geo',
+    romUrl: 'roms/kof98.zip',
+    icon: '🔥'
+  },
+  kof_2002: {
+    title: 'The King of Fighters 2002',
+    console: 'fba',
+    consoleName: 'Fliperama / Neo Geo',
+    romUrl: 'roms/kof2002.zip',
+    icon: '🥊'
+  },
+  metal_slug: {
+    title: 'Metal Slug Super Vehicle',
+    console: 'fba',
+    consoleName: 'Fliperama / Neo Geo',
+    romUrl: 'roms/mslug.zip',
+    icon: '💣'
+  },
+
+  // Genesis & GBC
   sonic_2: {
     title: 'Sonic the Hedgehog 2',
     console: 'segaMD',
@@ -81,13 +211,6 @@ const GAMES_MAP = {
     consoleName: 'Game Boy Color',
     romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/gb/roms/pokemon.gbc',
     icon: '⚡'
-  },
-  mega_man_x: {
-    title: 'Mega Man X',
-    console: 'snes',
-    consoleName: 'Super Nintendo',
-    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/mmx.sfc',
-    icon: '🤖'
   }
 };
 

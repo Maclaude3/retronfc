@@ -12,8 +12,9 @@ const CONFIG = {
   suggestedResell: 25.00
 };
 
-// Banco de Dados Expandido dos Jogos / Cartuchos
+// Banco de Dados Expandido dos Jogos / Cartuchos (Multiconsoles)
 const GAMES_DATABASE = [
+  // Super Nintendo
   {
     id: 'super_mario',
     title: 'Super Mario World',
@@ -24,7 +25,7 @@ const GAMES_DATABASE = [
     desc: 'O maior clássico de plataforma de todos os tempos. Encoste a tag e jogue com Yoshi pelas 96 fases!',
     romParam: 'super_mario',
     price: 29.90,
-    tags: 'mario nintendo plataforma yoshi'
+    tags: 'mario nintendo plataforma yoshi snes'
   },
   {
     id: 'top_gear',
@@ -36,7 +37,7 @@ const GAMES_DATABASE = [
     desc: 'Aqueça os motores com a trilha sonora mais nostálgica dos 16-bits. Corridas em pistas clássicas!',
     romParam: 'top_gear',
     price: 29.90,
-    tags: 'corrida carro velocidade nitro'
+    tags: 'corrida carro velocidade nitro snes'
   },
   {
     id: 'donkey_kong',
@@ -48,7 +49,7 @@ const GAMES_DATABASE = [
     desc: 'Gráficos pré-renderizados revolucionários e a trilha lendária de David Wise direto no seu bolso.',
     romParam: 'donkey_kong',
     price: 29.90,
-    tags: 'macaco selva dkc rare'
+    tags: 'macaco selva dkc rare snes'
   },
   {
     id: 'zelda_alttp',
@@ -60,7 +61,7 @@ const GAMES_DATABASE = [
     desc: 'Explore Hyrule e o Dark World na jornada definitiva de Link. O ápice dos RPGs de ação.',
     romParam: 'zelda_alttp',
     price: 29.90,
-    tags: 'zelda link espada aventura rpg hyrule'
+    tags: 'zelda link espada aventura rpg hyrule snes'
   },
   {
     id: 'chrono_trigger',
@@ -72,19 +73,7 @@ const GAMES_DATABASE = [
     desc: 'Viagens no tempo, múltiplos finais e a obra-prima da Squaresoft com arte de Akira Toriyama.',
     romParam: 'chrono_trigger',
     price: 29.90,
-    tags: 'rpg chrono viagem tempo goku square'
-  },
-  {
-    id: 'sonic_2',
-    title: 'Sonic the Hedgehog 2',
-    console: 'genesis',
-    consoleName: 'Mega Drive',
-    badgeClass: 'badge-genesis',
-    icon: '🦔',
-    desc: 'Velocidade máxima em 16-bits com Sonic & Tails na clássica carcaça preta do Mega Drive!',
-    romParam: 'sonic_2',
-    price: 29.90,
-    tags: 'sega sonic tails velocidade'
+    tags: 'rpg chrono viagem tempo goku square snes'
   },
   {
     id: 'street_fighter',
@@ -96,7 +85,7 @@ const GAMES_DATABASE = [
     desc: 'Hadouken no bolso! O jogo de luta definitivo com Ryu, Ken, Chun-Li e todos os guerreiros mundiais.',
     romParam: 'street_fighter',
     price: 29.90,
-    tags: 'luta fight ryu ken hadouken capcom'
+    tags: 'luta fight ryu ken hadouken capcom snes'
   },
   {
     id: 'mortal_kombat_2',
@@ -108,7 +97,7 @@ const GAMES_DATABASE = [
     desc: 'Fatality no seu smartphone! Sub-Zero, Scorpion, Raiden e toda a brutalidade do torneio.',
     romParam: 'mortal_kombat_2',
     price: 29.90,
-    tags: 'luta fatality scorpion subzero sangue'
+    tags: 'luta fatality scorpion subzero sangue snes'
   },
   {
     id: 'super_metroid',
@@ -120,19 +109,7 @@ const GAMES_DATABASE = [
     desc: 'Explore as profundezas do planeta Zebes no jogo que definiu o gênero Metroidvania.',
     romParam: 'super_metroid',
     price: 29.90,
-    tags: 'samus metroidvania espaco alien tiro'
-  },
-  {
-    id: 'pokemon_yellow',
-    title: 'Pokémon Yellow Special',
-    console: 'gameboy',
-    consoleName: 'Game Boy Color',
-    badgeClass: 'badge-gb',
-    icon: '⚡',
-    desc: 'Inicie sua jornada com Pikachu te seguindo por Kanto no inconfundível cartucho amarelo!',
-    romParam: 'pokemon_yellow',
-    price: 29.90,
-    tags: 'pokemon pikachu kanto nintendo rpg'
+    tags: 'samus metroidvania espaco alien tiro snes'
   },
   {
     id: 'mega_man_x',
@@ -144,7 +121,221 @@ const GAMES_DATABASE = [
     desc: 'Ação futurista, dash, escalada em paredes e as armaduras lendárias do robô azul.',
     romParam: 'mega_man_x',
     price: 29.90,
-    tags: 'robo tiro capcom dash armor zero'
+    tags: 'robo tiro capcom dash armor zero snes'
+  },
+
+  // PlayStation 1 (PS1)
+  {
+    id: 'crash_bandicoot',
+    title: 'Crash Bandicoot',
+    console: 'ps1',
+    consoleName: 'PlayStation 1',
+    badgeClass: 'badge-ps1',
+    icon: '🦊',
+    desc: 'Gire, salte e quebre caixas de frutas Wumpa com o marsupial mais famoso da Sony!',
+    romParam: 'crash_bandicoot',
+    price: 29.90,
+    tags: 'crash ps1 sony plataforma wumpa 3d playstation'
+  },
+  {
+    id: 'tekken_3',
+    title: 'Tekken 3',
+    console: 'ps1',
+    consoleName: 'PlayStation 1',
+    badgeClass: 'badge-ps1',
+    icon: '🥋',
+    desc: 'O ápice dos jogos de luta 3D do PS1! Jin Kazama, Eddy Gordo, Hwoarang e Paul Phoenix.',
+    romParam: 'tekken_3',
+    price: 29.90,
+    tags: 'tekken luta jin eddy gordo namco ps1 playstation'
+  },
+  {
+    id: 'winning_eleven',
+    title: 'Winning Eleven / Bomba Patch',
+    console: 'ps1',
+    consoleName: 'PlayStation 1',
+    badgeClass: 'badge-ps1',
+    icon: '⚽',
+    desc: '100% Atualizado, é ruim de aturar! O futebol que embalou as tardes de toda uma geração.',
+    romParam: 'winning_eleven',
+    price: 29.90,
+    tags: 'futebol bomba patch winning eleven konami gol ps1'
+  },
+  {
+    id: 'gran_turismo',
+    title: 'Gran Turismo',
+    console: 'ps1',
+    consoleName: 'PlayStation 1',
+    badgeClass: 'badge-ps1',
+    icon: '🏎️',
+    desc: 'O verdadeiro simulador de direção com dezenas de montadoras, licenças e corridas épicas.',
+    romParam: 'gran_turismo',
+    price: 29.90,
+    tags: 'corrida simulador carro sony ps1 velocidade playstation'
+  },
+  {
+    id: 'resident_evil',
+    title: 'Resident Evil Director s Cut',
+    console: 'ps1',
+    consoleName: 'PlayStation 1',
+    badgeClass: 'badge-ps1',
+    icon: '🧟',
+    desc: 'Entre no survival horror mais famoso do mundo na mansão infestada de zumbis de Raccoon City.',
+    romParam: 'resident_evil',
+    price: 29.90,
+    tags: 'terror zumbi capcom survivor horror jill chris ps1'
+  },
+
+  // Nintendo 64 (N64)
+  {
+    id: 'mario_64',
+    title: 'Super Mario 64',
+    console: 'n64',
+    consoleName: 'Nintendo 64',
+    badgeClass: 'badge-n64',
+    icon: '⭐',
+    desc: 'Mergulhe nas pinturas mágicas do Castelo da Peach na maior obra de arte do Nintendo 64.',
+    romParam: 'mario_64',
+    price: 29.90,
+    tags: 'mario 64 n64 peach bowser estrela 3d nintendo'
+  },
+  {
+    id: 'mario_kart_64',
+    title: 'Mario Kart 64',
+    console: 'n64',
+    consoleName: 'Nintendo 64',
+    badgeClass: 'badge-n64',
+    icon: '🏎️',
+    desc: 'Cascos de tartaruga, derrapadas turbo e disputas insanas de kart nas pistas mais clássicas.',
+    romParam: 'mario_kart_64',
+    price: 29.90,
+    tags: 'kart corrida nintendo mario n64 casco'
+  },
+  {
+    id: 'zelda_oot',
+    title: 'Zelda: Ocarina of Time',
+    console: 'n64',
+    consoleName: 'Nintendo 64',
+    badgeClass: 'badge-n64',
+    icon: '🧝',
+    desc: 'Aclamado universalmente como um dos melhores jogos já criados. A lenda de Hyrule e Epona.',
+    romParam: 'zelda_oot',
+    price: 29.90,
+    tags: 'zelda ocarina link epona n64 master sword'
+  },
+  {
+    id: 'goldeneye_007',
+    title: '007 GoldenEye',
+    console: 'n64',
+    consoleName: 'Nintendo 64',
+    badgeClass: 'badge-n64',
+    icon: '🔫',
+    desc: 'O jogo de tiro e espionagem de James Bond que revolucionou os consoles para sempre.',
+    romParam: 'goldeneye_007',
+    price: 29.90,
+    tags: '007 james bond tiro fps rare n64'
+  },
+
+  // Game Boy Advance (GBA)
+  {
+    id: 'pokemon_firered',
+    title: 'Pokémon FireRed',
+    console: 'gba',
+    consoleName: 'Game Boy Advance',
+    badgeClass: 'badge-gba',
+    icon: '🔥',
+    desc: 'Reviva a região clássica de Kanto com gráficos em 32-bits e capture todos os 151 originais!',
+    romParam: 'pokemon_firered',
+    price: 29.90,
+    tags: 'pokemon gba firered charizard kanto rpg'
+  },
+  {
+    id: 'pokemon_emerald',
+    title: 'Pokémon Emerald',
+    console: 'gba',
+    consoleName: 'Game Boy Advance',
+    badgeClass: 'badge-gba',
+    icon: '🐉',
+    desc: 'A aventura definitiva de Hoenn com Rayquaza, Equipes Magma e Aqua e a Batalha da Fronteira.',
+    romParam: 'pokemon_emerald',
+    price: 29.90,
+    tags: 'pokemon gba emerald rayquaza hoenn'
+  },
+  {
+    id: 'mario_kart_gba',
+    title: 'Mario Kart Super Circuit',
+    console: 'gba',
+    consoleName: 'Game Boy Advance',
+    badgeClass: 'badge-gba',
+    icon: '🍄',
+    desc: 'Velocidade frenética portátil com 40 pistas completas e todas as copas do SNES.',
+    romParam: 'mario_kart_gba',
+    price: 29.90,
+    tags: 'mario kart gba corrida nintendo'
+  },
+  {
+    id: 'zelda_minish_cap',
+    title: 'Zelda: The Minish Cap',
+    console: 'gba',
+    consoleName: 'Game Boy Advance',
+    badgeClass: 'badge-gba',
+    icon: '👒',
+    desc: 'Encolha ao tamanho dos gnomos Minish com o chapéu falante Ezlo em um dos Zeldas mais bonitos.',
+    romParam: 'zelda_minish_cap',
+    price: 29.90,
+    tags: 'zelda gba minish cap link capcom'
+  },
+
+  // Fliperama / Arcade (Neo Geo)
+  {
+    id: 'kof_98',
+    title: 'The King of Fighters 98',
+    console: 'arcade',
+    consoleName: 'Fliperama / Neo Geo',
+    badgeClass: 'badge-arcade',
+    icon: '🔥',
+    desc: 'O maior torneio dos fliperamas de shopping e rodoviária! Iori Yagami, Kyo Kusanagi e Rugal.',
+    romParam: 'kof_98',
+    price: 29.90,
+    tags: 'kof 98 snk iori kyo rugal arcade luta'
+  },
+  {
+    id: 'kof_2002',
+    title: 'The King of Fighters 2002',
+    console: 'arcade',
+    consoleName: 'Fliperama / Neo Geo',
+    badgeClass: 'badge-arcade',
+    icon: '🥊',
+    desc: 'A rainha dos combos! O fliperama mais competitivo do Brasil onde quem perdia passava a ficha.',
+    romParam: 'kof_2002',
+    price: 29.90,
+    tags: 'kof 2002 snk arcade fliperama luta rugal'
+  },
+  {
+    id: 'metal_slug',
+    title: 'Metal Slug Super Vehicle',
+    console: 'arcade',
+    consoleName: 'Fliperama / Neo Geo',
+    badgeClass: 'badge-arcade',
+    icon: '💣',
+    desc: 'Heavy Machine Gun! Destruição desenfreada com tanques, prisioneiros e explosões em pixel art.',
+    romParam: 'metal_slug',
+    price: 29.90,
+    tags: 'metal slug tiro snk heavy machine gun tanque arcade'
+  },
+
+  // Mega Drive & Game Boy
+  {
+    id: 'sonic_2',
+    title: 'Sonic the Hedgehog 2',
+    console: 'genesis',
+    consoleName: 'Mega Drive',
+    badgeClass: 'badge-genesis',
+    icon: '🦔',
+    desc: 'Velocidade máxima em 16-bits com Sonic & Tails na clássica carcaça preta do Mega Drive!',
+    romParam: 'sonic_2',
+    price: 29.90,
+    tags: 'sega sonic tails velocidade genesis'
   },
   {
     id: 'streets_of_rage_2',
@@ -156,7 +347,19 @@ const GAMES_DATABASE = [
     desc: 'O beat em up definitivo da Sega. Trilha sonora inesquecível de Yuzo Koshiro e porrada estancando!',
     romParam: 'streets_of_rage_2',
     price: 29.90,
-    tags: 'briga rua sega yuzo koshiro soco'
+    tags: 'briga rua sega yuzo koshiro soco genesis'
+  },
+  {
+    id: 'pokemon_yellow',
+    title: 'Pokémon Yellow Special',
+    console: 'gameboy',
+    consoleName: 'Game Boy Color',
+    badgeClass: 'badge-gb',
+    icon: '⚡',
+    desc: 'Inicie sua jornada com Pikachu te seguindo por Kanto no inconfundível cartucho amarelo!',
+    romParam: 'pokemon_yellow',
+    price: 29.90,
+    tags: 'pokemon pikachu kanto nintendo rpg gameboy'
   }
 ];
 
