@@ -75,14 +75,14 @@ const GAMES_MAP = {
     title: "Michael Jackson's Moonwalker",
     console: 'segaMD',
     consoleName: 'Mega Drive',
-    romUrl: 'roms/moonwalker.md',
+    romUrl: 'roms/moonwalker.bin',
     icon: '🎩'
   },
   sonic_2: {
     title: 'Sonic the Hedgehog 2',
     console: 'segaMD',
     consoleName: 'Mega Drive',
-    romUrl: 'roms/sonic_2.md',
+    romUrl: 'roms/sonic_2.bin',
     icon: '🦔'
   },
   mortal_kombat_2: {
