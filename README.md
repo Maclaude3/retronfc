@@ -35,12 +35,8 @@ git clone https://github.com/Maclaude3/retronfc.git
 # 2. Acesse a pasta do projeto
 cd retronfc
 
-# 3. Inicie um servidor local simples
-# Com Python 3:
+# 3. Inicie um servidor local
 python -m http.server 8000
-
-# Ou com Node.js (npx):
-npx serve .
 `
 
 Abra o navegador em http://localhost:8000 para visualizar a loja.
