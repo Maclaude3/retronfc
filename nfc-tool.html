@@ -1,61 +1,59 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gravador Web NFC — RetroNFC.com.br</title>
+  <title>Gravador Web NFC - RetroNFC.com.br</title>
   
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>📡</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
 </head>
 <body style="padding-top: 40px; padding-bottom: 60px;">
 
   <div class="container" style="max-width: 760px;">
     
     <a href="index.html" class="btn btn-glass btn-sm" style="margin-bottom: 24px;">
-      ← Voltar para RetroNFC.com.br
+      &larr; Voltar para a Loja RetroNFC
     </a>
 
-    <div class="simulator-box" style="padding: 40px;">
+    <div class="simulator-box" style="padding: 36px 24px; border-radius: 16px; background: rgba(18, 24, 38, 0.95); border: 1px solid var(--border-glow);">
       
-      <div style="text-align: center; margin-bottom: 30px;">
-        <div style="font-size: 3rem; margin-bottom: 12px;">📡</div>
-        <h1 style="font-size: 2rem; margin-bottom: 10px;">Gravador Web NFC Nativo</h1>
-        <p style="color: var(--text-muted); font-size: 0.95rem;">
-          Grave as URLs dos jogos diretamente em tags virgens <strong>NTAG213</strong> ou <strong>NTAG215</strong> pelo navegador do celular, sem precisar baixar nenhum aplicativo externo!
+      <div style="text-align: center; margin-bottom: 28px;">
+        <div style="font-size: 3rem; margin-bottom: 8px;">⚡</div>
+        <h1 style="font-size: 1.8rem; margin-bottom: 8px; color: #fff;">Gravador Web NFC Direto</h1>
+        <p style="color: var(--text-muted); font-size: 0.92rem; max-width: 540px; margin: 0 auto;">
+          Grave o link do jogo diretamente na Tag NFC pelo navegador do seu celular Android (Google Chrome), sem instalar nenhum aplicativo!
         </p>
       </div>
 
       <div id="nfc-support-status"></div>
 
       <!-- Configuração de Gravação -->
-      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
-        <label style="display: block; font-weight: 700; margin-bottom: 8px; color: var(--cyan);">
-          1. Selecione o Jogo para Gravar:
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px; margin-bottom: 24px;">
+        <label style="display: block; font-weight: 700; margin-bottom: 8px; color: var(--cyan); font-size: 0.9rem;">
+          1. Selecione o Jogo para Gravar na Tag:
         </label>
         
-        <select id="select-game-target" style="width: 100%; padding: 12px 16px; background: #070a12; border: 1px solid var(--border-subtle); border-radius: 8px; color: #fff; font-size: 1rem; margin-bottom: 20px; outline: none;">
-          <option value="super_mario">Super Mario World (SNES)</option>
-          <option value="top_gear">Top Gear (SNES)</option>
-          <option value="donkey_kong">Donkey Kong Country (SNES)</option>
-          <option value="zelda_alttp">The Legend of Zelda: A Link to the Past (SNES)</option>
-          <option value="street_fighter">Street Fighter II Turbo (SNES)</option>
-          <option value="sonic_2">Sonic the Hedgehog 2 (Mega Drive)</option>
-          <option value="pokemon_yellow">Pokémon Yellow Special (Game Boy Color)</option>
-          <option value="mega_man_x">Mega Man X (SNES)</option>
+        <select id="select-game-target" style="width: 100%; padding: 12px 14px; background: #070a12; border: 1px solid var(--border-subtle); border-radius: 8px; color: #fff; font-size: 0.95rem; margin-bottom: 18px; outline: none;">
+          <!-- Populado dinamicamente via games-data.js -->
         </select>
 
-        <label style="display: block; font-weight: 700; margin-bottom: 8px; color: var(--cyan);">
+        <label style="display: block; font-weight: 700; margin-bottom: 8px; color: var(--cyan); font-size: 0.9rem;">
           2. URL Gerada para a Tag:
         </label>
-        <input type="text" id="custom-url-preview" value="https://retronfc.com.br/play.html?game=super_mario" readonly style="width: 100%; padding: 12px 16px; background: #04060b; border: 1px dashed var(--border-glow); border-radius: 8px; color: var(--cyan); font-family: monospace; font-size: 0.9rem; margin-bottom: 24px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 22px;">
+          <input type="text" id="custom-url-preview" value="" readonly style="flex: 1; padding: 12px 14px; background: #04060b; border: 1px dashed var(--border-glow); border-radius: 8px; color: var(--cyan); font-family: monospace; font-size: 0.88rem;">
+          <button onclick="copyCurrentUrl()" class="btn btn-glass btn-sm" title="Copiar Link" style="white-space: nowrap;">
+            📋 Copiar
+          </button>
+        </div>
 
-        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
-          <button onclick="writeSelectedTag()" class="btn btn-cyan btn-lg" style="flex: 1;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button id="btn-write-nfc" onclick="writeSelectedTag()" class="btn btn-cyan btn-lg" style="flex: 1; min-width: 220px;">
             ⚡ Gravar Tag NFC Agora
           </button>
           <button onclick="NfcApp.readTag()" class="btn btn-glass btn-lg">
-            🔍 Testar/Ler Tag
+            🔍 Testar / Ler Tag
           </button>
         </div>
       </div>
@@ -63,10 +61,10 @@
       <!-- Log Terminal -->
       <div>
         <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">
-          LOG DE COMUNICAÇÃO NFC:
+          TERMINAL DE LEITURA & GRAVAÇÃO NFC:
         </label>
-        <div id="nfc-log" style="background: #000; border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 8px; padding: 16px; font-family: monospace; font-size: 0.82rem; color: #34d399; min-height: 120px; max-height: 200px; overflow-y: auto;">
-          <div>[Pronto] Sistema aguardando comando de leitura ou gravação...</div>
+        <div id="nfc-log" style="background: #000; border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 8px; padding: 14px; font-family: monospace; font-size: 0.8rem; color: #34d399; min-height: 120px; max-height: 180px; overflow-y: auto;">
+          <div>[Pronto] Sistema aguardando aproximação da Tag NFC...</div>
         </div>
       </div>
 
@@ -74,18 +72,56 @@
 
   </div>
 
-  <script src="assets/js/nfc.js"></script>
+  <script src="assets/js/games-data.js?v=4.0"></script>
+  <script src="assets/js/nfc.js?v=4.0"></script>
   <script>
     const select = document.getElementById('select-game-target');
     const preview = document.getElementById('custom-url-preview');
 
-    select.addEventListener('change', () => {
+    // Popula todos os jogos do catálogo
+    if (typeof GAMES_DATABASE !== 'undefined' && select) {
+      const consoles = {
+        snes: 'Super Nintendo',
+        genesis: 'Mega Drive',
+        ps1: 'PlayStation 1',
+        n64: 'Nintendo 64',
+        gba: 'Game Boy Advance',
+        gameboy: 'Game Boy Color',
+        arcade: 'Fliperama / Arcade'
+      };
+
+      Object.keys(consoles).forEach(cKey => {
+        const cGames = GAMES_DATABASE.filter(g => g.console === cKey);
+        if (cGames.length) {
+          const optGroup = document.createElement('optgroup');
+          optGroup.label = consoles[cKey];
+          cGames.forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g.id;
+            opt.textContent = `${g.title} (${g.consoleName})`;
+            optGroup.appendChild(opt);
+          });
+          select.appendChild(optGroup);
+        }
+      });
+    }
+
+    function updatePreviewUrl() {
       const origin = window.location.origin.includes('http') ? window.location.origin : 'https://retronfc.com.br';
       preview.value = `${origin}/play.html?game=${select.value}`;
-    });
+    }
+
+    select.addEventListener('change', updatePreviewUrl);
+    updatePreviewUrl();
 
     function writeSelectedTag() {
       NfcApp.writeTag(select.value);
+    }
+
+    function copyCurrentUrl() {
+      navigator.clipboard.writeText(preview.value).then(() => {
+        alert('Link copiado com sucesso:\n' + preview.value);
+      });
     }
   </script>
 </body>
