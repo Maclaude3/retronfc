@@ -491,3 +491,95 @@ body, html {
   box-shadow: 0 0 20px rgba(255, 0, 85, 0.6);
   transform: translateY(-2px);
 }
+
+
+/* ==========================================================================
+   Controles Touch Virtuais Mobile - Posicionamento Fixo e Responsivo
+   ========================================================================== */
+.ejs_virtualGamepad_parent {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: block !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  z-index: 999999 !important;
+}
+
+.ejs_virtualGamepad_parent * {
+  pointer-events: auto !important;
+}
+
+.ejs_virtualGamepad_left {
+  position: absolute !important;
+  bottom: 25px !important;
+  left: 20px !important;
+  width: 135px !important;
+  height: 135px !important;
+  z-index: 999999 !important;
+}
+
+.ejs_virtualGamepad_right {
+  position: absolute !important;
+  bottom: 25px !important;
+  right: 20px !important;
+  width: 145px !important;
+  height: 145px !important;
+  z-index: 999999 !important;
+}
+
+.ejs_virtualGamepad_bottom {
+  position: absolute !important;
+  bottom: 12px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  display: flex !important;
+  gap: 16px !important;
+  z-index: 999999 !important;
+}
+
+.ejs_virtualGamepad_button.b_l {
+  position: fixed !important;
+  top: 65px !important;
+  left: 20px !important;
+}
+
+.ejs_virtualGamepad_button.b_r {
+  position: fixed !important;
+  top: 65px !important;
+  right: 20px !important;
+}
+
+.ejs_virtualGamepad_button {
+  background: rgba(13, 22, 38, 0.75) !important;
+  border: 2px solid #00f0ff !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.45), inset 0 0 8px rgba(0, 240, 255, 0.25) !important;
+  backdrop-filter: blur(8px) !important;
+  transition: transform 0.1s ease, background 0.1s ease !important;
+}
+
+.ejs_virtualGamepad_button:active,
+.ejs_virtualGamepad_button_down {
+  background: rgba(0, 240, 255, 0.85) !important;
+  color: #05070d !important;
+  transform: scale(0.92) !important;
+}
+
+.ejs_dpad_horizontal,
+.ejs_dpad_vertical {
+  background: rgba(13, 22, 38, 0.75) !important;
+  border: 2px solid #00f0ff !important;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4) !important;
+}
+
+/* Canvas HD Pixel-Art Crisp */
+canvas.ejs_canvas {
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: crisp-edges !important;
+  image-rendering: pixelated !important;
+}

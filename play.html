@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>RetroNFC Player - Clássicos Retrô em Alta Performance</title>
   
-  <link rel="stylesheet" href="assets/css/player.css?v=6.0">
+  <link rel="stylesheet" href="assets/css/player.css?v=7.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%200%20100%20100%22><text y=%22.9em%22 font-size=%2290%22>🕹️</text></svg>">
   <style>
     /* Estilos Embutidos Garantidos para a Tela de Proteção Desktop */
@@ -195,14 +195,11 @@
       </div>
 
       <div class="hud-right">
-        <button id="btn-toggle-crt" class="hud-btn" title="Ativar/Desativar Efeito CRT de TV de Tubo">
-          📺 CRT
-        </button>
-        <button onclick="openGamePicker()" class="hud-btn" title="Trocar de Jogo">
-          🕹️ Trocar Jogo
+        <button id="btn-toggle-crt" class="hud-btn active" title="Alternar entre Imagem HD e CRT Scanlines">
+          📺 CRT Scanlines
         </button>
         <button id="btn-fullscreen" class="hud-btn" title="Tela Cheia">
-          ⛶ Cheia
+          ⛶ Tela Cheia
         </button>
       </div>
     </header>
@@ -244,13 +241,13 @@
         <button class="picker-close" onclick="closeGamePicker()" aria-label="Fechar">&times;</button>
       </div>
       <div id="picker-games-list" class="picker-list">
-        <!-- Renderizado dinamicamente via assets/js/player.js?v=6.0 -->
+        <!-- Renderizado dinamicamente via assets/js/player.js?v=7.0 -->
       </div>
     </div>
   </div>
 
   <!-- Scripts -->
   <script src="assets/js/games-data.js"></script>
-  <script src="assets/js/player.js?v=6.0"></script>
+  <script src="assets/js/player.js?v=7.0"></script>
 </body>
 </html>

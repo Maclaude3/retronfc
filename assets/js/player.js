@@ -323,12 +323,15 @@ function showStartPrompt(game) {
   
   if (statusText) {
     statusText.innerHTML = `
-      <div style="font-size: 1.15rem; color: #67e8f9; font-weight: bold; margin-bottom: 18px;">
+      <div style="font-size: 1.2rem; color: #67e8f9; font-weight: 800; margin-bottom: 18px; text-shadow: 0 0 15px rgba(0,240,255,0.7);">
         🎮 ${game.title} Sincronizado!
       </div>
-      <button id="btn-start-play" class="btn btn-cyan btn-lg" style="font-size: 1.2rem; font-weight: 800; padding: 18px 36px; border-radius: 9999px; background: #00f0ff; color: #05070d; border: 2px solid #fff; box-shadow: 0 0 30px rgba(0, 240, 255, 0.85); cursor: pointer; animation: pulse 1.5s infinite;">
+      <button id="btn-start-play" class="btn btn-cyan btn-lg" style="font-size: 1.25rem; font-weight: 900; padding: 20px 40px; border-radius: 9999px; background: #00f0ff; color: #05070d; border: 2px solid #fff; box-shadow: 0 0 35px rgba(0, 240, 255, 0.95); cursor: pointer; animation: pulse 1.5s infinite; letter-spacing: 0.5px;">
         ▶️ TOQUE PARA JOGAR
       </button>
+      <div style="margin-top: 14px; font-size: 0.85rem; color: #94a3b8;">
+        📱 Abre automaticamente em Tela Cheia com controles touch!
+      </div>
     `;
 
     const startBtn = document.getElementById('btn-start-play');
@@ -337,6 +340,19 @@ function showStartPrompt(game) {
       if (hasTriggered) return;
       hasTriggered = true;
       if (e && e.preventDefault) e.preventDefault();
+
+      // Ativa Tela Cheia automaticamente no gesto do toque
+      const elem = document.documentElement;
+      const requestFS = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.mozRequestFullScreen || elem.msRequestFullscreen;
+      if (requestFS) {
+        try { requestFS.call(elem); } catch(err) {}
+      }
+
+      // Sugere / trava orientação horizontal para pegada de controle
+      if (screen.orientation && screen.orientation.lock) {
+        try { screen.orientation.lock('landscape').catch(() => {}); } catch(err) {}
+      }
+
       loadEmulatorEngine(game);
       if (loader) loader.style.display = 'none';
     };
@@ -351,7 +367,7 @@ function showStartPrompt(game) {
   }
 }
 
-// Carregamento Seguro do EmulatorJS com Controles Touch Mobile Nativos
+// Carregamento Seguro do EmulatorJS com Controles Touch Mobile e Tela Cheia
 function loadEmulatorEngine(game) {
   const container = document.getElementById('game-container');
   if (container) container.innerHTML = '';
@@ -364,18 +380,29 @@ function loadEmulatorEngine(game) {
   window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
   window.EJS_gameName = game.title;
   window.EJS_startOnLoaded = true;
+  window.EJS_fullscreenOnLoaded = true;
   window.EJS_color = '#00f0ff';
   window.EJS_language = 'pt-BR';
   window.EJS_threads = false;
+  window.EJS_defaultOptions = {
+    'video_smooth': 'false',
+    'video_vsync': 'true'
+  };
 
-  // Garante controles touch ativos no smartphone
+  // Garante controles touch visíveis e ativos no smartphone
   window.EJS_onGameStart = () => {
     if (window.EJS_emulator) {
       window.EJS_emulator.touch = true;
       if (window.EJS_emulator.virtualGamepad) {
-        window.EJS_emulator.virtualGamepad.style.display = '';
+        window.EJS_emulator.virtualGamepad.style.display = 'block';
+        window.EJS_emulator.virtualGamepad.style.opacity = '1';
       }
     }
+    // Suaviza o HUD após o jogo iniciar para dar foco 100% na tela do jogo
+    setTimeout(() => {
+      const hud = document.querySelector('.arcade-hud');
+      if (hud) hud.classList.add('auto-hide');
+    }, 2500);
   };
 
   const existingScript = document.getElementById('emulator-loader-script');
@@ -398,15 +425,19 @@ function initHudControls() {
       crtActive = !crtActive;
       overlay.style.display = crtActive ? 'block' : 'none';
       crtBtn.classList.toggle('active', crtActive);
+      crtBtn.innerHTML = crtActive ? '📺 CRT Scanlines' : '✨ Imagem HD';
     });
   }
 
   if (fullscreenBtn) {
     fullscreenBtn.addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
       } else {
-        document.exitFullscreen().catch(() => {});
+        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
       }
     });
   }
