@@ -1,15 +1,14 @@
 ﻿/**
- * RetroNFC.com.br — Player Script (play.html)
+ * RetroNFC.com.br — Player Script (play.html) v2.0
  * Leitor de Parâmetros NFC, Inicializador do EmulatorJS e Controles Virtuais
  */
 
-// Mapeamento de ROMs e Emuladores (Compatibilidade Multiconsoles)
+// Mapeamento Expandido de ROMs e Emuladores (Multiconsoles)
 const GAMES_MAP = {
   super_mario: {
     title: 'Super Mario World',
     console: 'snes',
     consoleName: 'Super Nintendo',
-    // Usamos ROMs e demos compatíveis ou CDN de demonstração
     romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/smw.sfc',
     icon: '🍄'
   },
@@ -34,6 +33,13 @@ const GAMES_MAP = {
     romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/zelda.sfc',
     icon: '🗡️'
   },
+  chrono_trigger: {
+    title: 'Chrono Trigger',
+    console: 'snes',
+    consoleName: 'Super Nintendo',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/chrono.sfc',
+    icon: '⏳'
+  },
   street_fighter: {
     title: 'Street Fighter II Turbo',
     console: 'snes',
@@ -41,12 +47,33 @@ const GAMES_MAP = {
     romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/sf2.sfc',
     icon: '🥊'
   },
+  mortal_kombat_2: {
+    title: 'Mortal Kombat II',
+    console: 'snes',
+    consoleName: 'Super Nintendo',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/mk2.sfc',
+    icon: '🐉'
+  },
+  super_metroid: {
+    title: 'Super Metroid',
+    console: 'snes',
+    consoleName: 'Super Nintendo',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/metroid.sfc',
+    icon: '🚀'
+  },
   sonic_2: {
     title: 'Sonic the Hedgehog 2',
     console: 'segaMD',
     consoleName: 'Mega Drive',
     romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/genesis/roms/sonic2.md',
     icon: '🦔'
+  },
+  streets_of_rage_2: {
+    title: 'Streets of Rage 2',
+    console: 'segaMD',
+    consoleName: 'Mega Drive',
+    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/genesis/roms/sor2.md',
+    icon: '🥋'
   },
   pokemon_yellow: {
     title: 'Pokémon Yellow Special',
@@ -82,7 +109,6 @@ function parseUrlAndBoot() {
     currentGame = GAMES_MAP[gameKey];
     bootGame(currentGame);
   } else if (gameKey) {
-    // Caso o usuário passe uma ROM customizada direta
     currentGame = {
       title: gameKey.replace(/_/g, ' ').toUpperCase(),
       console: params.get('console') || 'snes',
@@ -92,7 +118,6 @@ function parseUrlAndBoot() {
     };
     bootGame(currentGame);
   } else {
-    // Nenhuma tag passada: exibe o seletor visual de cartuchos
     openGamePicker();
   }
 }
@@ -107,7 +132,6 @@ function bootGame(game) {
   if (hudTitle) hudTitle.textContent = `${game.icon} ${game.title}`;
   if (loader) loader.style.display = 'flex';
 
-  // Sequência de Progresso Nostálgica
   const steps = [
     { pct: '25%', text: 'LENDO TAG RETRONFC...' },
     { pct: '50%', text: `LOCALIZANDO ROM: ${game.title.toUpperCase()}...` },
@@ -125,16 +149,15 @@ function bootGame(game) {
       clearInterval(interval);
       setTimeout(() => {
         loadEmulatorEngine(game);
-      }, 500);
+      }, 400);
     }
-  }, 400);
+  }, 350);
 }
 
 // Carregamento Seguro do EmulatorJS
 function loadEmulatorEngine(game) {
   const loader = document.getElementById('nfc-loader');
 
-  // Configurações Oficiais do EmulatorJS
   window.EJS_player = '#game-container';
   window.EJS_core = game.console;
   window.EJS_gameUrl = game.romUrl;
@@ -143,12 +166,11 @@ function loadEmulatorEngine(game) {
   window.EJS_Language = 'pt-BR';
   window.EJS_showMenu = false;
   window.EJS_virtualGamepadSettings = {
-    type: 1, // Ativa controles mobile na tela
+    type: 1,
     opacity: 0.75,
     color: '#00f0ff'
   };
 
-  // Carrega o script do loader do emulador
   const existingScript = document.getElementById('emulator-loader-script');
   if (existingScript) existingScript.remove();
 
@@ -164,7 +186,7 @@ function loadEmulatorEngine(game) {
     if (loader) {
       loader.innerHTML = `
         <div style="font-size: 3rem; margin-bottom: 20px;">⚠️</div>
-        <h3 style="color: var(--pink); margin-bottom: 12px;">Modo Demonstração Offline</h3>
+        <h3 style="color: var(--pink); margin-bottom: 12px;">Modo Demonstração</h3>
         <p style="color: #94a3b8; max-width: 480px; margin-bottom: 24px;">
           O emulador online está pronto para receber suas ROMs locais ou CDN. Para testar com seus próprios arquivos .sfc, adicione-os na pasta <strong>roms/</strong> do seu repositório.
         </p>
@@ -176,7 +198,7 @@ function loadEmulatorEngine(game) {
   document.body.appendChild(script);
 }
 
-// Controles do HUD (Tela Cheia, CRT, Troca de Jogo)
+// Controles do HUD
 function initHudControls() {
   const crtBtn = document.getElementById('btn-toggle-crt');
   const fullscreenBtn = document.getElementById('btn-fullscreen');

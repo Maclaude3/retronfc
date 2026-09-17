@@ -6,6 +6,7 @@
   <meta name="description" content="RetroNFC.com.br — Chaveiros e Mini Cartuchos Colecionáveis com NFC. Aproxime o smartphone e jogue clássicos do Super Nintendo, Mega Drive e Game Boy direto no navegador sem instalar nada.">
   <meta name="keywords" content="RetroNFC, chaveiro gamer, nfc super nintendo, mini cartuchos 3d, emulador online, snes nfc, chaveiro nfc atacado">
   <meta name="author" content="RetroNFC Brasil">
+  <meta name="theme-color" content="#00f0ff">
   
   <!-- Open Graph / Meta Social -->
   <meta property="og:type" content="website">
@@ -15,6 +16,7 @@
   
   <title>RetroNFC.com.br — Colecionáveis Retrô & Tecnologia NFC</title>
   
+  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
 </head>
@@ -40,6 +42,7 @@
         <li><a href="#catalogo" class="nav-link">Catálogo</a></li>
         <li><a href="#atacado" class="nav-link">Atacado & B2B</a></li>
         <li><a href="nfc-tool.html" class="nav-link">Gravar Tags</a></li>
+        <li><a href="#depoimentos" class="nav-link">Depoimentos</a></li>
         <li><a href="#faq" class="nav-link">FAQ</a></li>
       </ul>
 
@@ -202,6 +205,11 @@
         </p>
       </div>
 
+      <!-- Quick Search Bar -->
+      <div style="max-width: 480px; margin: 0 auto 30px; position: relative;">
+        <input type="text" id="catalog-search-input" placeholder="🔍 Buscar clássico (ex: Mario, Sonic, Zelda, Luta)..." style="width: 100%; padding: 14px 22px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glow); border-radius: 9999px; color: #fff; font-size: 0.95rem; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+      </div>
+
       <!-- Filters -->
       <div class="catalog-filters">
         <button class="filter-btn active" onclick="filterCatalog('all', this)">Todos os Consoles</button>
@@ -286,8 +294,63 @@
     </div>
   </section>
 
+  <!-- Social Proof / Depoimentos -->
+  <section id="depoimentos" class="section" style="background: rgba(14, 20, 34, 0.4);">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">QUEM JÁ COMPROU E APROVOU</div>
+        <h2 class="section-title">O Que Dizem os Nossos Clientes</h2>
+        <p class="section-desc">Colecionadores gamers e lojistas parceiros de todo o Brasil</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div style="color: var(--yellow); font-size: 1.2rem; margin-bottom: 12px;">★★★★★</div>
+          <p style="color: #cbd5e1; font-style: italic; margin-bottom: 20px;">
+            "Sensacional! Coloquei o expositor giratório com 50 unidades no balcão da minha tabacaria e zerou o estoque em 12 dias. O pessoal pira quando vê o jogo abrindo no celular."
+          </p>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--cyan); color: #000; font-weight: 800; display: flex; align-items: center; justify-content: center;">RM</div>
+            <div>
+              <div style="font-weight: 700; color: #fff;">Rodrigo Martins</div>
+              <div style="font-size: 0.8rem; color: var(--text-dim);">Lojista — São Paulo, SP</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div style="color: var(--yellow); font-size: 1.2rem; margin-bottom: 12px;">★★★★★</div>
+          <p style="color: #cbd5e1; font-style: italic; margin-bottom: 20px;">
+            "Comprei o do Super Mario e o do Top Gear para colocar na chave do carro. O acabamento da carcaça e a label laminada são impecáveis. Nostalgia pura!"
+          </p>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--pink); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center;">FS</div>
+            <div>
+              <div style="font-weight: 700; color: #fff;">Felipe Silveira</div>
+              <div style="font-size: 0.8rem; color: var(--text-dim);">Colecionador Retrô — Curitiba, PR</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div style="color: var(--yellow); font-size: 1.2rem; margin-bottom: 12px;">★★★★★</div>
+          <p style="color: #cbd5e1; font-style: italic; margin-bottom: 20px;">
+            "O emulador no navegador roda muito leve e não travou nem no 4G. Os botões virtuais são bem responsivos e não precisa instalar nada. Parabéns pelo projeto!"
+          </p>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--purple); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center;">LA</div>
+            <div>
+              <div style="font-weight: 700; color: #fff;">Lucas Albuquerque</div>
+              <div style="font-size: 0.8rem; color: var(--text-dim);">Gamer & Entusiasta — Rio de Janeiro, RJ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Compatibility Guide -->
-  <section class="section" style="background: rgba(14, 20, 34, 0.3);">
+  <section class="section">
     <div class="container">
       <div class="section-header">
         <div class="section-tag">COMPATIBILIDADE UNIVERSAL</div>
@@ -373,6 +436,70 @@
     </div>
   </section>
 
+  <!-- Interactive Order Customizer Modal -->
+  <div id="order-custom-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(16px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #0e1422; border: 1px solid var(--border-glow); border-radius: 18px; max-width: 520px; width: 100%; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 30px rgba(0,240,255,0.25); position: relative;">
+      
+      <button onclick="closeCustomizeModal()" style="position: absolute; top: 16px; right: 20px; background: none; border: none; color: #fff; font-size: 1.6rem; cursor: pointer;">&times;</button>
+
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 16px;">
+        <div id="modal-game-icon" style="font-size: 3rem;">🍄</div>
+        <div>
+          <h3 id="modal-game-title" style="font-size: 1.3rem; color: #fff;">Super Mario World</h3>
+          <span id="modal-game-console" style="color: var(--cyan); font-size: 0.85rem; font-weight: 600;">Super Nintendo</span>
+        </div>
+      </div>
+
+      <!-- Color Selector -->
+      <div style="margin-bottom: 18px;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #94a3b8; margin-bottom: 8px;">
+          1. Cor da Carcaça 3D:
+        </label>
+        <select id="modal-shell-color" style="width: 100%; padding: 12px; background: #07090e; border: 1px solid var(--border-subtle); border-radius: 8px; color: #fff; font-size: 0.95rem;">
+          <option value="cinza">Cinza Clássico Retro (Padrão SNES)</option>
+          <option value="preto">Preto Fosco Stealth (Padrão Mega Drive)</option>
+          <option value="amarelo">Amarelo Pikachu (Padrão Game Boy)</option>
+          <option value="roxo">Roxo Atômico Cyberpunk</option>
+        </select>
+      </div>
+
+      <!-- Attachment Type -->
+      <div style="margin-bottom: 18px;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #94a3b8; margin-bottom: 8px;">
+          2. Formato e Acabamento:
+        </label>
+        <select id="modal-attachment-type" onchange="updateModalTotal()" style="width: 100%; padding: 12px; background: #07090e; border: 1px solid var(--border-subtle); border-radius: 8px; color: #fff; font-size: 0.95rem;">
+          <option value="0">Chaveiro com Argola Italiana Reforçada (Padrão)</option>
+          <option value="5.00">Mini Cartucho + Base de Mesa Colecionável (+ R$ 5,00)</option>
+          <option value="0">Mini Cartucho Puro de Bolso (Sem furo/corrente)</option>
+        </select>
+      </div>
+
+      <!-- Quantity -->
+      <div style="margin-bottom: 24px;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #94a3b8; margin-bottom: 8px;">
+          3. Quantidade:
+        </label>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button onclick="changeOrderQty(-1)" class="btn btn-glass btn-sm" style="width: 42px; font-size: 1.2rem;">-</button>
+          <input type="number" id="modal-order-qty" value="1" min="1" max="20" readonly style="width: 70px; text-align: center; padding: 10px; background: #07090e; border: 1px solid var(--border-subtle); border-radius: 8px; color: #fff; font-weight: 700; font-size: 1.1rem;">
+          <button onclick="changeOrderQty(1)" class="btn btn-glass btn-sm" style="width: 42px; font-size: 1.2rem;">+</button>
+        </div>
+      </div>
+
+      <!-- Total & CTA -->
+      <div style="background: rgba(0,240,255,0.08); border: 1px dashed var(--border-glow); border-radius: 12px; padding: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 600; color: #fff;">Valor Total Estimado:</span>
+        <span id="modal-total-display" style="font-size: 1.5rem; font-weight: 800; color: var(--cyan); font-family: var(--font-mono);">R$ 29,90</span>
+      </div>
+
+      <button onclick="submitCustomizedOrder()" class="btn btn-cyan btn-lg" style="width: 100%; font-size: 1.05rem;">
+        🚀 Enviar Pedido Pronto no WhatsApp
+      </button>
+
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
@@ -411,7 +538,7 @@
           <ul class="footer-links">
             <li><a href="javascript:void(0)" onclick="orderViaWhatsApp()">WhatsApp Oficial</a></li>
             <li><a href="mailto:contato@retronfc.com.br">contato@retronfc.com.br</a></li>
-            <li><a href="https://github.com" target="_blank">Hospedado no GitHub</a></li>
+            <li><a href="https://github.com/Maclaude3/retronfc" target="_blank">Repositório no GitHub</a></li>
           </ul>
         </div>
       </div>

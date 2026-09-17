@@ -1,6 +1,6 @@
 ﻿/**
- * RetroNFC.com.br — Script Principal
- * Lógica do Simulador NFC de Smartphone, Catálogo, Checkout WhatsApp e Calculadora B2B
+ * RetroNFC.com.br — Script Principal Aprimorado v2.0
+ * Lógica do Simulador NFC, Catálogo com Busca, Modal de Customização 3D e WhatsApp
  */
 
 // Configurações Gerais
@@ -12,7 +12,7 @@ const CONFIG = {
   suggestedResell: 25.00
 };
 
-// Banco de Dados dos Jogos / Cartuchos
+// Banco de Dados Expandido dos Jogos / Cartuchos
 const GAMES_DATABASE = [
   {
     id: 'super_mario',
@@ -23,7 +23,8 @@ const GAMES_DATABASE = [
     icon: '🍄',
     desc: 'O maior clássico de plataforma de todos os tempos. Encoste a tag e jogue com Yoshi pelas 96 fases!',
     romParam: 'super_mario',
-    price: 29.90
+    price: 29.90,
+    tags: 'mario nintendo plataforma yoshi'
   },
   {
     id: 'top_gear',
@@ -34,7 +35,8 @@ const GAMES_DATABASE = [
     icon: '🏎️',
     desc: 'Aqueça os motores com a trilha sonora mais nostálgica dos 16-bits. Corridas em pistas clássicas!',
     romParam: 'top_gear',
-    price: 29.90
+    price: 29.90,
+    tags: 'corrida carro velocidade nitro'
   },
   {
     id: 'donkey_kong',
@@ -45,7 +47,8 @@ const GAMES_DATABASE = [
     icon: '🍌',
     desc: 'Gráficos pré-renderizados revolucionários e a trilha lendária de David Wise direto no seu bolso.',
     romParam: 'donkey_kong',
-    price: 29.90
+    price: 29.90,
+    tags: 'macaco selva dkc rare'
   },
   {
     id: 'zelda_alttp',
@@ -56,7 +59,20 @@ const GAMES_DATABASE = [
     icon: '🗡️',
     desc: 'Explore Hyrule e o Dark World na jornada definitiva de Link. O ápice dos RPGs de ação.',
     romParam: 'zelda_alttp',
-    price: 29.90
+    price: 29.90,
+    tags: 'zelda link espada aventura rpg hyrule'
+  },
+  {
+    id: 'chrono_trigger',
+    title: 'Chrono Trigger',
+    console: 'snes',
+    consoleName: 'Super Nintendo',
+    badgeClass: 'badge-snes',
+    icon: '⏳',
+    desc: 'Viagens no tempo, múltiplos finais e a obra-prima da Squaresoft com arte de Akira Toriyama.',
+    romParam: 'chrono_trigger',
+    price: 29.90,
+    tags: 'rpg chrono viagem tempo goku square'
   },
   {
     id: 'sonic_2',
@@ -67,7 +83,8 @@ const GAMES_DATABASE = [
     icon: '🦔',
     desc: 'Velocidade máxima em 16-bits com Sonic & Tails na clássica carcaça preta do Mega Drive!',
     romParam: 'sonic_2',
-    price: 29.90
+    price: 29.90,
+    tags: 'sega sonic tails velocidade'
   },
   {
     id: 'street_fighter',
@@ -78,7 +95,32 @@ const GAMES_DATABASE = [
     icon: '🥊',
     desc: 'Hadouken no bolso! O jogo de luta definitivo com Ryu, Ken, Chun-Li e todos os guerreiros mundiais.',
     romParam: 'street_fighter',
-    price: 29.90
+    price: 29.90,
+    tags: 'luta fight ryu ken hadouken capcom'
+  },
+  {
+    id: 'mortal_kombat_2',
+    title: 'Mortal Kombat II',
+    console: 'snes',
+    consoleName: 'Super Nintendo',
+    badgeClass: 'badge-snes',
+    icon: '🐉',
+    desc: 'Fatality no seu smartphone! Sub-Zero, Scorpion, Raiden e toda a brutalidade do torneio.',
+    romParam: 'mortal_kombat_2',
+    price: 29.90,
+    tags: 'luta fatality scorpion subzero sangue'
+  },
+  {
+    id: 'super_metroid',
+    title: 'Super Metroid',
+    console: 'snes',
+    consoleName: 'Super Nintendo',
+    badgeClass: 'badge-snes',
+    icon: '🚀',
+    desc: 'Explore as profundezas do planeta Zebes no jogo que definiu o gênero Metroidvania.',
+    romParam: 'super_metroid',
+    price: 29.90,
+    tags: 'samus metroidvania espaco alien tiro'
   },
   {
     id: 'pokemon_yellow',
@@ -89,7 +131,8 @@ const GAMES_DATABASE = [
     icon: '⚡',
     desc: 'Inicie sua jornada com Pikachu te seguindo por Kanto no inconfundível cartucho amarelo!',
     romParam: 'pokemon_yellow',
-    price: 29.90
+    price: 29.90,
+    tags: 'pokemon pikachu kanto nintendo rpg'
   },
   {
     id: 'mega_man_x',
@@ -100,11 +143,24 @@ const GAMES_DATABASE = [
     icon: '🤖',
     desc: 'Ação futurista, dash, escalada em paredes e as armaduras lendárias do robô azul.',
     romParam: 'mega_man_x',
-    price: 29.90
+    price: 29.90,
+    tags: 'robo tiro capcom dash armor zero'
+  },
+  {
+    id: 'streets_of_rage_2',
+    title: 'Streets of Rage 2',
+    console: 'genesis',
+    consoleName: 'Mega Drive',
+    badgeClass: 'badge-genesis',
+    icon: '🥋',
+    desc: 'O beat em up definitivo da Sega. Trilha sonora inesquecível de Yuzo Koshiro e porrada estancando!',
+    romParam: 'streets_of_rage_2',
+    price: 29.90,
+    tags: 'briga rua sega yuzo koshiro soco'
   }
 ];
 
-// Sintetizador Web Audio para Efeitos Sonoros Retrô (Sem arquivos pesados)
+// Efeitos Sonoros Retrô Sintetizados (Web Audio API)
 const SoundFX = {
   ctx: null,
   init() {
@@ -112,7 +168,7 @@ const SoundFX = {
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     }
   },
-  playBeep(freq = 880, type = 'square', duration = 0.1) {
+  playBeep(freq = 880, type = 'square', duration = 0.08) {
     try {
       this.init();
       if (!this.ctx) return;
@@ -122,42 +178,65 @@ const SoundFX = {
       const gain = this.ctx.createGain();
       osc.type = type;
       osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-      gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
       osc.start();
       osc.stop(this.ctx.currentTime + duration);
-    } catch (e) {
-      // Audio autoplay restrictions
-    }
+    } catch (e) {}
   },
   playNfcSuccess() {
-    this.playBeep(587, 'square', 0.08); // D5
-    setTimeout(() => this.playBeep(880, 'square', 0.15), 90); // A5
+    this.playBeep(523.25, 'square', 0.06); // C5
+    setTimeout(() => this.playBeep(659.25, 'square', 0.06), 70); // E5
+    setTimeout(() => this.playBeep(783.99, 'square', 0.12), 140); // G5
+  },
+  playClick() {
+    this.playBeep(440, 'triangle', 0.03);
   }
 };
 
-// Inicialização da Página
+let currentFilter = 'all';
+let currentSearchTerm = '';
+let activeCustomizingGame = null;
+
+// Inicialização
 document.addEventListener('DOMContentLoaded', () => {
-  renderCatalog('all');
+  renderCatalog();
   initSimulator();
   initWholesaleCalc();
   initFaq();
   initNavbar();
+  initSearch();
+  initTiltEffect();
 });
 
-// Renderização Dinâmica do Catálogo
-function renderCatalog(filter = 'all') {
+// Renderização com Filtro e Busca
+function renderCatalog() {
   const grid = document.getElementById('products-grid');
   if (!grid) return;
 
-  const filtered = filter === 'all' 
-    ? GAMES_DATABASE 
-    : GAMES_DATABASE.filter(g => g.console === filter);
+  const filtered = GAMES_DATABASE.filter(game => {
+    const matchFilter = currentFilter === 'all' || game.console === currentFilter;
+    const matchSearch = currentSearchTerm === '' || 
+      game.title.toLowerCase().includes(currentSearchTerm) ||
+      game.tags.toLowerCase().includes(currentSearchTerm);
+    return matchFilter && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+        <div style="font-size: 3rem; margin-bottom: 12px;">🔍</div>
+        <h3 style="color: #fff; margin-bottom: 8px;">Nenhum clássico encontrado</h3>
+        <p style="color: #94a3b8;">Tente buscar por outro termo ou limpe a busca acima.</p>
+      </div>
+    `;
+    return;
+  }
 
   grid.innerHTML = filtered.map(game => `
-    <div class="product-card" data-console="${game.console}">
+    <div class="product-card" data-console="${game.console}" onmousemove="handleTilt(event, this)" onmouseleave="resetTilt(this)">
       <span class="product-badge ${game.badgeClass}">${game.consoleName}</span>
       
       <div class="cartridge-visual">
@@ -186,10 +265,10 @@ function renderCatalog(filter = 'all') {
           </div>
 
           <div class="product-actions">
-            <a href="play.html?game=${game.romParam}" target="_blank" class="btn btn-glass btn-sm" title="Testar no Navegador">
+            <a href="play.html?game=${game.romParam}" target="_blank" class="btn btn-glass btn-sm" title="Testar no Navegador" onclick="SoundFX.playClick()">
               ▶ Testar
             </a>
-            <button onclick="orderViaWhatsApp('${game.title}')" class="btn btn-cyan btn-sm">
+            <button onclick="openCustomizeModal('${game.id}')" class="btn btn-cyan btn-sm">
               Pedir
             </button>
           </div>
@@ -201,10 +280,39 @@ function renderCatalog(filter = 'all') {
 
 // Filtros do Catálogo
 function filterCatalog(consoleType, btn) {
+  SoundFX.playClick();
+  currentFilter = consoleType;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  renderCatalog(consoleType);
+  renderCatalog();
 }
+
+// Barra de Busca
+function initSearch() {
+  const searchInput = document.getElementById('catalog-search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      currentSearchTerm = e.target.value.toLowerCase().trim();
+      renderCatalog();
+    });
+  }
+}
+
+// Efeito 3D Tilt nos Cards
+function handleTilt(e, card) {
+  const rect = card.getBoundingClientRect();
+  const x = e.clientX - rect.left - rect.width / 2;
+  const y = e.clientY - rect.top - rect.height / 2;
+  const rotateX = (-y / (rect.height / 2)) * 6;
+  const rotateY = (x / (rect.width / 2)) * 6;
+  card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+}
+
+function resetTilt(card) {
+  card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) translateY(0)';
+}
+
+function initTiltEffect() {}
 
 // Simulador Interativo de Smartphone NFC
 function initSimulator() {
@@ -232,11 +340,9 @@ function triggerNfcTapSimulation(game) {
   const phoneScreen = document.getElementById('phone-screen');
   if (!phoneScreen) return;
 
-  // Feedback Haptico e Sonoro
   SoundFX.playNfcSuccess();
   if (navigator.vibrate) navigator.vibrate([80, 50, 80]);
 
-  // Animação da Leitura NFC no Celular Virtual
   phoneScreen.innerHTML = `
     <div style="animation: pulse-dot 0.5s ease; width: 100%;">
       <div style="font-size: 2.2rem; margin-bottom: 8px;">📶</div>
@@ -251,14 +357,84 @@ function triggerNfcTapSimulation(game) {
         <div style="font-weight: 700; font-size: 0.85rem; color: #fff;">${game.title}</div>
         <div style="font-size: 0.7rem; color: var(--cyan);">${game.consoleName}</div>
       </div>
-      <a href="play.html?game=${game.romParam}" target="_blank" class="btn btn-cyan btn-sm" style="width: 100%; font-size: 0.75rem; padding: 8px;">
+      <a href="play.html?game=${game.romParam}" target="_blank" class="btn btn-cyan btn-sm" style="width: 100%; font-size: 0.75rem; padding: 8px;" onclick="SoundFX.playClick()">
         ▶ Abrir Jogo
       </a>
     </div>
   `;
 }
 
-// Calculadora de Lucro para Atacado e Lojistas
+// Modal de Customização de Pedido
+function openCustomizeModal(gameId) {
+  SoundFX.playClick();
+  activeCustomizingGame = GAMES_DATABASE.find(g => g.id === gameId) || GAMES_DATABASE[0];
+  
+  const modal = document.getElementById('order-custom-modal');
+  if (!modal) return;
+
+  document.getElementById('modal-game-title').textContent = activeCustomizingGame.title;
+  document.getElementById('modal-game-console').textContent = activeCustomizingGame.consoleName;
+  document.getElementById('modal-game-icon').textContent = activeCustomizingGame.icon;
+  document.getElementById('modal-order-qty').value = 1;
+  updateModalTotal();
+
+  modal.style.display = 'flex';
+}
+
+function closeCustomizeModal() {
+  const modal = document.getElementById('order-custom-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function updateModalTotal() {
+  if (!activeCustomizingGame) return;
+  const qty = parseInt(document.getElementById('modal-order-qty').value, 10) || 1;
+  const attachmentExtra = parseFloat(document.getElementById('modal-attachment-type').value) || 0;
+  const unitPrice = activeCustomizingGame.price + attachmentExtra;
+  const total = unitPrice * qty;
+
+  const totalEl = document.getElementById('modal-total-display');
+  if (totalEl) {
+    totalEl.textContent = `${CONFIG.currencySymbol} ${total.toFixed(2).replace('.', ',')}`;
+  }
+}
+
+function changeOrderQty(delta) {
+  SoundFX.playClick();
+  const input = document.getElementById('modal-order-qty');
+  if (!input) return;
+  let val = parseInt(input.value, 10) || 1;
+  val = Math.max(1, Math.min(20, val + delta));
+  input.value = val;
+  updateModalTotal();
+}
+
+function submitCustomizedOrder() {
+  if (!activeCustomizingGame) return;
+  SoundFX.playClick();
+
+  const qty = document.getElementById('modal-order-qty').value;
+  const colorEl = document.getElementById('modal-shell-color');
+  const color = colorEl ? colorEl.options[colorEl.selectedIndex].text : 'Cinza Clássico';
+  const attachEl = document.getElementById('modal-attachment-type');
+  const attach = attachEl ? attachEl.options[attachEl.selectedIndex].text : 'Chaveiro com Argola';
+  const total = document.getElementById('modal-total-display').textContent;
+
+  const message = `Olá! Gostaria de encomendar na *RetroNFC*:
+🎮 *Jogo:* ${activeCustomizingGame.title} (${activeCustomizingGame.consoleName})
+🎨 *Cor da Carcaça:* ${color}
+🔗 *Formato:* ${attach}
+📦 *Quantidade:* ${qty} unidade(s)
+💰 *Total Estimado:* ${total}
+
+Como podemos combinar o frete e a forma de pagamento?`;
+
+  const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+  closeCustomizeModal();
+}
+
+// Calculadora de Lucro B2B
 function initWholesaleCalc() {
   const slider = document.getElementById('wholesale-qty-slider');
   const qtyDisplay = document.getElementById('wholesale-qty-val');
@@ -284,8 +460,9 @@ function initWholesaleCalc() {
   updateCalc();
 }
 
-// Checkout & Contato via WhatsApp
+// Contato Geral WhatsApp
 function orderViaWhatsApp(gameTitle = '') {
+  SoundFX.playClick();
   let message = '';
   if (gameTitle) {
     message = `Olá! Vi o site RetroNFC.com.br e gostaria de encomendar o chaveiro NFC do *${gameTitle}* (R$ 29,90). Como podemos combinar o envio?`;
@@ -298,6 +475,7 @@ function orderViaWhatsApp(gameTitle = '') {
 }
 
 function orderWholesaleWhatsApp() {
+  SoundFX.playClick();
   const slider = document.getElementById('wholesale-qty-slider');
   const qty = slider ? slider.value : '50';
   const message = `Olá! Tenho interesse no pacote de atacado para revenda da RetroNFC (${qty} chaveiros com expositor giratório). Gostaria de ver o catálogo completo e prazos!`;
@@ -309,6 +487,7 @@ function orderWholesaleWhatsApp() {
 function initFaq() {
   document.querySelectorAll('.faq-question').forEach(q => {
     q.addEventListener('click', () => {
+      SoundFX.playClick();
       const item = q.parentElement;
       const isOpen = item.classList.contains('open');
       
@@ -332,6 +511,7 @@ function initNavbar() {
 
 // Toggle Menu Mobile
 function toggleMobileMenu() {
+  SoundFX.playClick();
   const nav = document.querySelector('.nav-links');
   if (nav) {
     nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
