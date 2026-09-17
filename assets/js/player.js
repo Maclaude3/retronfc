@@ -299,10 +299,10 @@ function bootGame(game) {
   if (loader) loader.style.display = 'flex';
 
   const steps = [
-    { pct: '25%', text: 'LENDO TAG RETRONFC...' },
-    { pct: '50%', text: `CARREGANDO CLÁSSICO: ${game.title.toUpperCase()}...` },
-    { pct: '75%', text: 'CONFIGURANDO CONTROLES TOUCH RETRO...' },
-    { pct: '100%', text: 'PRONTO! TOQUE NA TELA PARA JOGAR' }
+    { pct: '30%', text: 'LENDO TAG RETRONFC...' },
+    { pct: '65%', text: `SINCRONIZANDO: ${game.title.toUpperCase()}...` },
+    { pct: '90%', text: 'CONFIGURANDO CONTROLES TOUCH RETRO...' },
+    { pct: '100%', text: 'PRONTO!' }
   ];
 
   let currentStep = 0;
@@ -313,27 +313,61 @@ function bootGame(game) {
       currentStep++;
     } else {
       clearInterval(interval);
-      setTimeout(() => {
-        loadEmulatorEngine(game);
-      }, 400);
+      showStartPrompt(game);
     }
-  }, 350);
+  }, 250);
+}
+
+function showStartPrompt(game) {
+  const loader = document.getElementById('nfc-loader');
+  const statusText = document.getElementById('loader-status-text');
+  
+  if (statusText) {
+    statusText.innerHTML = `
+      <div style="font-size: 1.1rem; color: #67e8f9; margin-bottom: 16px;">
+        🎮 ${game.title} Carregado!
+      </div>
+      <button id="btn-start-play" class="btn btn-cyan btn-lg" style="font-size: 1.15rem; padding: 16px 32px; border-radius: 9999px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.7); cursor: pointer; animation: pulse 1.5s infinite;">
+        ▶️ TOQUE PARA JOGAR
+      </button>
+    `;
+
+    const startBtn = document.getElementById('btn-start-play');
+    if (startBtn) {
+      startBtn.addEventListener('click', () => {
+        loadEmulatorEngine(game);
+        if (loader) loader.style.display = 'none';
+      });
+      startBtn.addEventListener('touchstart', () => {
+        loadEmulatorEngine(game);
+        if (loader) loader.style.display = 'none';
+      }, { passive: true });
+    }
+  } else {
+    loadEmulatorEngine(game);
+    if (loader) loader.style.display = 'none';
+  }
 }
 
 // Carregamento Seguro do EmulatorJS
 function loadEmulatorEngine(game) {
-  const loader = document.getElementById('nfc-loader');
+  const container = document.getElementById('game-container');
+  if (container) container.innerHTML = '';
+
+  const absoluteRomUrl = new URL(game.romUrl, window.location.href).href;
 
   window.EJS_player = '#game-container';
-  window.EJS_core = game.console;
-  window.EJS_gameUrl = game.romUrl;
+  window.EJS_core = game.console || 'snes';
+  window.EJS_gameUrl = absoluteRomUrl;
   window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+  window.EJS_gameName = game.title;
+  window.EJS_startOnLoaded = true;
   window.EJS_startOnLoad = true;
+  window.EJS_color = '#00f0ff';
   window.EJS_Language = 'pt-BR';
-  window.EJS_showMenu = false;
-  window.EJS_virtualGamepadSettings = {
+  window.EJS_VirtualGamepadSettings = {
     type: 1,
-    opacity: 0.75,
+    opacity: 0.85,
     color: '#00f0ff'
   };
 
@@ -343,15 +377,6 @@ function loadEmulatorEngine(game) {
   const script = document.createElement('script');
   script.id = 'emulator-loader-script';
   script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
-  script.onload = () => {
-    setTimeout(() => {
-      if (loader) loader.style.display = 'none';
-    }, 1200);
-  };
-  script.onerror = () => {
-    showRomPickerFallback(game);
-  };
-
   document.body.appendChild(script);
 }
 
