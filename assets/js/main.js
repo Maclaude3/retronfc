@@ -5,7 +5,7 @@
 
 // Configurações Gerais
 const CONFIG = {
-  whatsappNumber: '5511999999999', // Substitua pelo seu WhatsApp oficial
+  whatsappNumber: '5561991252332', // Substitua pelo seu WhatsApp oficial
   currencySymbol: 'R$',
   retailPrice: 29.90,
   wholesalePrice: 7.50,
