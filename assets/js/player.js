@@ -5,7 +5,7 @@
 
 // Mapeamento Expandido de ROMs e Emuladores (Multiconsoles: SNES, PS1, N64, GBA, Genesis, Arcade)
 const GAMES_MAP = {
-  // SNES
+  // SNES (Super Nintendo)
   super_mario: {
     title: 'Super Mario World',
     console: 'snes',
@@ -17,22 +17,43 @@ const GAMES_MAP = {
     title: 'Top Gear',
     console: 'snes',
     consoleName: 'Super Nintendo',
-    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/top_gear.sfc',
+    romUrl: 'roms/top_gear.smc',
     icon: '🏎️'
   },
   donkey_kong: {
     title: 'Donkey Kong Country',
     console: 'snes',
     consoleName: 'Super Nintendo',
-    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/dkc.sfc',
+    romUrl: 'roms/donkey_kong.smc',
     icon: '🍌'
+  },
+  super_mario_kart: {
+    title: 'Super Mario Kart',
+    console: 'snes',
+    consoleName: 'Super Nintendo',
+    romUrl: 'roms/super_mario_kart.smc',
+    icon: '🏎️'
   },
   zelda_alttp: {
     title: 'Zelda: Link to the Past',
     console: 'snes',
     consoleName: 'Super Nintendo',
-    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/zelda.sfc',
+    romUrl: 'roms/zelda_alttp.smc',
     icon: '🗡️'
+  },
+  street_fighter: {
+    title: 'Street Fighter II Turbo',
+    console: 'snes',
+    consoleName: 'Super Nintendo',
+    romUrl: 'roms/street_fighter.smc',
+    icon: '🥊'
+  },
+  mega_man_x: {
+    title: 'Mega Man X',
+    console: 'snes',
+    consoleName: 'Super Nintendo',
+    romUrl: 'roms/mega_man_x.smc',
+    icon: '🤖'
   },
   chrono_trigger: {
     title: 'Chrono Trigger',
@@ -41,20 +62,6 @@ const GAMES_MAP = {
     romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/chrono.sfc',
     icon: '⏳'
   },
-  street_fighter: {
-    title: 'Street Fighter II Turbo',
-    console: 'snes',
-    consoleName: 'Super Nintendo',
-    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/sf2.sfc',
-    icon: '🥊'
-  },
-  mortal_kombat_2: {
-    title: 'Mortal Kombat II',
-    console: 'snes',
-    consoleName: 'Super Nintendo',
-    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/mk2.sfc',
-    icon: '🐉'
-  },
   super_metroid: {
     title: 'Super Metroid',
     console: 'snes',
@@ -62,12 +69,42 @@ const GAMES_MAP = {
     romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/metroid.sfc',
     icon: '🚀'
   },
-  mega_man_x: {
-    title: 'Mega Man X',
-    console: 'snes',
-    consoleName: 'Super Nintendo',
-    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/mmx.sfc',
-    icon: '🤖'
+
+  // MEGA DRIVE / SEGA GENESIS
+  moonwalker: {
+    title: "Michael Jackson's Moonwalker",
+    console: 'segaMD',
+    consoleName: 'Mega Drive',
+    romUrl: 'roms/moonwalker.md',
+    icon: '🎩'
+  },
+  sonic_2: {
+    title: 'Sonic the Hedgehog 2',
+    console: 'segaMD',
+    consoleName: 'Mega Drive',
+    romUrl: 'roms/sonic_2.md',
+    icon: '🦔'
+  },
+  mortal_kombat_2: {
+    title: 'Mortal Kombat II',
+    console: 'segaMD',
+    consoleName: 'Mega Drive',
+    romUrl: 'roms/mortal_kombat_2.bin',
+    icon: '🐉'
+  },
+  streets_of_rage_2: {
+    title: 'Streets of Rage 2',
+    console: 'segaMD',
+    consoleName: 'Mega Drive',
+    romUrl: 'roms/streets_of_rage_2.bin',
+    icon: '🥋'
+  },
+  golden_axe: {
+    title: 'Golden Axe',
+    console: 'segaMD',
+    consoleName: 'Mega Drive',
+    romUrl: 'roms/golden_axe.bin',
+    icon: '🪓'
   },
 
   // PS1
@@ -190,28 +227,7 @@ const GAMES_MAP = {
     icon: '💣'
   },
 
-  // Genesis & GBC
-  moonwalker: {
-    title: "Michael Jackson's Moonwalker",
-    console: 'segaMD',
-    consoleName: 'Mega Drive',
-    romUrl: 'roms/moonwalker.md',
-    icon: '🎩'
-  },
-  sonic_2: {
-    title: 'Sonic the Hedgehog 2',
-    console: 'segaMD',
-    consoleName: 'Mega Drive',
-    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/genesis/roms/sonic2.md',
-    icon: '🦔'
-  },
-  streets_of_rage_2: {
-    title: 'Streets of Rage 2',
-    console: 'segaMD',
-    consoleName: 'Mega Drive',
-    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/genesis/roms/sor2.md',
-    icon: '🥋'
-  },
+  // GBC
   pokemon_yellow: {
     title: 'Pokémon Yellow Special',
     console: 'gbc',
