@@ -10,7 +10,7 @@ const GAMES_MAP = {
     title: 'Super Mario World',
     console: 'snes',
     consoleName: 'Super Nintendo',
-    romUrl: 'https://raw.githubusercontent.com/joeheyming/emulator/master/snes/roms/smw.sfc',
+    romUrl: 'roms/super_mario.smc',
     icon: '🍄'
   },
   top_gear: {
