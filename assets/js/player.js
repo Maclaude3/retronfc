@@ -191,6 +191,13 @@ const GAMES_MAP = {
   },
 
   // Genesis & GBC
+  moonwalker: {
+    title: "Michael Jackson's Moonwalker",
+    console: 'segaMD',
+    consoleName: 'Mega Drive',
+    romUrl: 'roms/moonwalker.md',
+    icon: '🎩'
+  },
   sonic_2: {
     title: 'Sonic the Hedgehog 2',
     console: 'segaMD',

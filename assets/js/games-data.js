@@ -594,6 +594,19 @@ const GAMES_DATABASE = [
 
   // ==========================================
   // MEGA DRIVE (GENESIS)
+  {
+    id: 'moonwalker',
+    title: "Michael Jackson's Moonwalker",
+    console: 'genesis',
+    consoleName: 'Mega Drive',
+    badgeClass: 'badge-genesis',
+    genre: 'acao',
+    icon: '🎩',
+    desc: 'Smooth Criminal! Jogue o chapéu, faça o Moonwalk, dance com os inimigos e vire o robô gigante no clássico mais lendário do Rei do Pop.',
+    romParam: 'moonwalker',
+    price: 29.90,
+    tags: 'michael jackson moonwalker sega mega drive genesis smooth criminal beat em up danca rei do pop'
+  },
   // ==========================================
   {
     id: 'sonic_2',
