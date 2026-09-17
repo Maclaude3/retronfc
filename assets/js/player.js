@@ -333,16 +333,7 @@ function loadEmulatorEngine(game) {
     }, 1200);
   };
   script.onerror = () => {
-    if (loader) {
-      loader.innerHTML = `
-        <div style="font-size: 3rem; margin-bottom: 20px;">⚠️</div>
-        <h3 style="color: var(--pink); margin-bottom: 12px;">Modo Demonstração</h3>
-        <p style="color: #94a3b8; max-width: 480px; margin-bottom: 24px;">
-          O emulador online está pronto para receber suas ROMs locais ou CDN. Para testar com seus próprios arquivos .sfc, adicione-os na pasta <strong>roms/</strong> do seu repositório.
-        </p>
-        <button onclick="location.reload()" class="btn btn-cyan btn-sm">Tentar Novamente</button>
-      `;
-    }
+    showRomPickerFallback(game);
   };
 
   document.body.appendChild(script);
@@ -400,4 +391,52 @@ function openGamePicker() {
 function closeGamePicker() {
   const modal = document.getElementById('game-picker-modal');
   if (modal) modal.classList.remove('active');
+}
+
+// Exibe opção de carregar ROM local se o link remoto falhar
+function showRomPickerFallback(game) {
+  const loader = document.getElementById('nfc-loader');
+  if (loader) {
+    loader.innerHTML = `
+      <div style="font-size: 3rem; margin-bottom: 16px;">🎮</div>
+      <h3 style="color: var(--cyan); margin-bottom: 8px;">Pronto para Rodar: ${game.title}</h3>
+      <p style="color: #94a3b8; max-width: 460px; font-size: 0.9rem; margin-bottom: 24px;">
+        Para jogar este clássico agora, selecione o arquivo da ROM (.sfc, .md, .gba) do seu celular ou computador:
+      </p>
+      
+      <label class="btn btn-cyan btn-md" style="cursor: pointer; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 8px;">
+        📁 Carregar Arquivo de ROM (.sfc / .md)
+        <input type="file" id="local-rom-file-input" accept=".sfc,.smc,.md,.gen,.gba,.gbc,.zip" style="display: none;" onchange="bootFromLocalFile(this, '${game.console}')">
+      </label>
+
+      <div>
+        <a href="index.html#catalogo" class="btn btn-glass btn-sm">← Voltar ao Catálogo</a>
+      </div>
+    `;
+  }
+}
+
+function bootFromLocalFile(input, consoleCore) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const objectUrl = URL.createObjectURL(file);
+  const loader = document.getElementById('nfc-loader');
+  if (loader) loader.style.display = 'none';
+
+  window.EJS_player = '#game-container';
+  window.EJS_core = consoleCore || 'snes';
+  window.EJS_gameUrl = objectUrl;
+  window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+  window.EJS_startOnLoad = true;
+  window.EJS_Language = 'pt-BR';
+  window.EJS_virtualGamepadSettings = {
+    type: 1,
+    opacity: 0.75,
+    color: '#00f0ff'
+  };
+
+  const script = document.createElement('script');
+  script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+  document.body.appendChild(script);
 }
