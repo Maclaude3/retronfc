@@ -247,24 +247,33 @@ function triggerNfcTapSimulation(game) {
   SoundFX.playNfcSuccess();
   if (navigator.vibrate) navigator.vibrate([80, 50, 80]);
 
+    const isMario = (game.id === 'super_mario' || game.romParam === 'super_mario');
+  const mediaContent = isMario ? `
+    <div style="position: relative; width: 100%; max-height: 165px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-glow); box-shadow: 0 6px 20px rgba(0,0,0,0.8); margin-bottom: 10px;">
+      <img src="assets/images/super-mario-world-yoshi.gif" alt="Super Mario World Gameplay" style="width: 100%; height: 165px; object-fit: cover; display: block;" />
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%); background-size: 100% 3px; pointer-events: none;"></div>
+    </div>
+  ` : `
+    <canvas id="phone-gameplay-canvas" style="width: 100%; max-height: 165px; border-radius: 8px; border: 1px solid var(--border-glow); box-shadow: 0 6px 20px rgba(0,0,0,0.8); margin-bottom: 10px;"></canvas>
+  `;
+
   phoneScreen.innerHTML = `
     <div style="animation: pulse-dot 0.4s ease; width: 100%; display: flex; flex-direction: column; align-items: center;">
       <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 6px; padding: 0 4px;">
-        <span style="font-family: var(--font-pixel); font-size: 0.6rem; color: var(--green);">⚡ TAG LIDA</span>
+        <span style="font-family: var(--font-pixel); font-size: 0.6rem; color: var(--green);">⚡ TAG LIDA (NFC)</span>
         <span style="font-size: 0.65rem; color: var(--cyan); font-weight: 700;">60 FPS PREVIEW</span>
       </div>
       
-      <!-- Canvas de Gameplay em Tempo Real -->
-      <canvas id="phone-gameplay-canvas" style="width: 100%; max-height: 165px; border-radius: 8px; border: 1px solid var(--border-glow); box-shadow: 0 6px 20px rgba(0,0,0,0.8); margin-bottom: 10px;"></canvas>
+      ${mediaContent}
 
       <div style="width: 100%; text-align: left; margin-bottom: 10px; background: rgba(255,255,255,0.04); padding: 6px 10px; border-radius: 6px;">
         <div style="font-weight: 700; font-size: 0.82rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${game.title}</div>
         <div style="font-size: 0.68rem; color: var(--text-muted);">${game.consoleName}</div>
       </div>
 
-      <a href="play.html?game=${game.romParam}" target="_blank" class="btn btn-cyan btn-sm" style="width: 100%; font-size: 0.78rem; padding: 10px;" onclick="SoundFX.playClick()">
-        ▶ Jogar no Player
-      </a>
+      <button onclick="openCustomizeModal('${game.id}')" class="btn btn-cyan btn-sm" style="width: 100%; font-size: 0.78rem; padding: 10px;">
+        🛒 Pedir Este Chaveiro NFC
+      </button>
     </div>
   `;
 
@@ -470,10 +479,29 @@ function openPreviewModal(gameId) {
     badgeEl.style.position = 'static';
   }
 
-  // Inicia a Prévia 60 FPS no Canvas Retrô da TV CRT
-  if (canvas && typeof GameplayPreviews !== 'undefined') {
-    GameplayPreviews.startPreview(canvas, activePreviewGame.romParam);
+  
+  // Se for Super Mario, usa o GIF original autenticado com scanlines
+  const tvBezel = document.querySelector('.preview-tv-bezel');
+  if (tvBezel) {
+    if (activePreviewGame.id === 'super_mario' || activePreviewGame.romParam === 'super_mario') {
+      tvBezel.innerHTML = `
+        <img src="assets/images/super-mario-world-yoshi.gif" alt="Super Mario World" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+        <div class="tv-crt-lines"></div>
+        <div class="tv-glare"></div>
+      `;
+    } else {
+      tvBezel.innerHTML = `
+        <canvas id="preview-game-canvas" width="240" height="180"></canvas>
+        <div class="tv-crt-lines"></div>
+        <div class="tv-glare"></div>
+      `;
+      const canvas = document.getElementById('preview-game-canvas');
+      if (canvas && typeof GameplayPreviews !== 'undefined') {
+        GameplayPreviews.startPreview(canvas, activePreviewGame.romParam);
+      }
+    }
   }
+
 
   modal.style.display = 'flex';
 }

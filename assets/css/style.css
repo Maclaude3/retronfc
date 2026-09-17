@@ -1447,3 +1447,221 @@ h1, h2, h3, h4 {
     width: 100%;
   }
 }
+
+
+/* ============================================================
+   DESTAQUE NFC SHOWCASE (ESTILO CONCORRENTE ELEVADO RETRONFC)
+   ============================================================ */
+.nfc-showcase-section {
+  padding: 40px 0 60px;
+}
+
+.nfc-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #0e1628 0%, #080c16 100%);
+  border: 1px solid var(--border-glow);
+  padding: 50px 60px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 50px;
+  align-items: center;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 240, 255, 0.2);
+}
+
+.nfc-card::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 70%;
+  height: 180%;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.12), transparent 65%);
+  pointer-events: none;
+}
+
+.nfc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid var(--cyan);
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.nfc-card h2 {
+  font-size: 2.3rem;
+  color: #fff;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.nfc-card p {
+  color: #94a3b8;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  max-width: 520px;
+}
+
+.nfc-price-tag-box {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  margin-bottom: 28px;
+  padding: 12px 18px;
+  background: rgba(0, 240, 255, 0.06);
+  border: 1px solid var(--border-glow);
+  border-radius: 12px;
+  max-width: fit-content;
+}
+
+.nfc-price-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.nfc-price-val {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--cyan);
+}
+
+.nfc-price-sub {
+  font-size: 0.75rem;
+  color: #10b981;
+  font-weight: 600;
+}
+
+.nfc-visual {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+
+.nfc-phone {
+  width: 62%;
+  aspect-ratio: 9 / 16;
+  background: linear-gradient(160deg, #18233c, #070a12);
+  border-radius: 32px;
+  border: 3px solid #2d3f66;
+  position: relative;
+  z-index: 2;
+  padding: 18px 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 240, 255, 0.25);
+}
+
+.nfc-phone-screen {
+  flex: 1;
+  background: #000;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.nfc-phone-screen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.nfc-chip {
+  position: absolute;
+  right: 4%;
+  bottom: 10%;
+  z-index: 4;
+  width: 44%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid var(--cyan);
+  transform: rotate(8deg);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 240, 255, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.nfc-chip:hover {
+  transform: rotate(0deg) scale(1.08);
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 240, 255, 0.6);
+}
+
+.nfc-chip img {
+  width: 100%;
+  display: block;
+}
+
+.nfc-waves {
+  position: absolute;
+  top: 55%;
+  left: 65%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.nfc-waves span {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--cyan);
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  margin: -35px;
+  opacity: 0;
+  animation: nfcWave 2.4s infinite ease-out;
+}
+
+.nfc-waves span:nth-child(2) {
+  animation-delay: 0.8s;
+}
+
+.nfc-waves span:nth-child(3) {
+  animation-delay: 1.6s;
+}
+
+@keyframes nfcWave {
+  0% { transform: scale(0.3); opacity: 0.9; }
+  50% { opacity: 0.6; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+
+@media (max-width: 900px) {
+  .nfc-card {
+    grid-template-columns: 1fr;
+    padding: 40px 24px;
+    gap: 36px;
+    text-align: center;
+  }
+  .nfc-card p {
+    margin: 0 auto 24px;
+  }
+  .nfc-price-tag-box {
+    margin: 0 auto 28px;
+  }
+  .nfc-visual {
+    max-width: 340px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
