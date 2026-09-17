@@ -300,8 +300,8 @@ function bootGame(game) {
 
   const steps = [
     { pct: '25%', text: 'LENDO TAG RETRONFC...' },
-    { pct: '50%', text: `LOCALIZANDO ROM: ${game.title.toUpperCase()}...` },
-    { pct: '75%', text: 'INICIALIZANDO MOTOR WEBASSEMBLY...' },
+    { pct: '50%', text: `CARREGANDO CLÁSSICO: ${game.title.toUpperCase()}...` },
+    { pct: '75%', text: 'CONFIGURANDO CONTROLES TOUCH RETRO...' },
     { pct: '100%', text: 'PRONTO! TOQUE NA TELA PARA JOGAR' }
   ];
 

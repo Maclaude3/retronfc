@@ -109,7 +109,7 @@ function renderCatalog() {
         <div class="cartridge-sticker">
           <div class="cartridge-art-icon">${game.icon}</div>
           <div class="cartridge-game-title">${game.title}</div>
-          <span class="nfc-chip-indicator" title="Chip NTAG213 Embutido">⚡ NFC</span>
+          <span class="nfc-chip-indicator" title="Chip NFC Integrado">⚡ NFC</span>
         </div>
       </div>
 
@@ -118,7 +118,7 @@ function renderCatalog() {
         <p class="product-desc">${game.desc}</p>
         
         <div class="product-specs">
-          <span class="spec-pill">Chip NTAG213</span>
+          <span class="spec-pill">Chip NFC</span>
           <span class="spec-pill">${game.genre.toUpperCase()}</span>
           <span class="spec-pill">PLA Premium</span>
         </div>
