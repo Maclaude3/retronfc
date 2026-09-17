@@ -28,7 +28,7 @@ Uma experiência nostálgica completa que conecta o produto físico ao ambiente 
 
 ## 💻 Como Executar Localmente
 
-```bash
+`ash
 # 1. Clone o repositório
 git clone https://github.com/Maclaude3/retronfc.git
 
@@ -41,9 +41,9 @@ python -m http.server 8000
 
 # Ou com Node.js (npx):
 npx serve .
-```
+`
 
-Abra o navegador em `http://localhost:8000` para visualizar a loja.
+Abra o navegador em http://localhost:8000 para visualizar a loja.
 
 ---
 
