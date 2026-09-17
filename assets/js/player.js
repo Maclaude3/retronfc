@@ -249,8 +249,7 @@ function isMobileOrSimulator() {
   // Permite mobile real ou telas reduzidas simulando smartphone
   const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   const isSmallScreen = window.innerWidth <= 820;
-  const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  return isMobileUA || (isSmallScreen && hasTouch);
+  return isMobileUA || isSmallScreen;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -324,24 +323,27 @@ function showStartPrompt(game) {
   
   if (statusText) {
     statusText.innerHTML = `
-      <div style="font-size: 1.1rem; color: #67e8f9; margin-bottom: 16px;">
-        🎮 ${game.title} Carregado!
+      <div style="font-size: 1.15rem; color: #67e8f9; font-weight: bold; margin-bottom: 18px;">
+        🎮 ${game.title} Sincronizado!
       </div>
-      <button id="btn-start-play" class="btn btn-cyan btn-lg" style="font-size: 1.15rem; padding: 16px 32px; border-radius: 9999px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.7); cursor: pointer; animation: pulse 1.5s infinite;">
+      <button id="btn-start-play" class="btn btn-cyan btn-lg" style="font-size: 1.2rem; font-weight: 800; padding: 18px 36px; border-radius: 9999px; background: #00f0ff; color: #05070d; border: 2px solid #fff; box-shadow: 0 0 30px rgba(0, 240, 255, 0.85); cursor: pointer; animation: pulse 1.5s infinite;">
         ▶️ TOQUE PARA JOGAR
       </button>
     `;
 
     const startBtn = document.getElementById('btn-start-play');
+    let hasTriggered = false;
+    const triggerStart = (e) => {
+      if (hasTriggered) return;
+      hasTriggered = true;
+      if (e && e.preventDefault) e.preventDefault();
+      loadEmulatorEngine(game);
+      if (loader) loader.style.display = 'none';
+    };
+
     if (startBtn) {
-      startBtn.addEventListener('click', () => {
-        loadEmulatorEngine(game);
-        if (loader) loader.style.display = 'none';
-      });
-      startBtn.addEventListener('touchstart', () => {
-        loadEmulatorEngine(game);
-        if (loader) loader.style.display = 'none';
-      }, { passive: true });
+      startBtn.addEventListener('click', triggerStart);
+      startBtn.addEventListener('touchend', triggerStart);
     }
   } else {
     loadEmulatorEngine(game);
@@ -349,7 +351,7 @@ function showStartPrompt(game) {
   }
 }
 
-// Carregamento Seguro do EmulatorJS
+// Carregamento Seguro do EmulatorJS com Controles Touch Mobile Nativos
 function loadEmulatorEngine(game) {
   const container = document.getElementById('game-container');
   if (container) container.innerHTML = '';
@@ -362,13 +364,18 @@ function loadEmulatorEngine(game) {
   window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
   window.EJS_gameName = game.title;
   window.EJS_startOnLoaded = true;
-  window.EJS_startOnLoad = true;
   window.EJS_color = '#00f0ff';
-  window.EJS_Language = 'pt-BR';
-  window.EJS_VirtualGamepadSettings = {
-    type: 1,
-    opacity: 0.85,
-    color: '#00f0ff'
+  window.EJS_language = 'pt-BR';
+  window.EJS_threads = false;
+
+  // Garante controles touch ativos no smartphone
+  window.EJS_onGameStart = () => {
+    if (window.EJS_emulator) {
+      window.EJS_emulator.touch = true;
+      if (window.EJS_emulator.virtualGamepad) {
+        window.EJS_emulator.virtualGamepad.style.display = '';
+      }
+    }
   };
 
   const existingScript = document.getElementById('emulator-loader-script');
