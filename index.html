@@ -222,9 +222,31 @@
         <button class="filter-btn" onclick="filterCatalog('gameboy', this)">Game Boy Color</button>
       </div>
 
+      <!-- Genre Filters -->
+      <div class="genre-filters" style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+        <button class="genre-pill active" onclick="filterByGenre('all', this)">Todos os Estilos</button>
+        <button class="genre-pill" onclick="filterByGenre('plataforma', this)">🍄 Plataforma</button>
+        <button class="genre-pill" onclick="filterByGenre('luta', this)">🥊 Luta</button>
+        <button class="genre-pill" onclick="filterByGenre('corrida', this)">🏎️ Corrida</button>
+        <button class="genre-pill" onclick="filterByGenre('rpg', this)">🗡️ RPG & Aventura</button>
+        <button class="genre-pill" onclick="filterByGenre('acao', this)">🚀 Ação & Tiro</button>
+        <button class="genre-pill" onclick="filterByGenre('esporte', this)">⚽ Esportes</button>
+        <button class="genre-pill" onclick="filterByGenre('terror', this)">🧟 Terror</button>
+      </div>
+
+      <!-- Results Count -->
+      <div id="catalog-results-count" style="text-align: center; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 28px;"></div>
+
       <!-- Dynamic Grid -->
       <div id="products-grid" class="products-grid">
         <!-- Renderizado dinamicamente via assets/js/main.js -->
+      </div>
+
+      <!-- Load More Button -->
+      <div id="load-more-btn-wrap" style="text-align: center; margin-top: 40px; display: none;">
+        <button onclick="loadMoreGames()" class="btn btn-glass btn-lg">
+          ⬇ Carregar Mais Clássicos
+        </button>
       </div>
     </div>
   </section>
@@ -560,6 +582,6 @@
   </a>
 
   <!-- Script Principal -->
-  <script src="assets/js/main.js"></script>
+  <script src="assets/js/games-data.js"></script>`r`n  <script src="assets/js/main.js"></script>
 </body>
 </html>

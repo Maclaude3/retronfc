@@ -214,6 +214,26 @@ const GAMES_MAP = {
   }
 };
 
+// Sincroniza automaticamente com o Mega Catálogo (games-data.js)
+if (typeof GAMES_DATABASE !== 'undefined') {
+  GAMES_DATABASE.forEach(g => {
+    if (!GAMES_MAP[g.romParam]) {
+      let core = g.console;
+      if (core === 'ps1') core = 'psx';
+      if (core === 'genesis') core = 'segaMD';
+      if (core === 'gameboy') core = 'gbc';
+      if (core === 'arcade') core = 'fba';
+      GAMES_MAP[g.romParam] = {
+        title: g.title,
+        console: core,
+        consoleName: g.consoleName,
+        romUrl: `roms/${g.romParam}.sfc`,
+        icon: g.icon
+      };
+    }
+  });
+}
+
 let currentGame = null;
 let crtActive = true;
 
