@@ -248,24 +248,30 @@ function triggerNfcTapSimulation(game) {
   if (navigator.vibrate) navigator.vibrate([80, 50, 80]);
 
   phoneScreen.innerHTML = `
-    <div style="animation: pulse-dot 0.5s ease; width: 100%;">
-      <div style="font-size: 2.2rem; margin-bottom: 8px;">📶</div>
-      <div style="font-family: var(--font-pixel); font-size: 0.65rem; color: var(--green); margin-bottom: 6px;">
-        TAG NFC LIDA!
+    <div style="animation: pulse-dot 0.4s ease; width: 100%; display: flex; flex-direction: column; align-items: center;">
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 6px; padding: 0 4px;">
+        <span style="font-family: var(--font-pixel); font-size: 0.6rem; color: var(--green);">⚡ TAG LIDA</span>
+        <span style="font-size: 0.65rem; color: var(--cyan); font-weight: 700;">60 FPS PREVIEW</span>
       </div>
-      <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 12px;">
-        https://retronfc.com.br/play
+      
+      <!-- Canvas de Gameplay em Tempo Real -->
+      <canvas id="phone-gameplay-canvas" style="width: 100%; max-height: 165px; border-radius: 8px; border: 1px solid var(--border-glow); box-shadow: 0 6px 20px rgba(0,0,0,0.8); margin-bottom: 10px;"></canvas>
+
+      <div style="width: 100%; text-align: left; margin-bottom: 10px; background: rgba(255,255,255,0.04); padding: 6px 10px; border-radius: 6px;">
+        <div style="font-weight: 700; font-size: 0.82rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${game.title}</div>
+        <div style="font-size: 0.68rem; color: var(--text-muted);">${game.consoleName}</div>
       </div>
-      <div style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--cyan); border-radius: 8px; padding: 10px; margin-bottom: 12px;">
-        <div style="font-size: 1.8rem; margin-bottom: 4px;">${game.icon}</div>
-        <div style="font-weight: 700; font-size: 0.85rem; color: #fff;">${game.title}</div>
-        <div style="font-size: 0.7rem; color: var(--cyan);">${game.consoleName}</div>
-      </div>
-      <a href="play.html?game=${game.romParam}" target="_blank" class="btn btn-cyan btn-sm" style="width: 100%; font-size: 0.75rem; padding: 8px;" onclick="SoundFX.playClick()">
-        ▶ Abrir Jogo
+
+      <a href="play.html?game=${game.romParam}" target="_blank" class="btn btn-cyan btn-sm" style="width: 100%; font-size: 0.78rem; padding: 10px;" onclick="SoundFX.playClick()">
+        ▶ Jogar no Player
       </a>
     </div>
   `;
+
+  const canvas = document.getElementById('phone-gameplay-canvas');
+  if (canvas && typeof GameplayPreviews !== 'undefined') {
+    GameplayPreviews.startPreview(canvas, game.id);
+  }
 }
 
 // Modal de Customização
