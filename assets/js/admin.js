@@ -252,6 +252,105 @@ function checkLockout() {
 // ==========================================================================
 // INICIALIZAÇÃO & AUTENTICAÇÃO
 // ==========================================================================
+
+// ==========================================================================
+// INTEGRAÇÃO INTELIGENTE JARVIS & WHATSAPP
+// ==========================================================================
+function parseJarvisOrderText() {
+  const input = document.getElementById('jarvis-paste-input');
+  if (!input || !input.value.trim()) {
+    alert('Por favor, cole primeiro o texto com os dados do cliente.');
+    return;
+  }
+
+  const text = input.value;
+  
+  // Expressões regulares para extrair os campos
+  const nameMatch = text.match(/(?:nome|cliente|destinat[áa]rio)[:\s]+([^\n|;]+)/i);
+  const phoneMatch = text.match(/(?:tel|telefone|celular|whats|whatsapp)[:\s]+([0-9()+\s\-]+)/i);
+  const addressMatch = text.match(/(?:end|endere[çc]o|rua|av|avenida|logradouro)[:\s]+([^\n|;]+)/i);
+  const neighborhoodMatch = text.match(/(?:bairro)[:\s]+([^\n|;]+)/i);
+  const cityMatch = text.match(/(?:cidade)[:\s]+([^\n|;]+)/i);
+  const stateMatch = text.match(/(?:uf|estado)[:\s]+([a-zA-Z]{2})/i);
+  const zipMatch = text.match(/(?:cep)[:\s]+([0-9]{5}\-?[0-9]{3})/i);
+  const gameMatch = text.match(/(?:jogo|game|fita|cartucho)[:\s]+([^\n|;]+)/i);
+
+  if (nameMatch) document.getElementById('form-name').value = nameMatch[1].trim();
+  if (phoneMatch) document.getElementById('form-phone').value = phoneMatch[1].trim();
+  if (addressMatch) document.getElementById('form-address').value = addressMatch[1].trim();
+  if (neighborhoodMatch) document.getElementById('form-neighborhood').value = neighborhoodMatch[1].trim();
+  if (cityMatch) document.getElementById('form-city').value = cityMatch[1].trim();
+  if (stateMatch) document.getElementById('form-state').value = stateMatch[1].trim().toUpperCase();
+  if (zipMatch) document.getElementById('form-zip').value = zipMatch[1].trim();
+
+  if (gameMatch) {
+    const rawGame = gameMatch[1].toLowerCase();
+    const select = document.getElementById('form-game');
+    if (select) {
+      for (let i = 0; i < select.options.length; i++) {
+        const optText = select.options[i].text.toLowerCase();
+        const optVal = select.options[i].value.toLowerCase();
+        if (optText.includes(rawGame) || rawGame.includes(optVal) || (rawGame.includes('mario') && optVal.includes('mario')) || (rawGame.includes('moonwalker') && optVal.includes('moonwalker')) || (rawGame.includes('top gear') && optVal.includes('top_gear')) || (rawGame.includes('sonic') && optVal.includes('sonic'))) {
+          select.selectedIndex = i;
+          break;
+        }
+      }
+    }
+  }
+
+  alert('⚡ Campos preenchidos com sucesso a partir dos dados do Jarvis!');
+}
+
+// Verifica se a URL do admin foi aberta com parâmetros de pedido automático do Jarvis
+function checkUrlAutoOrder() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('action') === 'new_order' && params.get('name')) {
+    const newId = orders.length > 0 ? Math.max(...orders.map(o => o.id)) + 1 : 1001;
+    const gameKey = params.get('game') || 'super_mario';
+    
+    // Procura nome amigável do jogo
+    const gamesDict = {
+      moonwalker: "Michael Jackson's Moonwalker",
+      top_gear: "Top Gear",
+      donkey_kong: "Donkey Kong Country",
+      sonic_2: "Sonic the Hedgehog 2",
+      super_mario: "Super Mario World",
+      super_mario_kart: "Super Mario Kart",
+      street_fighter: "Street Fighter II Turbo",
+      mortal_kombat_2: "Mortal Kombat II",
+      zelda_alttp: "Zelda: Link to the Past",
+      mega_man_x: "Mega Man X"
+    };
+
+    const newOrder = {
+      id: newId,
+      date: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }),
+      customerName: params.get('name'),
+      phone: params.get('phone') || '',
+      address: params.get('address') || '',
+      neighborhood: params.get('neighborhood') || '',
+      city: params.get('city') || '',
+      state: params.get('state') || 'SP',
+      zip: params.get('zip') || '',
+      gameKey: gameKey,
+      gameTitle: gamesDict[gameKey] || gameKey,
+      console: gameKey.includes('moonwalker') || gameKey.includes('sonic') ? 'Mega Drive' : 'Super Nintendo',
+      icon: '🎮',
+      status: 'pending',
+      trackingCode: ''
+    };
+
+    orders.unshift(newOrder);
+    saveOrders();
+    renderOrders();
+    updateKpiMetrics();
+    logTerminal(`[Jarvis URL] Novo pedido #${newId} de ${newOrder.customerName} recebido via link automático!`);
+    
+    // Remove os parâmetros da barra de endereço para não duplicar
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   const isAuth = checkSession();
   const overlay = document.getElementById('login-overlay');
@@ -260,6 +359,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (overlay) overlay.style.display = 'none';
     // Se a chave não estiver em RAM mas a sessão for válida no navegador local, recupera dados
     await loadOrders();
+    checkUrlAutoOrder();
     renderTopSellers();
     initNfcStation();
     checkNfcSupport();
@@ -328,6 +428,7 @@ async function handleLogin(e) {
     input.value = '';
 
     await loadOrders();
+    checkUrlAutoOrder();
     renderTopSellers();
     initNfcStation();
     checkNfcSupport();

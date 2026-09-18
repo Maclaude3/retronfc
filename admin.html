@@ -241,6 +241,17 @@
         <button class="close-modal-btn" onclick="closeNewOrderModal()">&times;</button>
       </div>
       <form onsubmit="createManualOrder(event)" style="display: flex; flex-direction: column; gap: 14px;">
+      <div style="background: rgba(0, 240, 255, 0.05); border: 1.5px dashed var(--border-glow); border-radius: 12px; padding: 14px; margin-bottom: 14px;">
+        <label style="font-size: 0.8rem; font-weight: 800; color: var(--cyan); display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <span>⚡ Importação Automática do Jarvis / WhatsApp:</span>
+          <span style="font-size: 0.72rem; color: var(--text-dim); font-weight: normal;">Cole a mensagem do cliente</span>
+        </label>
+        <textarea id="jarvis-paste-input" class="form-control" rows="2" style="font-size: 0.82rem; margin-bottom: 8px;" placeholder="Cole aqui o texto do Jarvis ou do cliente (ex: Nome: Lucas | Tel: 11987654321 | End: Rua Augusta 1420 | Jogo: Moonwalker)..."></textarea>
+        <button type="button" onclick="parseJarvisOrderText()" class="btn-secondary" style="width: 100%; padding: 8px; font-size: 0.82rem; font-weight: 800; color: var(--cyan); border-color: var(--cyan); background: rgba(0, 240, 255, 0.08);">
+          ⚡ Preencher Campos Automaticamente
+        </button>
+      </div>
+
         <div class="form-group">
           <label>Nome do Cliente</label>
           <input type="text" id="form-name" class="form-control" required placeholder="Ex: Lucas Medeiros">
