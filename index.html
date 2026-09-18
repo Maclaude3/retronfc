@@ -807,7 +807,8 @@
         <button type="button" onclick="closeCheckoutAddressModal()" class="checkout-modal-close" aria-label="Fechar">&times;</button>
       </div>
 
-      <form id="checkout-address-form" onsubmit="handleCheckoutWithMercadoPago(event)">
+      <div id="checkout-step-form">
+        <form id="checkout-address-form" onsubmit="handleCheckoutSubmit(event)">
         <!-- Alerta de Lançamento Digital & Retenção de Endereço para Upgrade -->
         <div style="background: rgba(0, 240, 255, 0.08); border: 1.5px solid rgba(0, 240, 255, 0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;">
           <div style="font-weight: 800; color: #00f0ff; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
@@ -953,6 +954,59 @@
           </div>
         </div>
       </form>
+      </div><!-- /#checkout-step-form -->
+
+      <!-- STEP 2: TELA DE EXIBIÇÃO DIRETA DO PIX MERCADO PAGO -->
+      <div id="checkout-step-pix" style="display: none; text-align: center;">
+        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 12px; padding: 12px; margin-bottom: 18px; display: inline-flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.2rem;">⚡</span>
+          <span style="color: #22c55e; font-weight: 800; font-size: 0.9rem; letter-spacing: 0.5px;">PIX OFICIAL MERCADO PAGO GERADO!</span>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <span style="color: #94a3b8; font-size: 0.85rem;">Total a Pagar:</span>
+          <div id="pix-display-amount" style="font-size: 2rem; font-weight: 900; color: #00f0ff; text-shadow: 0 0 15px rgba(0, 240, 255, 0.4);">
+            R$ 9,99
+          </div>
+          <span style="color: #64748b; font-size: 0.75rem;">Beneficiário: <strong>MACLAUDE3</strong> (Mercado Pago / Brasília)</span>
+        </div>
+
+        <!-- Imagem QR Code do PIX -->
+        <div style="background: #ffffff; padding: 14px; border-radius: 16px; display: inline-block; margin-bottom: 16px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.35); border: 3px solid #00f0ff;">
+          <img id="pix-qr-image" src="" alt="QR Code PIX Mercado Pago" style="width: 210px; height: 210px; display: block;">
+        </div>
+
+        <p style="color: #cbd5e1; font-size: 0.82rem; margin-bottom: 10px;">
+          Escaneie o QR Code acima com o app do seu banco ou copie o código abaixo:
+        </p>
+
+        <!-- Campo PIX Copia e Cola -->
+        <div style="position: relative; margin-bottom: 16px;">
+          <textarea id="pix-copia-cola-input" readonly style="width: 100%; height: 65px; background: rgba(15, 23, 42, 0.9); border: 1.5px solid rgba(0, 240, 255, 0.4); border-radius: 10px; color: #38bdf8; font-family: monospace; font-size: 0.72rem; padding: 10px; resize: none; word-break: break-all;"></textarea>
+          <button type="button" id="btn-copy-pix" onclick="copyPixCopiaCola()" style="width: 100%; margin-top: 8px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; font-weight: 800; font-size: 0.95rem; padding: 12px; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); transition: all 0.2s ease;">
+            📋 Copiar Código PIX Copia e Cola
+          </button>
+        </div>
+
+        <!-- Instruções de pós-pagamento -->
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 10px; padding: 12px; margin-bottom: 18px; text-align: left;">
+          <div style="font-size: 0.78rem; color: #94a3b8; line-height: 1.4;">
+            <strong style="color: #e2e8f0;">Como funciona após o pagamento?</strong><br>
+            1. Pague no app do seu banco.<br>
+            2. Clique no botão abaixo para confirmar no WhatsApp com o <strong>Jarvis</strong> e receber seu <strong>Card Colecionável Oficial</strong> na hora!
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button type="button" id="btn-confirm-pix-whatsapp" onclick="confirmPixPaymentToWhatsApp()" class="btn-modal-submit" style="width: 100%; font-size: 0.95rem; padding: 14px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-color: #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); font-weight: 800;">
+            💬 Já paguei! Enviar Comprovante ao Jarvis &rarr;
+          </button>
+
+          <button type="button" onclick="backToCheckoutForm()" class="btn-modal-cancel" style="width: 100%; padding: 10px;">
+            &larr; Voltar / Alterar Dados
+          </button>
+        </div>
+      </div><!-- /#checkout-step-pix -->
     </div>
   </div>
 

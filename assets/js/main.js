@@ -1224,13 +1224,60 @@ async function handleCepAutoFill(cepValue) {
 }
 
 
+
 // ==========================================================================
-// 💳 INTEGRAÇÃO MERCADO PAGO (PIX + CARTÃO DE CRÉDITO / DÉBITO)
+// ⚡ GERADOR OFICIAL DE PIX BACEN BRCODE COM CHAVE MERCADO PAGO
 // ==========================================================================
-const MERCADO_PAGO_CONFIG = {
+const PIX_CONFIG = {
+  key: '54b5427f-1736-460b-8919-a1b6f6904c92', // Chave Mercado Pago ativa
+  name: 'MACLAUDE3',
+  city: 'Brasilia',
   publicKey: 'APP_USR-308564e7-8ed9-4a7b-b463-20f067e81a90',
   accessToken: 'APP_USR-3619403629607337-091815-7d36997965599e839c39de61b4a862fc-42459188'
 };
+
+let currentPixOrderData = null;
+let currentPixPayloadString = '';
+
+function generateBacenPixPayload(pixKey, name, city, amount, txId) {
+  txId = txId || '***';
+  function emv(id, val) {
+    const s = String(val);
+    const len = s.length < 10 ? '0' + s.length : String(s.length);
+    return id + len + s;
+  }
+
+  const gui = emv('00', 'br.gov.bcb.pix');
+  const key = emv('01', pixKey);
+  const accountInfo = gui + key;
+
+  const payload =
+    emv('00', '01') +
+    emv('26', accountInfo) +
+    emv('52', '0000') +
+    emv('53', '986') +
+    emv('54', Number(amount).toFixed(2)) +
+    emv('58', 'BR') +
+    emv('59', name.slice(0, 25)) +
+    emv('60', city.slice(0, 15)) +
+    emv('62', emv('05', txId.slice(0, 25))) +
+    '6304';
+
+  let crc = 0xffff;
+  for (let i = 0; i < payload.length; i++) {
+    crc ^= payload.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      if ((crc & 0x8000) !== 0) {
+        crc = ((crc << 1) ^ 0x1021) & 0xffff;
+      } else {
+        crc = (crc << 1) & 0xffff;
+      }
+    }
+  }
+
+  const crcHex = ('0000' + crc.toString(16).toUpperCase()).slice(-4);
+  return payload + crcHex;
+}
 
 let selectedCheckoutPaymentMethod = 'pix';
 
@@ -1310,7 +1357,7 @@ async function createMercadoPagoPreference(customerData, totalAmount, items) {
   const resp = await fetch('https://api.mercadopago.com/checkout/preferences', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${MERCADO_PAGO_CONFIG.accessToken}`,
+      'Authorization': `Bearer ${PIX_CONFIG.accessToken}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(payload)
@@ -1324,8 +1371,8 @@ async function createMercadoPagoPreference(customerData, totalAmount, items) {
   return await resp.json();
 }
 
-async function handleCheckoutWithMercadoPago(e) {
-  e.preventDefault();
+async function handleCheckoutSubmit(e) {
+  if (e && e.preventDefault) e.preventDefault();
   if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
 
   if (cart.length === 0) {
@@ -1333,84 +1380,212 @@ async function handleCheckoutWithMercadoPago(e) {
     return;
   }
 
-  const name = document.getElementById('cust-name').value.trim();
-  const phone = document.getElementById('cust-phone').value.trim();
-  const address = document.getElementById('cust-address').value.trim();
-  const number = document.getElementById('cust-number') ? document.getElementById('cust-number').value.trim() : '';
-  const complement = document.getElementById('cust-complement') ? document.getElementById('cust-complement').value.trim() : '';
-  const neighborhood = document.getElementById('cust-neighborhood').value.trim();
-  const city = document.getElementById('cust-city').value.trim();
-  const state = document.getElementById('cust-state').value.trim().toUpperCase();
-  const zip = document.getElementById('cust-zip').value.trim();
+  // Validação dos campos com foco e rolagem suave
+  const nameEl = document.getElementById('cust-name');
+  const phoneEl = document.getElementById('cust-phone');
+  const zipEl = document.getElementById('cust-zip');
+  const addressEl = document.getElementById('cust-address');
+  const numberEl = document.getElementById('cust-number');
+  const complementEl = document.getElementById('cust-complement');
+  const neighborhoodEl = document.getElementById('cust-neighborhood');
+  const cityEl = document.getElementById('cust-city');
+  const stateEl = document.getElementById('cust-state');
+  const notesEl = document.getElementById('cust-notes');
 
-  if (!name || !phone || !address || !number || !city || !state || !zip) {
-    alert('Por favor, preencha todos os campos obrigatórios de endereço (incluindo Casa/Lote/Número)!');
+  const name = nameEl ? nameEl.value.trim() : '';
+  const phone = phoneEl ? phoneEl.value.trim() : '';
+  const zip = zipEl ? zipEl.value.trim() : '';
+  const address = addressEl ? addressEl.value.trim() : '';
+  const number = numberEl ? numberEl.value.trim() : '';
+  const complement = complementEl ? complementEl.value.trim() : '';
+  const neighborhood = neighborhoodEl ? neighborhoodEl.value.trim() : '';
+  const city = cityEl ? cityEl.value.trim() : '';
+  const state = stateEl ? stateEl.value.trim().toUpperCase() : '';
+  const notes = notesEl ? notesEl.value.trim() : '';
+
+  if (!name) {
+    alert('⚠️ Por favor, preencha o seu Nome Completo no início do formulário!');
+    if (nameEl) {
+      nameEl.focus();
+      nameEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
     return;
   }
 
-  const customerData = { name, phone, address, number, complement, neighborhood, city, state, zip };
+  if (!phone || phone.replace(/\D/g, '').length < 10) {
+    alert('⚠️ Por favor, digite o seu WhatsApp com DDD!');
+    if (phoneEl) {
+      phoneEl.focus();
+      phoneEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
+  }
+
+  if (!zip || zip.replace(/\D/g, '').length < 8) {
+    alert('⚠️ Por favor, digite um CEP válido!');
+    if (zipEl) {
+      zipEl.focus();
+      zipEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
+  }
+
+  if (!number) {
+    alert('⚠️ Por favor, informe o número da Casa, Lote ou Apartamento para envio do chaveiro!');
+    if (numberEl) {
+      numberEl.focus();
+      numberEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
+  }
+
+  if (!address || !city || !state) {
+    alert('⚠️ Por favor, confirme o endereço preenchido!');
+    return;
+  }
+
+  const customerData = { name, phone, zip, address, number, complement, neighborhood, city, state, notes };
   try {
     localStorage.setItem('retronfc_customer_info', JSON.stringify(customerData));
   } catch (err) {}
 
-  const btnSubmit = document.getElementById('btn-submit-pay');
-  const btnText = document.getElementById('btn-pay-text');
-  const originalText = btnText ? btnText.textContent : 'Pagar';
+  const totalCartUnits = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+  const isWholesale = totalCartUnits >= (CONFIG.wholesaleMinQty || 20);
+  const isLaunch = CONFIG.isDigitalLaunch && !isWholesale;
 
-  if (btnSubmit) btnSubmit.disabled = true;
-  if (btnText) btnText.textContent = '⏳ Conectando ao Mercado Pago...';
+  const totalAmount = cart.reduce((sum, item) => {
+    const itemPrice = isWholesale ? (CONFIG.wholesalePrice || 7.50) : (isLaunch ? CONFIG.launchPassPrice : (item.price || 24.99));
+    return sum + (itemPrice * (item.qty || 1));
+  }, 0);
+
+  currentPixOrderData = {
+    customer: customerData,
+    items: [...cart],
+    totalAmount: totalAmount,
+    totalUnits: totalCartUnits,
+    isWholesale: isWholesale
+  };
+
+  // Se escolheu Cartão de Crédito
+  if (selectedCheckoutPaymentMethod === 'card') {
+    const btnSubmit = document.getElementById('btn-submit-pay');
+    const btnText = document.getElementById('btn-pay-text');
+    if (btnSubmit) btnSubmit.disabled = true;
+    if (btnText) btnText.textContent = '⏳ Conectando ao Mercado Pago...';
+
+    try {
+      const preference = await createMercadoPagoPreference(customerData, totalAmount, cart);
+      if (preference && preference.init_point) {
+        window.location.href = preference.init_point;
+      } else {
+        throw new Error('Link de pagamento não retornado');
+      }
+    } catch (err) {
+      alert('Erro ao conectar ao Mercado Pago: ' + err.message + '\nVocê pode pagar via PIX direto ou falar com o atendente!');
+      if (btnSubmit) btnSubmit.disabled = false;
+      if (btnText) btnText.textContent = 'Pagar com Cartão no Mercado Pago';
+    }
+    return;
+  }
+
+  // Se escolheu PIX (Padrão, Instantâneo)
+  showPixDisplayScreen(totalAmount, customerData);
+}
+
+function showPixDisplayScreen(totalAmount, customerData) {
+  currentPixPayloadString = generateBacenPixPayload(PIX_CONFIG.key, PIX_CONFIG.name, PIX_CONFIG.city, totalAmount);
+
+  const amountEl = document.getElementById('pix-display-amount');
+  if (amountEl) {
+    amountEl.textContent = `R$ ${totalAmount.toFixed(2).replace('.', ',')}`;
+  }
+
+  const qrImg = document.getElementById('pix-qr-image');
+  if (qrImg) {
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=4&data=${encodeURIComponent(currentPixPayloadString)}`;
+  }
+
+  const textarea = document.getElementById('pix-copia-cola-input');
+  if (textarea) {
+    textarea.value = currentPixPayloadString;
+  }
+
+  const formStep = document.getElementById('checkout-step-form');
+  const pixStep = document.getElementById('checkout-step-pix');
+  if (formStep) formStep.style.display = 'none';
+  if (pixStep) {
+    pixStep.style.display = 'block';
+    pixStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  if (typeof SoundFX !== 'undefined' && SoundFX.playLaser) SoundFX.playLaser();
+}
+
+function backToCheckoutForm() {
+  const formStep = document.getElementById('checkout-step-form');
+  const pixStep = document.getElementById('checkout-step-pix');
+  if (formStep) formStep.style.display = 'block';
+  if (pixStep) pixStep.style.display = 'none';
+}
+
+function copyPixCopiaCola() {
+  const textarea = document.getElementById('pix-copia-cola-input');
+  const btn = document.getElementById('btn-copy-pix');
+  if (!textarea) return;
+
+  textarea.select();
+  textarea.setSelectionRange(0, 99999);
 
   try {
-    const totalCartUnits = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
-    const isWholesale = totalCartUnits >= (CONFIG.wholesaleMinQty || 20);
-    const isLaunch = CONFIG.isDigitalLaunch && !isWholesale;
+    navigator.clipboard.writeText(textarea.value);
+  } catch (err) {
+    document.execCommand('copy');
+  }
 
-    const processedItems = cart.map(item => {
-      const basePrice = isWholesale ? (CONFIG.wholesalePrice || 7.50) : (isLaunch ? CONFIG.launchPassPrice : (item.price || 24.99));
-      return {
-        ...item,
-        price: basePrice
-      };
-    });
+  if (typeof SoundFX !== 'undefined' && SoundFX.playPowerUp) SoundFX.playPowerUp();
 
-    const preference = await createMercadoPagoPreference(customerData, 9.99, processedItems);
-
-    if (preference && preference.init_point) {
-      if (btnText) btnText.textContent = '✅ Abrindo Pagamento Seguro...';
-
-      // Se o SDK do Mercado Pago estiver disponível, abre o modal direto!
-      if (typeof MercadoPago !== 'undefined') {
-        try {
-          const mp = new MercadoPago(MERCADO_PAGO_CONFIG.publicKey, { locale: 'pt-BR' });
-          mp.checkout({
-            preference: {
-              id: preference.id
-            },
-            autoOpen: true
-          });
-          if (btnSubmit) btnSubmit.disabled = false;
-          if (btnText) btnText.textContent = originalText;
-          return;
-        } catch (sdkErr) {
-          console.warn('Erro ao abrir modal MP SDK, abrindo init_point direto:', sdkErr);
-        }
-      }
-
-      // Redireciona diretamente para o link de checkout do Mercado Pago
-      window.location.href = preference.init_point;
-    } else {
-      throw new Error('Não foi possível obter o link de pagamento do Mercado Pago.');
-    }
-  } catch (error) {
-    console.error('Erro Mercado Pago:', error);
-    alert('Ocorreu um erro ao gerar o pagamento com o Mercado Pago: ' + error.message + '\n\nVocê pode falar diretamente com o nosso atendente no WhatsApp!');
-    if (btnSubmit) btnSubmit.disabled = false;
-    if (btnText) btnText.textContent = originalText;
+  if (btn) {
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '✅ CÓDIGO PIX COPIADO COM SUCESSO!';
+    btn.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+    setTimeout(() => {
+      btn.innerHTML = originalHtml;
+      btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+    }, 2500);
   }
 }
 
-function submitDirectToWhatsAppFallback() {
-  submitFinalCheckoutToWhatsApp(new Event('submit'));
+function confirmPixPaymentToWhatsApp() {
+  if (!currentPixOrderData) return;
+  const cust = currentPixOrderData.customer;
+  const items = currentPixOrderData.items;
+  const total = currentPixOrderData.totalAmount;
+
+  const firstItem = items[0] || {};
+  const gameKey = firstItem.gameKey || 'super_mario';
+  const attendant = (typeof GAME_ATTENDANTS !== 'undefined' && GAME_ATTENDANTS[gameKey]) 
+    ? GAME_ATTENDANTS[gameKey] 
+    : { name: 'Mario', emoji: '🍄' };
+
+  let msg = `Olá, *${attendant.name}*! ${attendant.emoji}\n\n`;
+  msg += `Acabei de realizar o pagamento via *PIX de R$ ${total.toFixed(2).replace('.', ',')}* no site da *RetroNFC*!\n\n`;
+  msg += `🎮 *JOGOS COMPRADOS:*\n`;
+  items.forEach(it => {
+    msg += `• ${it.qty || 1}x ${it.title} (${it.consoleName || 'Retro'})\n`;
+  });
+  msg += `\n📦 *MEUS DADOS PARA ENTREGA DO CHAVEIRO FÍSICO (LOTE FUNDADOR):*\n`;
+  msg += `• *Nome:* ${cust.name}\n`;
+  msg += `• *WhatsApp:* ${cust.phone}\n`;
+  msg += `• *Endereço:* ${cust.address}, Nº ${cust.number}\n`;
+  if (cust.complement) msg += `• *Complemento:* ${cust.complement}\n`;
+  msg += `• *Bairro:* ${cust.neighborhood}\n`;
+  msg += `• *Cidade/UF:* ${cust.city}/${cust.state} - CEP ${cust.zip}\n`;
+  if (cust.notes) msg += `• *Obs:* ${cust.notes}\n`;
+  msg += `\nSegui as instruções do site e estou enviando este comprovante para você me enviar o *Card Colecionável Oficial com QR Code* para eu jogar agora no celular! Valeu!`;
+
+  const cleanPhone = CONFIG.whatsappNumber.replace(/\D/g, '');
+  const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
 }
 
 function submitFinalCheckoutToWhatsApp(event) {
