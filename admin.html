@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Lojista & Central de Gravação NFC - RetroNFC.com.br</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="assets/css/style.css?v=6.0">
+  <link rel="stylesheet" href="assets/css/admin.css?v=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔒</text></svg>">
+</head>
+<body>
+
+  <!-- Overlay de Bloqueio por Senha (Login) -->
+  <div id="login-overlay">
+    <div class="login-card">
+      <div class="login-icon">🔒</div>
+      <h1 class="login-title">Área Restrita do Lojista</h1>
+      <p class="login-subtitle">
+        Acesso exclusivo à gestão de pedidos, endereços dos clientes e central de gravação das Tags NFC.
+      </p>
+
+      <form id="login-form" class="login-form">
+        <div class="form-group">
+          <label for="admin-password">Senha de Segurança</label>
+          <input type="password" id="admin-password" class="form-control" placeholder="Digite a senha de acesso..." required autocomplete="current-password">
+        </div>
+
+        <div id="login-error" style="color: var(--red); font-size: 0.82rem; font-weight: 700; display: none; margin-top: -6px;"></div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="remember-me" checked style="accent-color: var(--cyan); width: 16px; height: 16px; cursor: pointer;">
+          <label for="remember-me" style="color: var(--text-muted); font-size: 0.85rem; cursor: pointer; margin: 0;">Lembrar senha neste dispositivo</label>
+        </div>
+
+        <button type="submit" class="btn-primary" style="margin-top: 6px;">
+          Entrar no Painel Operacional &rarr;
+        </button>
+      </form>
+
+      <div class="login-hint">
+        Dica: A senha padrão inicial é <strong>admin123</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header do Painel -->
+  <header class="admin-header">
+    <div class="admin-header-container">
+      <div class="admin-brand">
+        <div class="logo-badge" style="background: linear-gradient(135deg, #00f0ff 0%, #0077ff 100%); color: #000; font-weight: 900; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem;">
+          NFC
+        </div>
+        <div style="font-weight: 800; font-size: 1.2rem; color: #fff;">
+          Retro<span style="color: var(--cyan);">NFC</span> Admin
+        </div>
+        <span class="admin-badge-chip">CENTRAL OPERACIONAL</span>
+      </div>
+
+      <div class="admin-nav-actions">
+        <div id="nfc-indicator" class="nfc-status-indicator">
+          <span class="pulse-dot-sm"></span>
+          <span id="nfc-indicator-text">Verificando Sensor...</span>
+        </div>
+
+        <a href="index.html" target="_blank" class="btn-secondary" title="Abrir Vitrine Pública da Loja">
+          🏪 Ver Loja ↗
+        </a>
+        <button onclick="logout()" class="btn-secondary" title="Encerrar Sessão">
+          🔒 Sair
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="admin-main">
+
+    <!-- Grid de Métricas / KPIs -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Faturamento Total</span>
+          <span class="kpi-icon">💰</span>
+        </div>
+        <div id="kpi-revenue" class="kpi-value">R$ 0,00</div>
+        <div class="kpi-sub">+12% em relação ao mês anterior</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Pedidos Recebidos</span>
+          <span class="kpi-icon">📦</span>
+        </div>
+        <div id="kpi-orders-total" class="kpi-value">0</div>
+        <div class="kpi-sub">Vendas no Varejo e Atacado B2B</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Fila de Gravação</span>
+          <span class="kpi-icon">⏳</span>
+        </div>
+        <div id="kpi-orders-pending" class="kpi-value" style="color: #fbbf24;">0</div>
+        <div class="kpi-sub" style="color: #fbbf24;">Aguardando aproximação da Tag</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Tags Gravadas & Despachadas</span>
+          <span class="kpi-icon">✅</span>
+        </div>
+        <div id="kpi-orders-recorded" class="kpi-value" style="color: #34d399;">0</div>
+        <div class="kpi-sub">Prontas para envio aos clientes</div>
+      </div>
+    </section>
+
+    <!-- Grid Operacional: Mais Vendidos + Estação Web NFC -->
+    <section class="ops-grid">
+      
+      <!-- Ranking dos Mais Vendidos -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h2 class="admin-card-title">
+            <span>🔥</span> Jogos Mais Vendidos
+          </h2>
+          <span style="font-size: 0.78rem; color: var(--text-dim); font-weight: 700;">TOTAL DE MINI CARTUCHOS</span>
+        </div>
+        <div id="ranking-list" class="ranking-list">
+          <!-- Renderizado via admin.js -->
+        </div>
+      </div>
+
+      <!-- Estação Web NFC Integrada -->
+      <div id="nfc-station-card" class="admin-card">
+        <div class="admin-card-header">
+          <h2 class="admin-card-title">
+            <span>📡</span> Estação de Gravação Web NFC
+          </h2>
+          <span class="admin-badge-chip" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(16, 185, 129, 0.4);">
+            ESCRITA DIRETA NTAG213/215
+          </span>
+        </div>
+
+        <div class="station-box">
+          <!-- Painel do Trabalho Atual -->
+          <div id="station-current-job" class="station-current-job">
+            <span id="station-job-badge" class="station-job-badge">GRAVAÇÃO AVULSA</span>
+            <div id="station-job-title" class="station-job-name">Carregando jogo...</div>
+            <input type="text" id="station-url-display" class="station-url-display" readonly value="">
+          </div>
+
+          <!-- Troca rápida de jogo caso queira gravar avulso -->
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">
+              Ou escolha outro jogo para gravação avulsa:
+            </label>
+            <select id="station-game-select" class="form-control">
+              <!-- Populado via admin.js -->
+            </select>
+          </div>
+
+          <!-- Botões de Ação NFC -->
+          <div class="station-actions">
+            <button onclick="writeNfcTag()" class="station-btn-write">
+              <span style="font-size: 1.3rem;">📲</span>
+              <span>GRAVAR TAG NFC AGORA</span>
+            </button>
+            <button onclick="testReadNfcTag()" class="station-btn-read">
+              <span>🔍</span>
+              <span>Testar / Ler Tag</span>
+            </button>
+          </div>
+
+          <!-- Terminal de Log Operacional -->
+          <div>
+            <label style="display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-dim); margin-bottom: 6px; letter-spacing: 0.5px;">
+              LOG DO TERMINAL OPERACIONAL:
+            </label>
+            <div id="station-terminal" class="station-terminal">
+              <div>[Sistema] Estação de gravação inicializada.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Fila de Pedidos & Expedição com Endereço -->
+    <section class="admin-card">
+      <div class="admin-card-header">
+        <h2 class="admin-card-title">
+          <span>📬</span> Gestão de Pedidos & Fila de Expedição
+        </h2>
+        <button onclick="openNewOrderModal()" class="btn-primary" style="width: auto; padding: 8px 16px; font-size: 0.85rem;">
+          + Novo Pedido Manual
+        </button>
+      </div>
+
+      <div class="orders-toolbar">
+        <div class="filter-pills">
+          <button class="filter-btn active" onclick="filterOrders('all', this)">Todos os Pedidos</button>
+          <button class="filter-btn" onclick="filterOrders('pending', this)">⏳ Pendentes de Gravação</button>
+          <button class="filter-btn" onclick="filterOrders('recorded', this)">✅ Gravados / Prontos</button>
+          <button class="filter-btn" onclick="filterOrders('shipped', this)">📦 Despachados</button>
+        </div>
+      </div>
+
+      <div class="orders-table-wrapper">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Pedido / Data</th>
+              <th>Cliente & Contato</th>
+              <th>Endereço Completo de Entrega</th>
+              <th>Jogo Solicitado</th>
+              <th>Status da Tag</th>
+              <th>Ações Rápidas</th>
+            </tr>
+          </thead>
+          <tbody id="orders-table-body">
+            <!-- Renderizado dinamicamente via admin.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal Novo Pedido Manual -->
+  <div id="modal-new-order" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Cadastrar Novo Pedido</h3>
+        <button class="close-modal-btn" onclick="closeNewOrderModal()">&times;</button>
+      </div>
+      <form onsubmit="createManualOrder(event)" style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="form-group">
+          <label>Nome do Cliente</label>
+          <input type="text" id="form-name" class="form-control" required placeholder="Ex: Lucas Medeiros">
+        </div>
+        <div class="form-group">
+          <label>WhatsApp / Telefone</label>
+          <input type="text" id="form-phone" class="form-control" required placeholder="Ex: (11) 98765-4321">
+        </div>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Endereço & Número</label>
+            <input type="text" id="form-address" class="form-control" required placeholder="Rua / Av, Número, Apto">
+          </div>
+          <div class="form-group">
+            <label>Bairro</label>
+            <input type="text" id="form-neighborhood" class="form-control" required placeholder="Bairro">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Cidade</label>
+            <input type="text" id="form-city" class="form-control" required placeholder="Cidade">
+          </div>
+          <div class="form-group">
+            <label>UF</label>
+            <input type="text" id="form-state" class="form-control" required placeholder="SP" maxlength="2">
+          </div>
+          <div class="form-group">
+            <label>CEP</label>
+            <input type="text" id="form-zip" class="form-control" required placeholder="00000-000">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Jogo Comprado</label>
+          <select id="form-game" class="form-control" required>
+            <option value="moonwalker">Michael Jackson's Moonwalker (Mega Drive)</option>
+            <option value="top_gear">Top Gear (SNES)</option>
+            <option value="donkey_kong">Donkey Kong Country (SNES)</option>
+            <option value="sonic_2">Sonic the Hedgehog 2 (Mega Drive)</option>
+            <option value="super_mario">Super Mario World (SNES)</option>
+            <option value="super_mario_kart">Super Mario Kart (SNES)</option>
+            <option value="street_fighter">Street Fighter II Turbo (SNES)</option>
+            <option value="mortal_kombat_2">Mortal Kombat II (Mega Drive)</option>
+            <option value="zelda_alttp">Zelda: Link to the Past (SNES)</option>
+            <option value="mega_man_x">Mega Man X (SNES)</option>
+            <option value="streets_of_rage_2">Streets of Rage 2 (Mega Drive)</option>
+            <option value="golden_axe">Golden Axe (Mega Drive)</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <button type="button" onclick="closeNewOrderModal()" class="btn-secondary" style="flex: 1;">Cancelar</button>
+          <button type="submit" class="btn-primary" style="flex: 1;">Salvar Pedido</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="assets/js/admin.js?v=1.0"></script>
+</body>
+</html>
