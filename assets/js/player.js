@@ -268,7 +268,113 @@ function isMobileOrSimulator() {
   return isMobileUA || isSmallScreen;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+
+// ==========================================================================
+// 🔒 RETROPASS DIGITAL - VALIDADOR ANTIFRAUDE E EXPIRAÇÃO SUPABASE
+// ==========================================================================
+const SUPABASE_CONFIG = {
+  url: 'https://wxgyhxwykspgdtszhuen.supabase.co',
+  key: 'sb_publishable_fhnF2vvyh0f-kP1GSTB8Xg_Rb-Bk-WG'
+};
+
+async function validateRetroPass(token, requestedGameKey) {
+  const guard = document.getElementById('pass-guard-screen');
+  const guardTitle = document.getElementById('pass-guard-title');
+  const guardDesc = document.getElementById('pass-guard-desc');
+  const guardIcon = document.getElementById('pass-guard-icon');
+
+  function showBlock(icon, title, desc) {
+    if (guardIcon) guardIcon.textContent = icon;
+    if (guardTitle) guardTitle.textContent = title;
+    if (guardDesc) guardDesc.innerHTML = desc;
+    if (guard) guard.style.display = 'flex';
+    const loader = document.getElementById('nfc-loader');
+    if (loader) loader.style.display = 'none';
+  }
+
+  // Gera ou resgata a digital única do aparelho atual no navegador (Device ID)
+  let deviceId = localStorage.getItem('retronfc_pass_device_id');
+  if (!deviceId) {
+    deviceId = 'dev_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now().toString(36);
+    localStorage.setItem('retronfc_pass_device_id', deviceId);
+  }
+
+  try {
+    const resp = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/retronfc_passes?token=eq.${encodeURIComponent(token)}&select=*`, {
+      headers: {
+        'apikey': SUPABASE_CONFIG.key,
+        'Authorization': `Bearer ${SUPABASE_CONFIG.key}`
+      }
+    });
+
+    if (!resp.ok) {
+      showBlock('⚠️', 'ERRO NO SERVIDOR', 'Não foi possível consultar seu passe no momento. Tente novamente em alguns instantes.');
+      return false;
+    }
+
+    const rows = await resp.json();
+    if (!rows || rows.length === 0) {
+      showBlock('❌', 'PASSE NÃO ENCONTRADO', 'Este QR Code ou token de ativação não existe no sistema oficial da RetroNFC.<br><br>Verifique se você escaneou o código correto.');
+      return false;
+    }
+
+    const pass = rows[0];
+
+    // Se o passe tiver jogo específico vinculado e o link pedir outro jogo diferente
+    if (requestedGameKey && pass.game_key && requestedGameKey !== pass.game_key) {
+      showBlock('🚫', 'JOGO INCOMPATÍVEL', `Este RetroPass pertence exclusivamente ao jogo <strong>${pass.game_title}</strong> e não pode ser transferido para outro clássico.`);
+      return false;
+    }
+
+    const now = new Date();
+
+    // CASO 1: Primeiro acesso (Ativação automática e vinculação ao aparelho)
+    if (pass.status === 'disponivel' || !pass.device_id) {
+      const expDate = new Date();
+      expDate.setMonth(expDate.getMonth() + (pass.validade_meses || 6));
+
+      await fetch(`${SUPABASE_CONFIG.url}/rest/v1/retronfc_passes?token=eq.${encodeURIComponent(token)}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_CONFIG.key,
+          'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          status: 'ativo',
+          device_id: deviceId,
+          ativado_em: now.toISOString(),
+          expira_em: expDate.toISOString()
+        })
+      });
+
+      console.log(`[RetroPass] Passe ${token} ativado com sucesso! Válido até ${expDate.toLocaleDateString('pt-BR')}.`);
+      return pass.game_key || requestedGameKey;
+    }
+
+    // CASO 2: Passe expirado após os 6 meses
+    if (pass.expira_em && now > new Date(pass.expira_em)) {
+      showBlock('⏰', 'RETROPASS EXPIRADO', `O período de validade de 6 meses deste passe encerrou em <strong>${new Date(pass.expira_em).toLocaleDateString('pt-BR')}</strong>.<br><br>Adquira uma renovação semestral ou faça upgrade para a Tag NFC Vitalícia!`);
+      return false;
+    }
+
+    // CASO 3: Tentativa de compartilhamento por print / outro celular
+    if (pass.device_id && pass.device_id !== deviceId) {
+      showBlock('⛔', 'CONSOLE BLOQUEADO', `Este RetroPass já está vinculado e ativado no smartphone do comprador original e <strong>não pode ser compartilhado por print de tela</strong>.<br><br>Adquira o seu passe individual com acesso exclusivo no site.`);
+      return false;
+    }
+
+    // Dono legítimo no aparelho original dentro do prazo!
+    return pass.game_key || requestedGameKey;
+
+  } catch (err) {
+    console.error('Erro na validação do RetroPass:', err);
+    showBlock('⚠️', 'ERRO DE CONEXÃO', 'Verifique sua conexão com a internet para validar seu RetroPass.');
+    return false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
   if (!isMobileOrSimulator()) {
     const guard = document.getElementById('desktop-guard-screen');
     if (guard) guard.style.display = 'flex';
@@ -276,15 +382,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loader) loader.style.display = 'none';
     return;
   }
-  parseUrlAndBoot();
+  await parseUrlAndBoot();
   initHudControls();
   renderGamePickerList();
 });
 
 // Parser de Parâmetros da Tag NFC
-function parseUrlAndBoot() {
+async function parseUrlAndBoot() {
   const params = new URLSearchParams(window.location.search);
-  const gameKey = params.get('game') || params.get('jogo') || params.get('rom');
+  const token = params.get('pass') || params.get('token') || params.get('p');
+  let gameKey = params.get('game') || params.get('jogo') || params.get('rom');
+
+  // Se houver token de RetroPass QR Code, valida no Supabase!
+  if (token) {
+    const loader = document.getElementById('nfc-loader');
+    const statusText = document.getElementById('loader-status-text');
+    if (loader) loader.style.display = 'flex';
+    if (statusText) statusText.textContent = 'VALIDANDO RETROPASS DIGITAL...';
+
+    const validGameKey = await validateRetroPass(token, gameKey);
+    if (!validGameKey) {
+      return; // Bloqueado pelo validador
+    }
+    gameKey = validGameKey;
+  }
   
   if (gameKey && GAMES_MAP[gameKey]) {
     currentGame = GAMES_MAP[gameKey];

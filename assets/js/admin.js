@@ -363,6 +363,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderTopSellers();
     initNfcStation();
     checkNfcSupport();
+    loadSupabasePasses();
   } else {
     if (overlay) overlay.style.display = 'flex';
     checkLockout();
@@ -432,6 +433,7 @@ async function handleLogin(e) {
     renderTopSellers();
     initNfcStation();
     checkNfcSupport();
+    loadSupabasePasses();
 
     logTerminal('🔐 Autenticado com sucesso. Chave AES-GCM 256-bit ativada em memória RAM.');
   } else {
@@ -912,4 +914,285 @@ async function createManualOrder(e) {
   closeNewOrderModal();
   logTerminal(`[Novo Pedido] Pedido #${newId} criado manualmente para ${name}!`);
   alert(`Pedido #${newId} cadastrado com sucesso!`);
+}
+
+
+// ==========================================================================
+// 🎟️ RETROPASS DIGITAL - GERENCIADOR SUPABASE & PROTEÇÃO ANTI-PIRATARIA
+// ==========================================================================
+const SUPABASE_CONFIG = {
+  url: 'https://wxgyhxwykspgdtszhuen.supabase.co',
+  key: 'sb_publishable_fhnF2vvyh0f-kP1GSTB8Xg_Rb-Bk-WG'
+};
+
+const RETRO_GAME_TITLES = {
+  'super_mario': 'Super Mario World (SNES)',
+  'top_gear': 'Top Gear (SNES)',
+  'donkey_kong': 'Donkey Kong Country (SNES)',
+  'super_mario_kart': 'Super Mario Kart (SNES)',
+  'street_fighter': 'Street Fighter II Turbo (SNES)',
+  'moonwalker': "Michael Jackson's Moonwalker (Mega Drive)",
+  'sonic_2': 'Sonic the Hedgehog 2 (Mega Drive)',
+  'mortal_kombat_2': 'Mortal Kombat II (Mega Drive)',
+  'zelda_alttp': 'The Legend of Zelda: A Link to the Past (SNES)',
+  'mega_man_x': 'Mega Man X (SNES)',
+  'streets_of_rage_2': 'Streets of Rage 2 (Mega Drive)',
+  'golden_axe': 'Golden Axe (Mega Drive)'
+};
+
+function escapePassHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+async function loadSupabasePasses() {
+  const tbody = document.getElementById('passes-table-body');
+  if (!tbody) return;
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="6" style="text-align: center; color: #94a3b8; padding: 20px;">
+        🔄 Carregando RetroPasses do Supabase...
+      </td>
+    </tr>
+  `;
+
+  try {
+    const resp = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/retronfc_passes?select=*&order=criado_em.desc`, {
+      headers: {
+        'apikey': SUPABASE_CONFIG.key,
+        'Authorization': `Bearer ${SUPABASE_CONFIG.key}`
+      }
+    });
+
+    if (!resp.ok) {
+      throw new Error(`Status ${resp.status}`);
+    }
+
+    const passes = await resp.json();
+
+    if (!passes || passes.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center; color: #94a3b8; padding: 24px;">
+            Nenhum RetroPass cadastrado ainda. Clique em "+ Gerar Novo RetroPass" para criar o primeiro!
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    const now = new Date();
+    tbody.innerHTML = passes.map(pass => {
+      let statusBadge = '<span class="status-badge pending">🟡 Disponível</span>';
+      const isExpired = pass.expira_em && now > new Date(pass.expira_em);
+
+      if (isExpired) {
+        statusBadge = '<span class="status-badge expired">🔴 Expirado</span>';
+      } else if (pass.device_id || pass.status === 'ativo') {
+        statusBadge = '<span class="status-badge recorded">🟢 Ativo (Vinculado)</span>';
+      }
+
+      let validadeText = `${pass.validade_meses || 6} meses (Ao ativar)`;
+      if (pass.expira_em) {
+        const d = new Date(pass.expira_em);
+        validadeText = `Até ${d.toLocaleDateString('pt-BR')}`;
+      }
+
+      const deviceText = pass.device_id 
+        ? `<span title="${escapePassHtml(pass.device_id)}" style="font-family: monospace; font-size: 0.8rem; color: #38bdf8;">📱 ${escapePassHtml(pass.device_id.substring(0, 14))}...</span>`
+        : `<span style="color: #64748b; font-size: 0.8rem;">Aguardando 1º uso</span>`;
+
+      const safeTitle = escapePassHtml(pass.game_title || pass.game_key);
+      const safeToken = escapePassHtml(pass.token);
+      const safeKey = escapePassHtml(pass.game_key);
+
+      const resetBtn = pass.device_id ? `
+        <button type="button" onclick="resetPassDevice('${safeToken}')" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 8px; color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);" title="Liberar vínculo de celular se o cliente trocou de aparelho">
+          🔄 Liberar Aparelho
+        </button>
+      ` : '';
+
+      return `
+        <tr>
+          <td><code style="background: rgba(0,240,255,0.1); color: #00f0ff; padding: 3px 8px; border-radius: 4px; font-weight: bold;">${safeToken}</code></td>
+          <td><strong>${safeTitle}</strong></td>
+          <td>${statusBadge}</td>
+          <td style="font-size: 0.85rem;">${validadeText}</td>
+          <td>${deviceText}</td>
+          <td>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" onclick="openQrModal('${safeToken}', '${safeKey}', '${safeTitle.replace(/'/g, "\\'")}')" class="btn-primary" style="font-size: 0.75rem; padding: 4px 8px;">
+                📱 QR Code
+              </button>
+              <button type="button" onclick="copyPassLink('${safeToken}', '${safeKey}')" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 8px;">
+                🔗 Copiar Link
+              </button>
+              ${resetBtn}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+  } catch (err) {
+    console.error('Erro ao carregar passes do Supabase:', err);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; color: #ef4444; padding: 20px;">
+          ⚠️ Erro ao consultar passes no Supabase. Verifique a conexão com a internet ou credenciais da API.
+        </td>
+      </tr>
+    `;
+  }
+}
+
+function openNewPassModal() {
+  const modal = document.getElementById('modal-new-pass');
+  if (modal) {
+    modal.style.display = 'flex';
+    const rand = Math.floor(1000 + Math.random() * 9000);
+    const tokenInput = document.getElementById('pass-form-token');
+    if (tokenInput) tokenInput.value = `PASS-${rand}`;
+  }
+}
+
+function closeNewPassModal() {
+  const modal = document.getElementById('modal-new-pass');
+  if (modal) modal.style.display = 'none';
+}
+
+async function submitCreateNewPass(e) {
+  e.preventDefault();
+  const gameKey = document.getElementById('pass-form-game').value;
+  let token = document.getElementById('pass-form-token').value.trim();
+  const months = parseInt(document.getElementById('pass-form-months').value, 10) || 6;
+
+  if (!token) {
+    const prefix = gameKey.substring(0, 3).toUpperCase();
+    const rand = Math.floor(1000 + Math.random() * 9000);
+    token = `PASS-${prefix}-${rand}`;
+  }
+
+  const title = RETRO_GAME_TITLES[gameKey] || gameKey;
+
+  try {
+    const resp = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/retronfc_passes`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_CONFIG.key,
+        'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        token: token,
+        game_key: gameKey,
+        game_title: title,
+        status: 'disponivel',
+        validade_meses: months,
+        criado_em: new Date().toISOString()
+      })
+    });
+
+    if (!resp.ok) {
+      const errData = await resp.json();
+      alert('Erro ao criar passe no Supabase: ' + (errData.message || resp.statusText));
+      return;
+    }
+
+    closeNewPassModal();
+    loadSupabasePasses();
+    logTerminal(`[RetroPass] Novo passe digital criado: ${token} para ${title}!`);
+    openQrModal(token, gameKey, title);
+  } catch (err) {
+    console.error('Erro ao criar passe:', err);
+    alert('Erro de conexão ao comunicar com Supabase.');
+  }
+}
+
+let currentModalPassUrl = '';
+
+function openQrModal(token, gameKey, gameTitle) {
+  const modal = document.getElementById('modal-view-qr');
+  if (!modal) return;
+
+  const url = `https://retronfc.com.br/play.html?game=${encodeURIComponent(gameKey)}&pass=${encodeURIComponent(token)}`;
+  currentModalPassUrl = url;
+
+  const titleEl = document.getElementById('qr-modal-title');
+  const gameEl = document.getElementById('qr-modal-game');
+  const imgEl = document.getElementById('qr-modal-img');
+  const wppEl = document.getElementById('qr-modal-wpp-btn');
+
+  if (titleEl) titleEl.textContent = `RetroPass: ${token}`;
+  if (gameEl) gameEl.textContent = gameTitle;
+  if (imgEl) imgEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&data=${encodeURIComponent(url)}`;
+
+  if (wppEl) {
+    const wppMsg = `🎮 *Seu RetroPass Digital da RetroNFC Chegou!*\n\nOlá! Aqui está o seu link de acesso exclusivo para jogar *${gameTitle}* direto no seu smartphone:\n\n👉 ${url}\n\n⚠️ *Regras de Segurança:* Este passe tem validade de 6 meses e será vinculado ao primeiro aparelho que abrir o link. Não compartilhe prints!`;
+    wppEl.href = `https://wa.me/?text=${encodeURIComponent(wppMsg)}`;
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeQrModal() {
+  const modal = document.getElementById('modal-view-qr');
+  if (modal) modal.style.display = 'none';
+}
+
+function copyModalLink() {
+  if (!currentModalPassUrl) return;
+  navigator.clipboard.writeText(currentModalPassUrl).then(() => {
+    alert('Link do RetroPass copiado com sucesso!\n\n' + currentModalPassUrl);
+  }).catch(() => {
+    prompt('Copie o link abaixo:', currentModalPassUrl);
+  });
+}
+
+function copyPassLink(token, gameKey) {
+  const url = `https://retronfc.com.br/play.html?game=${encodeURIComponent(gameKey)}&pass=${encodeURIComponent(token)}`;
+  navigator.clipboard.writeText(url).then(() => {
+    alert('Link do RetroPass copiado com sucesso!\n\n' + url);
+  }).catch(() => {
+    prompt('Copie o link abaixo:', url);
+  });
+}
+
+async function resetPassDevice(token) {
+  if (!confirm(`Deseja desvincular o aparelho do passe ${token}?\n\nIsso permitirá que o cliente ative o passe novamente em outro smartphone.`)) {
+    return;
+  }
+
+  try {
+    const resp = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/retronfc_passes?token=eq.${encodeURIComponent(token)}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_CONFIG.key,
+        'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        device_id: null,
+        status: 'disponivel'
+      })
+    });
+
+    if (resp.ok) {
+      logTerminal(`[RetroPass] Vínculo de aparelho removido com sucesso para o passe ${token}.`);
+      alert(`O aparelho vinculado ao passe ${token} foi removido com sucesso!`);
+      loadSupabasePasses();
+    } else {
+      alert('Não foi possível desvincular o aparelho no Supabase.');
+    }
+  } catch (err) {
+    console.error('Erro ao resetar aparelho do passe:', err);
+    alert('Erro de conexão ao comunicar com Supabase.');
+  }
 }

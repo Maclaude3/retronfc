@@ -149,6 +149,25 @@
 <body>
 
   <!-- Desktop Incompatibility Guard Screen (Proteção de Exclusividade NFC Mobile) -->
+  <!-- RetroPass Security Guard Screen (Validador Anti-Pirataria Supabase) -->
+  <div id="pass-guard-screen" class="desktop-guard-screen" style="display: none;">
+    <div class="guard-card" style="border-color: #ff0055; box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 40px rgba(255, 0, 85, 0.35);">
+      <div id="pass-guard-badge" class="guard-badge" style="border-color: rgba(255, 0, 85, 0.5); color: #ff0055;">
+        🔒 RETROPASS - VALIDAÇÃO DIGITAL
+      </div>
+      <div id="pass-guard-icon" class="guard-icon">❌</div>
+      <h2 id="pass-guard-title" class="guard-title">ACESSO BLOQUEADO</h2>
+      <p id="pass-guard-desc" class="guard-desc">
+        Este passe não pôde ser validado no sistema da RetroNFC.
+      </p>
+
+      <div class="guard-actions">
+        <a href="index.html" class="guard-btn-cyan">🛒 Adquirir Meu Próprio Passe</a>
+        <a href="https://wa.me/5561991252332?text=Ol%C3%A1!%20Tive%20um%20problema%20com%20meu%20RetroPass!" target="_blank" class="guard-btn-pink">💬 Suporte no WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
   <div id="desktop-guard-screen" class="desktop-guard-screen" style="display: none;">
     <div class="guard-card">
       <div class="guard-badge">📱 TECNOLOGIA NFC EXCLUSIVA</div>
@@ -254,6 +273,6 @@
 
   <!-- Scripts -->
   <script src="assets/js/games-data.js"></script>
-  <script src="assets/js/player.js?v=9.0"></script>
+  <script src="assets/js/player.js?v=10.0"></script>
 </body>
 </html>
