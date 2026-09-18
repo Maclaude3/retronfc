@@ -17,7 +17,7 @@
   <title>RetroNFC.com.br — Colecionáveis Retrô & Tecnologia NFC</title>
   
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="assets/css/style.css?v=9.0">
+  <link rel="stylesheet" href="assets/css/style.css?v=10.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
 </head>
 <body>
@@ -369,6 +369,17 @@
             </li>
           </ul>
 
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; margin-bottom: 8px;">
+            <button type="button" onclick="buyWholesalePackage(20)" class="btn btn-glass btn-sm" style="flex: 1; border-color: rgba(0,240,255,0.4);">
+              📦 Kit 20 un (R$ 150)
+            </button>
+            <button type="button" onclick="buyWholesalePackage(50)" class="btn btn-cyan btn-sm" style="flex: 1.2; font-weight: 800;">
+              ⭐ Kit 50 un + Expositor Grátis
+            </button>
+            <button type="button" onclick="buyWholesalePackage(100)" class="btn btn-glass btn-sm" style="flex: 1; border-color: rgba(0,240,255,0.4);">
+              🚀 Kit 100 un (R$ 700)
+            </button>
+          </div>
           <button onclick="orderWholesaleWhatsApp()" class="btn btn-pink btn-lg">
             Falar com Consultor de Atacado
           </button>
@@ -402,6 +413,11 @@
             <div style="font-size: 0.75rem; color: var(--cyan); margin-top: 6px;">
               * Retorno sobre investimento de 233% com giro rápido no balcão!
             </div>
+          </div>
+          <div style="margin-top: 16px;">
+            <button type="button" onclick="addCurrentWholesaleLotToCart()" class="btn btn-cyan btn-block" style="padding: 14px; font-weight: 800; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4);">
+              <span style="font-size: 1.2rem;">🛒</span> Comprar Lote Selecionado no Atacado
+            </button>
           </div>
         </div>
       </div>
@@ -745,12 +761,6 @@
       <!-- Injetado dinamicamente via JS -->
     </div>
 
-    <!-- Notes -->
-    <div class="cart-drawer-notes">
-      <label for="cart-notes-input" class="cart-notes-label">📝 Observações ou Instruções:</label>
-      <textarea id="cart-notes-input" class="cart-notes-textarea" placeholder="Ex: Nome para gravação na base, CEP para cálculo de frete, etc..."></textarea>
-    </div>
-
     <!-- Footer with totals and WhatsApp CTA -->
     <div class="cart-drawer-footer" id="cart-drawer-footer">
       <div class="cart-promo-banner" id="cart-promo-banner">
@@ -833,6 +843,12 @@
           <div id="checkout-attendant-preview" class="checkout-attendant-box"></div>
         </div>
 
+        <!-- Observações ou Instruções de Produção -->
+        <div class="form-group">
+          <label>OBSERVAÇÕES OU INSTRUÇÕES (OPCIONAL)</label>
+          <textarea id="cust-notes" class="form-control" style="height: 65px; resize: none;" placeholder="Ex: Nome para gravação na base, detalhes de entrega, grade de jogos no atacado..."></textarea>
+        </div>
+
         <!-- Aviso de Bloqueio Físico NFC -->
         <div class="checkout-nfc-notice">
           <span class="nfc-notice-icon">🔒</span>
@@ -860,7 +876,7 @@
   <!-- Script Principal -->
   <script src="assets/js/games-data.js?v=4.0"></script>
   <script src="assets/js/gameplay-preview.js"></script>
-  <script src="assets/js/main.js?v=7.0"></script>
+  <script src="assets/js/main.js?v=8.0"></script>
 
   
 

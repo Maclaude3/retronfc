@@ -9,6 +9,7 @@ const CONFIG = {
   currencySymbol: 'R$',
   retailPrice: 29.90,
   wholesalePrice: 7.50,
+  wholesaleMinQty: 20,
   suggestedResell: 25.00
 };
 
@@ -894,6 +895,7 @@ function renderCartDrawer() {
   const container = document.getElementById('cart-drawer-items');
   const unitsEl = document.getElementById('cart-total-units');
   const priceEl = document.getElementById('cart-total-price');
+  const promoBanner = document.getElementById('cart-promo-banner');
   const checkoutBtn = document.querySelector('.cart-checkout-btn');
 
   if (!container) return;
@@ -911,6 +913,12 @@ function renderCartDrawer() {
     `;
     if (unitsEl) unitsEl.textContent = '0 unidades';
     if (priceEl) priceEl.textContent = 'R$ 0,00';
+    if (promoBanner) {
+      promoBanner.style.background = 'rgba(0, 240, 255, 0.07)';
+      promoBanner.style.borderColor = 'rgba(0, 240, 255, 0.3)';
+      promoBanner.style.color = '#a5f3fc';
+      promoBanner.innerHTML = `<span>🚚 <strong>Envio Seguro para todo o Brasil</strong> com rastreamento!</span>`;
+    }
     if (checkoutBtn) {
       checkoutBtn.disabled = true;
       checkoutBtn.innerHTML = `💬 Finalizar Pedido via WhatsApp &rarr;`;
@@ -918,13 +926,30 @@ function renderCartDrawer() {
     return;
   }
 
-  let totalUnits = 0;
+  const totalUnits = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+  const isWholesale = totalUnits >= (CONFIG.wholesaleMinQty || 20);
   let totalPrice = 0;
 
+  // Atualiza banner dinâmico de atacado
+  if (promoBanner) {
+    if (isWholesale) {
+      promoBanner.style.background = 'rgba(34, 197, 94, 0.15)';
+      promoBanner.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+      promoBanner.style.color = '#86efac';
+      promoBanner.innerHTML = `<span>🎉 <strong>TARIFA DE ATACADO ATIVADA!</strong> Você tem ${totalUnits} unidades. Preço de fábrica aplicado: <strong>R$ 7,50/un</strong>!</span>`;
+    } else {
+      const remaining = (CONFIG.wholesaleMinQty || 20) - totalUnits;
+      promoBanner.style.background = 'rgba(0, 240, 255, 0.07)';
+      promoBanner.style.borderColor = 'rgba(0, 240, 255, 0.3)';
+      promoBanner.style.color = '#a5f3fc';
+      promoBanner.innerHTML = `<span>💼 <strong>Quer Preço de Atacado?</strong> Adicione mais <strong>${remaining} unidade(s)</strong> para pagar apenas <strong>R$ 7,50/un</strong>!</span>`;
+    }
+  }
+
   container.innerHTML = cart.map((item, idx) => {
-    const itemUnitPrice = (item.price || 29.90) + (item.extraPrice || 0);
+    const basePrice = isWholesale ? (CONFIG.wholesalePrice || 7.50) : (item.price || 29.90);
+    const itemUnitPrice = basePrice + (item.extraPrice || 0);
     const itemSubtotal = itemUnitPrice * item.qty;
-    totalUnits += item.qty;
     totalPrice += itemSubtotal;
 
     return `
@@ -947,7 +972,13 @@ function renderCartDrawer() {
               <button onclick="changeCartItemQty(${idx}, 1)" class="cart-stepper-btn" aria-label="Aumentar">+</button>
             </div>
             <div class="cart-item-price">
-              R$ ${itemSubtotal.toFixed(2).replace('.', ',')}
+              ${isWholesale ? `
+                <span style="font-size: 0.75rem; text-decoration: line-through; color: #64748b; margin-right: 4px;">R$ ${((29.90 + (item.extraPrice || 0)) * item.qty).toFixed(2).replace('.', ',')}</span>
+                <span style="color: #22c55e; font-weight: 800;">R$ ${itemSubtotal.toFixed(2).replace('.', ',')}</span>
+                <span style="display: block; font-size: 0.68rem; color: #22c55e; font-weight: 700;">(Tarifa Atacado R$ 7,50/un)</span>
+              ` : `
+                R$ ${itemSubtotal.toFixed(2).replace('.', ',')}
+              `}
             </div>
           </div>
         </div>
@@ -961,6 +992,7 @@ function renderCartDrawer() {
   if (checkoutBtn) {
     checkoutBtn.disabled = false;
     checkoutBtn.onclick = openCheckoutAddressModal;
+    const modeLabel = isWholesale ? '💼 Atacado' : '🛍️ Varejo';
     checkoutBtn.innerHTML = `<span style="font-size: 1.25rem;">📦</span> Avançar para Entrega (${totalUnits} un · R$ ${totalPrice.toFixed(2).replace('.', ',')}) &rarr;`;
   }
 }
@@ -972,7 +1004,7 @@ function checkoutCartWhatsApp() {
   }
   if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
 
-  const notesInput = document.getElementById('cart-notes-input');
+  const notesInput = document.getElementById('cust-notes') || document.getElementById('cart-notes-input');
   const notes = notesInput ? notesInput.value.trim() : '';
 
   let totalUnits = 0;
@@ -1062,19 +1094,20 @@ function openCheckoutAddressModal() {
   const gamesDisplay = document.getElementById('cust-games-display');
   if (gamesDisplay) {
     let totalPrice = 0;
-    let totalUnits = 0;
+    const totalUnits = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+    const isWholesale = totalUnits >= (CONFIG.wholesaleMinQty || 20);
 
     const itemsHtml = cart.map(item => {
-      const unitPrice = (item.price || 29.90) + (item.extraPrice || 0);
+      const basePrice = isWholesale ? (CONFIG.wholesalePrice || 7.50) : (item.price || 29.90);
+      const unitPrice = basePrice + (item.extraPrice || 0);
       const subtotal = unitPrice * item.qty;
       totalPrice += subtotal;
-      totalUnits += item.qty;
 
       return `
         <div class="checkout-game-pill">
           <div>
             <div class="checkout-game-pill-title">${item.qty}x ${item.title} (${item.consoleName})</div>
-            <div class="checkout-game-pill-sub">${item.format} · ${item.color}</div>
+            <div class="checkout-game-pill-sub">${item.format} · ${item.color} ${isWholesale ? '· <strong style="color:#22c55e;">Atacado R$ 7,50</strong>' : ''}</div>
           </div>
           <div class="checkout-game-pill-price">R$ ${subtotal.toFixed(2).replace('.', ',')}</div>
         </div>
@@ -1173,7 +1206,7 @@ function submitFinalCheckoutToWhatsApp(event) {
   const state = document.getElementById('cust-state').value.trim().toUpperCase();
   const zip = document.getElementById('cust-zip').value.trim();
 
-  const notesInput = document.getElementById('cart-notes-input');
+  const notesInput = document.getElementById('cust-notes') || document.getElementById('cart-notes-input');
   const notes = notesInput ? notesInput.value.trim() : '';
 
   // Salva no navegador para próximas compras
@@ -1183,11 +1216,14 @@ function submitFinalCheckoutToWhatsApp(event) {
     }));
   } catch (e) {}
 
+  const totalCartUnits = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+  const isWholesale = totalCartUnits >= (CONFIG.wholesaleMinQty || 20);
   let totalPrice = 0;
   let totalUnits = 0;
 
   const itemsList = cart.map(item => {
-    const unitPrice = (item.price || 29.90) + (item.extraPrice || 0);
+    const basePrice = isWholesale ? (CONFIG.wholesalePrice || 7.50) : (item.price || 29.90);
+    const unitPrice = basePrice + (item.extraPrice || 0);
     const subtotal = unitPrice * item.qty;
     totalPrice += subtotal;
     totalUnits += item.qty;
@@ -1195,6 +1231,7 @@ function submitFinalCheckoutToWhatsApp(event) {
     return `• *${item.qty}x ${item.title}* (${item.consoleName})
   - Formato: ${item.format}
   - Carcaça: ${item.color}
+  - Tarifa: ${isWholesale ? 'Atacado (R$ 7,50/un)' : 'Varejo (R$ 29,90/un)'}
   - Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}`;
   }).join('\n\n');
 
@@ -1203,6 +1240,7 @@ function submitFinalCheckoutToWhatsApp(event) {
   let message = `🎮 *PEDIDO CONFIRMADO - RETRONFC.COM.BR*
 🤖 *ATENDENTE DESIGNADO:* ${attendant.icon} ${attendant.name} (${attendant.game})
 🏷️ *TAG DO ROBÔ:* [PERSONA:${attendant.code}]
+💼 *MODALIDADE:* ${isWholesale ? "ATACADO B2B (R$ 7,50/un - 20+ peças)" : "VAREJO (R$ 29,90/un)"}
 
 👤 *DADOS DO CLIENTE:*
 • Nome: ${name}
@@ -1220,7 +1258,7 @@ ${itemsList}
 📦 *Volume Total:* ${totalUnits} unidade(s)
 💰 *VALOR TOTAL:* R$ ${totalPrice.toFixed(2).replace('.', ',')}
 
-🔒 *DECLARAÇÃO DO CLIENTE:*
+${notes ? `📝 *Observações:* ${notes}\n\n` : ''}🔒 *DECLARAÇÃO DO CLIENTE:*
 Confirmo que os dados de entrega e os jogos acima estão corretos. Estou ciente de que os chips NFC são gravados fisicamente e bloqueados permanentemente contra regravação.
 
 ${attendant.name}, por favor confirme o pedido e envie o link de pagamento seguro!`;
@@ -1228,4 +1266,39 @@ ${attendant.name}, por favor confirme o pedido e envie o link de pagamento segur
   const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
   window.open(url, '_blank');
   closeCheckoutAddressModal();
+}
+
+
+// ==========================================================================
+// 💼 FUNÇÕES DE COMPRA RÁPIDA DE ATACADO EM LOTE (B2B)
+// ==========================================================================
+function buyWholesalePackage(qty) {
+  if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
+  const num = parseInt(qty, 10) || 20;
+  const hasDisplay = num >= 50;
+  const format = hasDisplay ? 'Chaveiro NFC + Expositor Giratório de Balcão Incluso (Brinde)' : 'Chaveiro NFC Montado e Programado';
+
+  // Remove lote de atacado genérico anterior para não duplicar
+  cart = cart.filter(i => !i.id.startsWith('wholesale_lot'));
+
+  cart.unshift({
+    id: `wholesale_lot_${num}`,
+    title: `Lote de Atacado (${num}x Chaveiros NFC)`,
+    consoleName: 'Mix dos Mais Vendidos (Top Clássicos)',
+    cover: 'assets/images/expositor-giratorio.jpeg',
+    price: CONFIG.wholesalePrice || 7.50,
+    extraPrice: 0,
+    format: format,
+    color: 'Grade Balanceada (SNES, Mega Drive & PS1)',
+    qty: num
+  });
+
+  saveCart();
+  toggleCartDrawer(true);
+}
+
+function addCurrentWholesaleLotToCart() {
+  const slider = document.getElementById('wholesale-qty-slider');
+  const qty = slider ? parseInt(slider.value, 10) : 50;
+  buyWholesalePackage(qty);
 }
