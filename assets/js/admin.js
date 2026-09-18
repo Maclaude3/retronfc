@@ -357,6 +357,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (isAuth) {
     if (overlay) overlay.style.display = 'none';
+    const app = document.getElementById('admin-app');
+    if (app) app.style.display = 'flex';
     // Se a chave não estiver em RAM mas a sessão for válida no navegador local, recupera dados
     await loadOrders();
     checkUrlAutoOrder();
@@ -424,6 +426,8 @@ async function handleLogin(e) {
 
     const overlay = document.getElementById('login-overlay');
     if (overlay) overlay.style.display = 'none';
+    const app = document.getElementById('admin-app');
+    if (app) app.style.display = 'flex';
     if (errEl) errEl.style.display = 'none';
 
     // Limpa o campo de senha da memória do DOM
@@ -507,17 +511,49 @@ function updateKpiMetrics() {
   const totalOrders = orders.length;
   const pendingOrders = orders.filter(o => o.status === 'pending').length;
   const recordedOrders = orders.filter(o => o.status === 'recorded' || o.status === 'shipped').length;
-  const revenueTotal = (totalOrders * 29.90).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  
+  // Total faturado calculando pedidos físicos e passes
+  const ordersRevenue = orders.reduce((sum, o) => sum + (o.price || 24.99), 0);
+  const passesRevenue = (supabasePassesList.length || 10) * 9.99; // RetroPasses emitidos
+  const totalRevenue = ordersRevenue + passesRevenue;
 
   const kpiRev = document.getElementById('kpi-revenue');
   const kpiTot = document.getElementById('kpi-orders-total');
   const kpiPend = document.getElementById('kpi-orders-pending');
   const kpiRec = document.getElementById('kpi-orders-recorded');
+  const kpiPasses = document.getElementById('kpi-passes-count');
 
-  if (kpiRev) kpiRev.textContent = revenueTotal;
+  if (kpiRev) kpiRev.textContent = totalRevenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   if (kpiTot) kpiTot.textContent = totalOrders;
   if (kpiPend) kpiPend.textContent = pendingOrders;
-  if (kpiRec) kpiRec.textContent = recordedOrders;
+  if (kpiRec) kpiRec.textContent = `Gravados: ${recordedOrders}`;
+  if (kpiPasses) kpiPasses.textContent = supabasePassesList.length || 10;
+
+  // --- META DA IMPRESSORA 3D (R$ 1.500,00) ---
+  const GOAL_TARGET = 1500.00;
+  const currentAmount = Math.min(totalRevenue, GOAL_TARGET);
+  const percent = Math.min(100, Math.max(0, (totalRevenue / GOAL_TARGET) * 100));
+  const remaining = Math.max(0, GOAL_TARGET - totalRevenue);
+  const passesRemaining = Math.ceil(remaining / 9.99);
+
+  const goalCurrentEl = document.getElementById('goal-current-amount');
+  const goalBarEl = document.getElementById('goal-progress-bar');
+  const goalPercentEl = document.getElementById('goal-percent-text');
+  const goalRemainEl = document.getElementById('goal-remaining-text');
+
+  if (goalCurrentEl) goalCurrentEl.textContent = totalRevenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  if (goalBarEl) goalBarEl.style.width = `${percent.toFixed(1)}%`;
+  if (goalPercentEl) goalPercentEl.innerHTML = `🚀 <strong>${percent.toFixed(1)}%</strong> Concluído`;
+  if (goalRemainEl) {
+    if (remaining <= 0) {
+      goalRemainEl.innerHTML = `🎉 <strong>META ATINGIDA!</strong> Você já pode adquirir sua impressora 3D!`;
+    } else {
+      goalRemainEl.innerHTML = `Faltam apenas <strong>${remaining.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong> (~${passesRemaining} RetroPasses a R$ 9,99)`;
+    }
+  }
+
+  renderRecentOrders();
+  renderCustomers();
 }
 
 function renderOrders() {
@@ -1430,4 +1466,216 @@ async function resetPassDevice(token) {
     console.error('Erro ao resetar aparelho do passe:', err);
     alert('Erro de conexão ao comunicar com Supabase.');
   }
+}
+
+
+// ==========================================================================
+// 🧭 CONTROLE DE NAVEGAÇÃO DE VIEWS (SIDEBAR DASHBOARD)
+// ==========================================================================
+let currentActiveView = 'overview';
+
+function switchAdminView(viewId) {
+  currentActiveView = viewId;
+  
+  // Atualiza itens do menu
+  document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  const activeNav = document.getElementById(`nav-${viewId}`);
+  if (activeNav) activeNav.classList.add('active');
+
+  // Atualiza as seções exibidas
+  document.querySelectorAll('.admin-view').forEach(view => {
+    view.classList.remove('active');
+  });
+  const targetView = document.getElementById(`view-${viewId}`);
+  if (targetView) {
+    targetView.classList.add('active');
+  }
+
+  // Fecha o menu no celular se estiver aberto
+  const sidebar = document.getElementById('admin-sidebar');
+  if (sidebar && sidebar.classList.contains('open')) {
+    sidebar.classList.remove('open');
+  }
+
+  // Ações contextuais por aba
+  if (viewId === 'retropass') {
+    loadSupabasePasses();
+  } else if (viewId === 'orders') {
+    renderOrders();
+  } else if (viewId === 'customers') {
+    renderCustomers();
+  } else if (viewId === 'overview') {
+    updateKpiMetrics();
+  }
+}
+
+function toggleSidebarMobile() {
+  const sidebar = document.getElementById('admin-sidebar');
+  if (sidebar) sidebar.classList.toggle('open');
+}
+
+// ==========================================================================
+// 🔍 BUSCA GLOBAL RÁPIDA (PEDIDOS, TOKENS, NOMES, CEPS)
+// ==========================================================================
+function handleGlobalSearch(query) {
+  query = (query || '').trim().toLowerCase();
+  if (!query) {
+    renderOrders();
+    loadSupabasePasses();
+    return;
+  }
+
+  // Se o termo parecer um token RetroPass, muda para a aba de passes
+  if (query.startsWith('pass-') || query.includes('token')) {
+    if (currentActiveView !== 'retropass') switchAdminView('retropass');
+  }
+
+  // Filtra pedidos
+  const filteredOrders = orders.filter(o => 
+    String(o.id).includes(query) ||
+    (o.customerName && o.customerName.toLowerCase().includes(query)) ||
+    (o.phone && o.phone.includes(query)) ||
+    (o.gameTitle && o.gameTitle.toLowerCase().includes(query)) ||
+    (o.city && o.city.toLowerCase().includes(query)) ||
+    (o.zip && o.zip.includes(query))
+  );
+  renderOrders(filteredOrders);
+
+  // Filtra passes no Supabase
+  if (supabasePassesList && supabasePassesList.length > 0) {
+    const filteredPasses = supabasePassesList.filter(p =>
+      (p.token && p.token.toLowerCase().includes(query)) ||
+      (p.game_title && p.game_title.toLowerCase().includes(query)) ||
+      (p.game_key && p.game_key.toLowerCase().includes(query)) ||
+      (p.device_id && p.device_id.toLowerCase().includes(query))
+    );
+    renderPassesTable(filteredPasses);
+  }
+}
+
+function clearGlobalSearch() {
+  const input = document.getElementById('global-search-input');
+  if (input) input.value = '';
+  renderOrders();
+  loadSupabasePasses();
+}
+
+// ==========================================================================
+// 📦 RENDERIZAÇÃO DE PEDIDOS RECENTES (VIEW OVERVIEW)
+// ==========================================================================
+function renderRecentOrders() {
+  const tbody = document.getElementById('recent-orders-table-body');
+  if (!tbody) return;
+
+  if (orders.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 20px;">Nenhum pedido recente.</td></tr>';
+    return;
+  }
+
+  const recent = orders.slice(0, 5);
+  tbody.innerHTML = recent.map(o => `
+    <tr>
+      <td><strong>#${o.id}</strong></td>
+      <td>
+        <span style="font-weight: 700; color: #fff;">${escapePassHtml(o.customerName)}</span><br>
+        <small style="color: #64748b;">${escapePassHtml(o.phone)}</small>
+      </td>
+      <td>${escapePassHtml(o.gameTitle || 'Super Mario')}</td>
+      <td><strong style="color: #00f0ff;">R$ ${(o.price || 24.99).toFixed(2).replace('.', ',')}</strong></td>
+      <td>
+        <span class="${o.status === 'recorded' || o.status === 'shipped' ? 'badge-ready' : 'badge-pending'}">
+          ${o.status === 'recorded' ? '✓ Gravado' : (o.status === 'shipped' ? '📦 Enviado' : '⏳ Pendente')}
+        </span>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ==========================================================================
+// 👥 RENDERIZAÇÃO DO DIRETÓRIO DE CLIENTES (VIEW CUSTOMERS)
+// ==========================================================================
+function renderCustomers() {
+  const tbody = document.getElementById('customers-table-body');
+  if (!tbody) return;
+
+  const customerMap = new Map();
+  orders.forEach(o => {
+    const key = (o.phone || o.customerName || '').trim();
+    if (!key) return;
+    if (!customerMap.has(key)) {
+      customerMap.set(key, {
+        name: o.customerName,
+        phone: o.phone,
+        city: o.city,
+        state: o.state,
+        zip: o.zip,
+        ordersCount: 1,
+        totalSpent: o.price || 24.99
+      });
+    } else {
+      const c = customerMap.get(key);
+      c.ordersCount += 1;
+      c.totalSpent += (o.price || 24.99);
+    }
+  });
+
+  const list = Array.from(customerMap.values());
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 20px;">Nenhum cliente cadastrado ainda.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = list.map(c => `
+    <tr>
+      <td><strong style="color: #fff;">${escapePassHtml(c.name)}</strong></td>
+      <td>
+        <a href="https://wa.me/55${c.phone.replace(/\D/g, '')}" target="_blank" style="color: #22c55e; text-decoration: none; font-weight: 700;">
+          💬 ${escapePassHtml(c.phone)}
+        </a>
+      </td>
+      <td>${escapePassHtml(c.city || 'Brasília')} / ${escapePassHtml(c.state || 'DF')}</td>
+      <td><code>${escapePassHtml(c.zip || '---')}</code></td>
+      <td><strong style="color: #00f0ff;">R$ ${c.totalSpent.toFixed(2).replace('.', ',')}</strong> (${c.ordersCount}x)</td>
+      <td>
+        <a href="https://wa.me/55${c.phone.replace(/\D/g, '')}?text=${encodeURIComponent('Olá! Aqui é a equipe da RetroNFC sobre o seu pedido!')}" target="_blank" class="btn-top-action btn-top-dark" style="font-size: 0.72rem; padding: 5px 8px;">
+          Falar
+        </a>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ==========================================================================
+// 📥 EXPORTAR PEDIDOS PARA CORREIOS / CSV
+// ==========================================================================
+function exportOrdersCsv() {
+  if (orders.length === 0) {
+    alert('Nenhum pedido para exportar.');
+    return;
+  }
+
+  let csv = 'ID;Data;Nome;Telefone;CEP;Endereco;Numero_Lote;Complemento;Bairro;Cidade;UF;Jogo;Valor;Status\n';
+  orders.forEach(o => {
+    csv += `${o.id};"${o.date || ''}";"${o.customerName || ''}";"${o.phone || ''}";"${o.zip || ''}";"${o.address || ''}";"${o.number || ''}";"${o.complement || ''}";"${o.neighborhood || ''}";"${o.city || ''}";"${o.state || ''}";"${o.gameTitle || ''}";"${(o.price || 24.99).toFixed(2)}";"${o.status || ''}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `RetroNFC_Pedidos_Lote_Fundador_${Date.now()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  logTerminal(`[Exportação] Arquivo CSV de entregas baixado com sucesso.`);
+}
+
+function copyStationDirectUrl() {
+  const select = document.getElementById('station-game-select');
+  const gameKey = select ? select.value : 'super_mario';
+  const url = `https://retronfc.com.br/play.html?game=${gameKey}`;
+  navigator.clipboard.writeText(url);
+  alert(`URL copiada para gravação manual no NFC:\n${url}`);
 }

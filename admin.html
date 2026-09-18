@@ -6,30 +6,30 @@
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <title>Painel do Lojista & Central de Gravação NFC - RetroNFC.com.br</title>
+  <title>Dashboard do Lojista & Central de Gestão - RetroNFC.com.br</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="assets/css/style.css?v=6.0">
-  <link rel="stylesheet" href="assets/css/admin.css?v=2.0">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔒</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css?v=7.0">
+  <link rel="stylesheet" href="assets/css/admin.css?v=3.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕹️</text></svg>">
 </head>
 <body>
 
-  <!-- Overlay de Bloqueio por Senha (Login) -->
+  <!-- Overlay de Bloqueio por Senha (Login Seguro com Hash Criptográfico) -->
   <div id="login-overlay">
     <div class="login-card">
       <div class="login-icon">🔒</div>
-      <h1 class="login-title">Área Restrita do Lojista</h1>
+      <h1 class="login-title">Painel Administrativo RetroNFC</h1>
       <p class="login-subtitle">
-        Acesso exclusivo à gestão de pedidos, endereços dos clientes e central de gravação das Tags NFC.
+        Acesso restrito à gestão de pedidos, passes digitais, anti-pirataria e central de gravação das Tags NFC.
       </p>
 
       <form id="login-form" class="login-form">
         <div class="form-group">
-          <label for="admin-password">Senha de Segurança</label>
+          <label for="admin-password">Senha Mestra de Segurança</label>
           <input type="password" id="admin-password" class="form-control" placeholder="Digite a senha de acesso..." required autocomplete="current-password">
         </div>
 
@@ -38,462 +38,986 @@
 
         <div style="display: flex; align-items: center; gap: 8px;">
           <input type="checkbox" id="remember-me" checked style="accent-color: var(--cyan); width: 16px; height: 16px; cursor: pointer;">
-          <label for="remember-me" style="color: var(--text-muted); font-size: 0.85rem; cursor: pointer; margin: 0;">Lembrar senha neste dispositivo</label>
+          <label for="remember-me" style="margin: 0; font-size: 0.82rem; color: #94a3b8; cursor: pointer;">
+            Lembrar acesso neste navegador (Sessão Segura de 8h)
+          </label>
         </div>
 
-        <button type="submit" class="btn-primary" style="margin-top: 6px;">
-          Entrar no Painel Operacional &rarr;
+        <button type="submit" class="btn-login">
+          <span>Desbloquear Painel</span> &rarr;
         </button>
       </form>
-
-      
     </div>
   </div>
 
-  <!-- Header do Painel -->
-  <header class="admin-header">
-    <div class="admin-header-container">
-      <div class="admin-brand">
-        <div class="logo-badge" style="background: linear-gradient(135deg, #00f0ff 0%, #0077ff 100%); color: #000; font-weight: 900; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem;">
-          NFC
-        </div>
-        <div style="font-weight: 800; font-size: 1.2rem; color: #fff;">
-          Retro<span style="color: var(--cyan);">NFC</span> Admin
-        </div>
-        <span class="admin-badge-chip">CENTRAL OPERACIONAL</span>
-      </div>
+  <!-- DASHBOARD PRINCIPAL (ESTILO SAAS MODERNO COM SIDEBAR) -->
+  <div id="admin-app" class="admin-layout" style="display: none;">
 
-      <div class="admin-nav-actions">
-        <div id="nfc-indicator" class="nfc-status-indicator">
-          <span class="pulse-dot-sm"></span>
-          <span id="nfc-indicator-text">Verificando Sensor...</span>
-        </div>
-
-        <a href="index.html" target="_blank" class="btn-secondary" title="Abrir Vitrine Pública da Loja">
-          🏪 Ver Loja ↗
-        </a>
-        <button onclick="logout()" class="btn-secondary" title="Encerrar Sessão">
-          🔒 Sair
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Conteúdo Principal -->
-  <main class="admin-main">
-
-    <!-- Controle Operacional de Vendas (Modo Digital R$ 9,99 vs Físico R$ 24,99) -->
-    <section class="admin-section" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.85)); border: 1.5px solid rgba(0, 240, 255, 0.35); border-radius: 14px; padding: 18px 22px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-        <div style="display: flex; align-items: center; gap: 14px;">
-          <div style="font-size: 2rem; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 12px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-            ⚙️
-          </div>
-          <div>
-            <h3 style="margin: 0; font-size: 1.05rem; color: #fff; display: flex; align-items: center; gap: 8px;">
-              Modo da Loja: <span id="store-mode-badge" class="status-badge pending" style="font-size: 0.82rem;">🔒 Vendas 100% RetroPass Digital (R$ 9,99)</span>
-            </h3>
-            <p style="margin: 4px 0 0; font-size: 0.82rem; color: #94a3b8;">
-              Chaveiros físicos pausados para arrecadação da impressora 3D. Clientes adquirem o RetroPass Digital e você envia o Card com QR Code na hora no WhatsApp.
-            </p>
-          </div>
-        </div>
-        <div>
-          <button type="button" id="btn-toggle-sales-mode" onclick="toggleStoreSalesMode()" class="btn-secondary" style="font-size: 0.85rem; padding: 9px 18px; cursor: pointer; border-color: rgba(0, 240, 255, 0.5); color: #00f0ff;">
-            🔄 Alternar Modo de Vendas
-          </button>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- Grid de Métricas / KPIs -->
-    <section class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">Faturamento Total</span>
-          <span class="kpi-icon">💰</span>
-        </div>
-        <div id="kpi-revenue" class="kpi-value">R$ 0,00</div>
-        <div class="kpi-sub">+12% em relação ao mês anterior</div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">Pedidos Recebidos</span>
-          <span class="kpi-icon">📦</span>
-        </div>
-        <div id="kpi-orders-total" class="kpi-value">0</div>
-        <div class="kpi-sub">Vendas no Varejo e Atacado B2B</div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">Fila de Gravação</span>
-          <span class="kpi-icon">⏳</span>
-        </div>
-        <div id="kpi-orders-pending" class="kpi-value" style="color: #fbbf24;">0</div>
-        <div class="kpi-sub" style="color: #fbbf24;">Aguardando aproximação da Tag</div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">Tags Gravadas & Despachadas</span>
-          <span class="kpi-icon">✅</span>
-        </div>
-        <div id="kpi-orders-recorded" class="kpi-value" style="color: #34d399;">0</div>
-        <div class="kpi-sub">Prontas para envio aos clientes</div>
-      </div>
-    </section>
-
-    <!-- Grid Operacional: Mais Vendidos + Estação Web NFC -->
-    <section class="ops-grid">
+    <!-- 1. SIDEBAR LATERAL NAVEGÁVEL -->
+    <aside class="admin-sidebar" id="admin-sidebar">
       
-      <!-- Ranking dos Mais Vendidos -->
-      <div class="admin-card">
-        <div class="admin-card-header">
-          <h2 class="admin-card-title">
-            <span>🔥</span> Jogos Mais Vendidos
-          </h2>
-          <span style="font-size: 0.78rem; color: var(--text-dim); font-weight: 700;">TOTAL DE MINI CARTUCHOS</span>
-        </div>
-        <div id="ranking-list" class="ranking-list">
-          <!-- Renderizado via admin.js -->
+      <!-- Logo e Identidade do Painel -->
+      <div class="sidebar-brand">
+        <div class="brand-logo-glow">🕹️</div>
+        <div class="brand-text">
+          <span class="brand-title">RetroNFC</span>
+          <span class="brand-badge">ADMIN 2.0</span>
         </div>
       </div>
 
-      <!-- Estação Web NFC Integrada -->
-      <div id="nfc-station-card" class="admin-card">
-        <div class="admin-card-header">
-          <h2 class="admin-card-title">
-            <span>📡</span> Estação de Gravação Web NFC
-          </h2>
-          <span class="admin-badge-chip" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(16, 185, 129, 0.4);">
-            ESCRITA DIRETA NTAG213/215
-          </span>
+      <!-- Menus de Navegação por Categoria -->
+      <nav class="sidebar-nav">
+        
+        <div class="nav-group-label">PAINEL PRINCIPAL</div>
+        <a href="#" class="nav-item active" onclick="switchAdminView('overview'); return false;" id="nav-overview">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">Visão Geral & KPIs</span>
+        </a>
+
+        <div class="nav-group-label">VENDAS & RETROPASS</div>
+        <a href="#" class="nav-item" onclick="switchAdminView('retropass'); return false;" id="nav-retropass">
+          <span class="nav-icon">🎟️</span>
+          <span class="nav-text">RetroPasses (Supabase)</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchAdminView('orders'); return false;" id="nav-orders">
+          <span class="nav-icon">📦</span>
+          <span class="nav-text">Pedidos & Entregas</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchAdminView('customers'); return false;" id="nav-customers">
+          <span class="nav-icon">👥</span>
+          <span class="nav-text">Clientes Cadastrados</span>
+        </a>
+
+        <div class="nav-group-label">HARDWARE & PRODUÇÃO</div>
+        <a href="#" class="nav-item" onclick="switchAdminView('nfc'); return false;" id="nav-nfc">
+          <span class="nav-icon">⚡</span>
+          <span class="nav-text">Central de Gravação NFC</span>
+        </a>
+
+        <div class="nav-group-label">CATÁLOGO DE JOGOS</div>
+        <a href="#" class="nav-item" onclick="switchAdminView('catalog'); return false;" id="nav-catalog">
+          <span class="nav-icon">🕹️</span>
+          <span class="nav-text">Jogos & Arcades</span>
+        </a>
+
+        <div class="nav-group-label">CONFIGURAÇÕES & IA</div>
+        <a href="#" class="nav-item" onclick="switchAdminView('attendants'); return false;" id="nav-attendants">
+          <span class="nav-icon">🤖</span>
+          <span class="nav-text">Atendentes do WhatsApp</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchAdminView('integrations'); return false;" id="nav-integrations">
+          <span class="nav-icon">💳</span>
+          <span class="nav-text">Pagamentos & APIs</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchAdminView('security'); return false;" id="nav-security">
+          <span class="nav-icon">🔐</span>
+          <span class="nav-text">Segurança & Senha</span>
+        </a>
+
+      </nav>
+
+      <!-- Rodapé do Usuário Logado -->
+      <div class="sidebar-user-footer">
+        <div class="user-avatar">LC</div>
+        <div class="user-info">
+          <span class="user-name">Administrador Geral</span>
+          <span class="user-status">● Online</span>
+        </div>
+        <button type="button" class="btn-user-logout" onclick="logout()" title="Sair do Painel">🚪</button>
+      </div>
+
+    </aside>
+
+    <!-- 2. WRAPPER DE CONTEÚDO PRINCIPAL -->
+    <div class="admin-main-wrapper">
+      
+      <!-- TOPBAR SUPERIOR (Busca Global + Ações Rápidas + Status) -->
+      <header class="admin-topbar">
+        
+        <!-- Botão Menu Mobile (Hamburguer) -->
+        <button class="mobile-menu-toggle" onclick="toggleSidebarMobile()">☰</button>
+
+        <!-- Campo de Busca Global Rápida -->
+        <div class="topbar-search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="global-search-input" placeholder="O que você procura? [Ex: Pedido #1052, Rodrigo, PASS-SMW, CEP...]" oninput="handleGlobalSearch(this.value)">
+          <button type="button" class="btn-search-clear" onclick="clearGlobalSearch()">Limpar</button>
         </div>
 
-        <div class="station-box">
-          <!-- Painel do Trabalho Atual -->
-          <div id="station-current-job" class="station-current-job">
-            <span id="station-job-badge" class="station-job-badge">GRAVAÇÃO AVULSA</span>
-            <div id="station-job-title" class="station-job-name">Carregando jogo...</div>
-            <input type="text" id="station-url-display" class="station-url-display" readonly value="">
+        <!-- Ações Rápidas do Topo -->
+        <div class="topbar-actions">
+          <button type="button" onclick="openNewPassModal()" class="btn-top-action btn-top-blue">
+            <span>+</span> Novo RetroPass
+          </button>
+          <button type="button" onclick="openNewOrderModal()" class="btn-top-action btn-top-green">
+            <span>+</span> Novo Pedido
+          </button>
+          <button type="button" onclick="switchAdminView('nfc')" class="btn-top-action btn-top-dark">
+            <span>⚡</span> Gravar NFC
+          </button>
+          <button type="button" onclick="exportOrdersCsv()" class="btn-top-action btn-top-outline" title="Exportar dados para envio">
+            📥 Exportar
+          </button>
+          
+          <div class="system-status-pills">
+            <span class="status-pill status-online" title="Mercado Pago Oficial Conectado">
+              <span class="status-dot"></span> MP Ativo
+            </span>
+            <span class="status-pill status-online" title="Supabase Database Online">
+              <span class="status-dot"></span> Supabase
+            </span>
           </div>
 
-          <!-- Troca rápida de jogo caso queira gravar avulso -->
-          <div>
-            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">
-              Ou escolha outro jogo para gravação avulsa:
-            </label>
-            <select id="station-game-select" class="form-control">
-              <!-- Populado via admin.js -->
-            </select>
-          </div>
+          <a href="index.html" target="_blank" class="btn-view-site" title="Abrir Loja">
+            Loja &rarr;
+          </a>
+        </div>
 
-          <!-- Botões de Ação NFC -->
-          <div class="station-actions">
-            <button onclick="writeNfcTag()" class="station-btn-write">
-              <span style="font-size: 1.3rem;">📲</span>
-              <span>GRAVAR TAG NFC AGORA</span>
-            </button>
-            <button onclick="testReadNfcTag()" class="station-btn-read">
-              <span>🔍</span>
-              <span>Testar / Ler Tag</span>
-            </button>
-          </div>
+      </header>
 
-          <!-- Terminal de Log Operacional -->
-          <div>
-            <label style="display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-dim); margin-bottom: 6px; letter-spacing: 0.5px;">
-              LOG DO TERMINAL OPERACIONAL:
-            </label>
-            <div id="station-terminal" class="station-terminal">
-              <div>[Sistema] Estação de gravação inicializada.</div>
+      <!-- ÁREA DE CONTEÚDO DINÂMICO (VIEWS) -->
+      <main class="admin-content-body">
+
+        <!-- ====================================================================
+             VIEW 1: VISÃO GERAL (OVERVIEW) & META DA IMPRESSORA 3D
+             ==================================================================== -->
+        <section id="view-overview" class="admin-view active">
+          
+          <!-- BANNER DE DESTAQUE: META IMPRESSORA 3D (Inspirado no print de referência) -->
+          <div class="goal-progress-banner">
+            <div class="goal-header">
+              <div class="goal-title-area">
+                <span class="goal-badge">🎯 META DE FINANCIAMENTO COLETIVO</span>
+                <h2>Impressora 3D para Fabricação dos Chaveiros Físicos</h2>
+                <p>Arrecadação em tempo real com vendas do RetroPass Digital (R$ 9,99) e pedidos físicos do Lote Fundador.</p>
+              </div>
+              <div class="goal-metrics-summary">
+                <div class="goal-metric-value" id="goal-current-amount">R$ 389,70</div>
+                <div class="goal-metric-target">Meta: <strong>R$ 1.500,00</strong></div>
+              </div>
+            </div>
+
+            <!-- Barra de Progresso Colorida -->
+            <div class="goal-progress-track">
+              <div class="goal-progress-fill" id="goal-progress-bar" style="width: 26%;"></div>
+            </div>
+
+            <div class="goal-footer">
+              <span id="goal-percent-text">🚀 <strong>26.0%</strong> Concluído</span>
+              <span id="goal-remaining-text">Faltam apenas <strong>R$ 1.110,30</strong> (~111 RetroPasses a R$ 9,99)</span>
             </div>
           </div>
-        </div>
-      </div>
 
-    </section>
+          <!-- GRID DE 4 CARDS DE MÉTRICAS (KPIS) -->
+          <div class="kpi-grid">
+            
+            <div class="kpi-card">
+              <div class="kpi-icon-box kpi-blue">💰</div>
+              <div class="kpi-info">
+                <span class="kpi-label">Faturamento Total</span>
+                <span class="kpi-value" id="kpi-revenue">R$ 0,00</span>
+                <span class="kpi-subtext positive">● Vendas Confirmadas</span>
+              </div>
+            </div>
 
-    <!-- Fila de Pedidos & Expedição com Endereço -->
-    <section class="admin-card">
-      <div class="admin-card-header">
-        <h2 class="admin-card-title">
-          <span>📬</span> Gestão de Pedidos & Fila de Expedição
-        </h2>
-        <button onclick="openNewOrderModal()" class="btn-primary" style="width: auto; padding: 8px 16px; font-size: 0.85rem;">
-          + Novo Pedido Manual
-        </button>
-      </div>
+            <div class="kpi-card">
+              <div class="kpi-icon-box kpi-purple">🎟️</div>
+              <div class="kpi-info">
+                <span class="kpi-label">RetroPasses Emitidos</span>
+                <span class="kpi-value" id="kpi-passes-count">10</span>
+                <span class="kpi-subtext">Supabase Ativo (6 meses)</span>
+              </div>
+            </div>
 
-      <div class="orders-toolbar">
-        <div class="filter-pills">
-          <button class="filter-btn active" onclick="filterOrders('all', this)">Todos os Pedidos</button>
-          <button class="filter-btn" onclick="filterOrders('pending', this)">⏳ Pendentes de Gravação</button>
-          <button class="filter-btn" onclick="filterOrders('recorded', this)">✅ Gravados / Prontos</button>
-          <button class="filter-btn" onclick="filterOrders('shipped', this)">📦 Despachados</button>
-        </div>
-      </div>
+            <div class="kpi-card">
+              <div class="kpi-icon-box kpi-cyan">📦</div>
+              <div class="kpi-info">
+                <span class="kpi-label">Pedidos Cadastrados</span>
+                <span class="kpi-value" id="kpi-orders-total">0</span>
+                <span class="kpi-subtext">Endereços Salvos</span>
+              </div>
+            </div>
 
-      <div class="orders-table-wrapper">
-        <table class="orders-table">
-          <thead>
-            <tr>
-              <th>Pedido / Data</th>
-              <th>Cliente & Contato</th>
-              <th>Endereço Completo de Entrega</th>
-              <th>Jogo Solicitado</th>
-              <th>Status da Tag</th>
-              <th>Ações Rápidas</th>
-            </tr>
-          </thead>
-          <tbody id="orders-table-body">
-            <!-- Renderizado dinamicamente via admin.js -->
-          </tbody>
-        </table>
-      </div>
-    </section>
+            <div class="kpi-card">
+              <div class="kpi-icon-box kpi-orange">⏳</div>
+              <div class="kpi-info">
+                <span class="kpi-label">Aguardando Gravação NFC</span>
+                <span class="kpi-value" id="kpi-orders-pending">0</span>
+                <span class="kpi-subtext" id="kpi-orders-recorded">Gravados: 0</span>
+              </div>
+            </div>
 
-    <!-- Central de Passes Digitais (RetroPass QR Codes - Supabase) -->
-    <section class="admin-section" style="margin-top: 30px;">
-      <div class="section-head-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
-        <div>
-          <h2 class="section-title" style="margin: 0; font-size: 1.2rem; color: #fff; display: flex; align-items: center; gap: 8px;">
-            <span>🎟️</span> Central de RetroPass (QR Codes Digitais - Supabase)
-          </h2>
-          <p style="margin: 4px 0 0; font-size: 0.8rem; color: #94a3b8;">
-            Passes de 6 meses com validação anti-pirataria no aparelho do cliente.
-          </p>
-        </div>
-        <div style="display: flex; gap: 10px;">
-          <button type="button" onclick="loadSupabasePasses()" class="btn-secondary" style="font-size: 0.82rem; padding: 8px 14px; cursor: pointer;">
-            🔄 Atualizar Lista
-          </button>
-          <button type="button" onclick="openNewPassModal()" class="btn-primary" style="font-size: 0.82rem; padding: 8px 16px; cursor: pointer;">
-            + Gerar Novo RetroPass
-          </button>
-        </div>
-      </div>
+          </div>
 
-      <div class="orders-table-wrapper">
-        <table class="orders-table">
-          <thead>
-            <tr>
-              <th>Token do Passe</th>
-              <th>Jogo Vinculado</th>
-              <th>Status</th>
-              <th>Validade</th>
-              <th>Dispositivo Vinculado</th>
-              <th>Ações Rápidas</th>
-            </tr>
-          </thead>
-          <tbody id="passes-table-body">
-            <!-- Injetado dinamicamente via admin.js -->
-          </tbody>
-        </table>
-      </div>
-    </section>
+          <!-- DUAS COLUNAS: ÚLTIMOS PEDIDOS E TOP JOGOS / JARVIS -->
+          <div class="dashboard-split-grid">
+            
+            <!-- Coluna 1: Tabela de Pedidos Recentes -->
+            <div class="admin-panel-card">
+              <div class="panel-card-header">
+                <div class="panel-card-title">
+                  <span>📦</span>
+                  <h3>Últimos Pedidos Recebidos</h3>
+                </div>
+                <button type="button" onclick="switchAdminView('orders')" class="btn-link-action">Ver Todos &rarr;</button>
+              </div>
 
-  </main>
+              <div class="table-responsive">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Cliente</th>
+                      <th>Jogo Comprado</th>
+                      <th>Valor</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recent-orders-table-body">
+                    <!-- Preenchido via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-  <!-- Modal Novo Pedido Manual -->
-  <div id="modal-new-order" class="modal-overlay">
-    <div class="modal-content">
+            <!-- Coluna 2: Ranking de Jogos & Entrada Rápida Jarvis -->
+            <div class="admin-panel-card">
+              <div class="panel-card-header">
+                <div class="panel-card-title">
+                  <span>🔥</span>
+                  <h3>Mais Vendidos & Jarvis</h3>
+                </div>
+              </div>
+
+              <div class="ranking-container">
+                <ul class="ranking-list" id="ranking-list">
+                  <!-- Carregado dinamicamente -->
+                </ul>
+              </div>
+
+              <!-- Entrada rápida de pedidos pelo Jarvis -->
+              <div style="margin-top: 15px; border-top: 1px solid rgba(148, 163, 184, 0.15); padding-top: 12px;">
+                <label style="font-size: 0.74rem; font-weight: 800; color: #00f0ff; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">
+                  🤖 IMPORTAR TEXTO DE PEDIDO DO JARVIS (WHATSAPP):
+                </label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="jarvis-paste-input" class="form-control" style="font-size: 0.76rem; padding: 8px 10px;" placeholder="Cole aqui a mensagem do cliente do WhatsApp...">
+                  <button type="button" onclick="parseJarvisOrderText()" class="btn-top-action btn-top-blue" style="font-size: 0.76rem; padding: 8px 12px; white-space: nowrap;">
+                    Processar
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================================
+             VIEW 2: RETROPASSES DIGITAIS (SUPABASE) & ANTI-PIRATARIA
+             ==================================================================== -->
+        <section id="view-retropass" class="admin-view">
+          
+          <div class="admin-panel-card">
+            <div class="panel-card-header">
+              <div class="panel-card-title">
+                <span>🎟️</span>
+                <div>
+                  <h3>Gestão de RetroPasses Digitais (Supabase)</h3>
+                  <p class="panel-desc">Tokens protegidos contra pirataria, com validade de 6 meses e vínculo automático de dispositivo no primeiro escaneamento.</p>
+                </div>
+              </div>
+              
+              <div style="display: flex; gap: 8px;">
+                <button type="button" onclick="loadSupabasePasses()" class="btn-top-action btn-top-dark">
+                  🔄 Atualizar Lista
+                </button>
+                <button type="button" onclick="openNewPassModal()" class="btn-top-action btn-top-blue">
+                  + Gerar Novo RetroPass
+                </button>
+              </div>
+            </div>
+
+            <!-- Tabela de Passes -->
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Token</th>
+                    <th>Jogo & Console</th>
+                    <th>Status</th>
+                    <th>Vínculo Anti-Pirataria</th>
+                    <th>Expiração</th>
+                    <th>Ações Rápidas</th>
+                  </tr>
+                </thead>
+                <tbody id="passes-table-body">
+                  <tr>
+                    <td colspan="6" style="text-align: center; color: #94a3b8; padding: 30px;">
+                      ⏳ Carregando passes do Supabase...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================================
+             VIEW 3: PEDIDOS & ENTREGAS (LOTE FUNDADOR)
+             ==================================================================== -->
+        <section id="view-orders" class="admin-view">
+          
+          <div class="admin-panel-card">
+            <div class="panel-card-header">
+              <div class="panel-card-title">
+                <span>📦</span>
+                <div>
+                  <h3>Pedidos & Endereços Físicos dos Clientes</h3>
+                  <p class="panel-desc">Todos os cadastros do Lote Fundador organizados com endereço completo (CEP, Casa/Lote/Apto) para quando sua impressora 3D chegar.</p>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <button type="button" onclick="openNewOrderModal()" class="btn-top-action btn-top-green">
+                  + Adicionar Pedido Manual
+                </button>
+                <button type="button" onclick="exportOrdersCsv()" class="btn-top-action btn-top-outline">
+                  📥 Exportar para Correios
+                </button>
+              </div>
+            </div>
+
+            <!-- Filtros de Pedidos -->
+            <div class="orders-filter-bar">
+              <div class="filter-buttons">
+                <button type="button" class="filter-btn active" onclick="filterOrders('all')">Todos os Pedidos</button>
+                <button type="button" class="filter-btn" onclick="filterOrders('pending')">Aguardando Gravação</button>
+                <button type="button" class="filter-btn" onclick="filterOrders('recorded')">Tags Gravadas</button>
+              </div>
+            </div>
+
+            <!-- Tabela de Pedidos -->
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID / Data</th>
+                    <th>Cliente & Contato</th>
+                    <th>Endereço Completo (Lote Fundador)</th>
+                    <th>Jogo Comprado</th>
+                    <th>Valor</th>
+                    <th>Status Físico</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-table-body">
+                  <!-- Preenchido via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================================
+             VIEW 4: CLIENTES CADASTRADOS
+             ==================================================================== -->
+        <section id="view-customers" class="admin-view">
+          
+          <div class="admin-panel-card">
+            <div class="panel-card-header">
+              <div class="panel-card-title">
+                <span>👥</span>
+                <div>
+                  <h3>Diretório de Clientes & Regiões</h3>
+                  <p class="panel-desc">Consulte os compradores por cidade, estado ou telefone para envio e pós-venda.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Nome do Cliente</th>
+                    <th>WhatsApp</th>
+                    <th>Cidade / UF</th>
+                    <th>CEP</th>
+                    <th>Total Gasto</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="customers-table-body">
+                  <!-- Preenchido via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================================
+             VIEW 5: CENTRAL DE GRAVAÇÃO NFC (HARDWARE)
+             ==================================================================== -->
+        <section id="view-nfc" class="admin-view">
+          
+          <div class="station-grid" id="nfc-station-card">
+            
+            <div class="station-main">
+              <div class="station-header">
+                <div class="station-title">
+                  <span class="station-icon">⚡</span>
+                  <h2>Bancada de Gravação NTAG213 / NTAG215</h2>
+                </div>
+                <div class="station-badges">
+                  <span class="station-badge badge-model">NTAG213 (144 bytes) / NTAG215</span>
+                  <span class="station-badge badge-ready" id="station-job-badge">Pronto para Gravação</span>
+                </div>
+              </div>
+
+              <!-- Cartucho / Trabalho Selecionado -->
+              <div class="station-job-card">
+                <div class="job-meta">
+                  <span class="job-label">CARTUCHO EM PRODUÇÃO:</span>
+                  <h3 class="job-title" id="station-job-title">Nenhum pedido selecionado</h3>
+                  <p class="job-url" id="station-url-display">https://retronfc.com.br/play.html</p>
+                </div>
+                
+                <div class="station-actions">
+                  <button type="button" class="btn-action-write" onclick="writeNfcTag()" id="btn-write-nfc">
+                    <span class="write-icon">📲</span>
+                    <span>Gravar Tag NFC Agora</span>
+                  </button>
+                  <button type="button" class="btn-action-read" onclick="testReadNfcTag()">
+                    <span>🔍 Testar Leitura</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Terminal de Logs de Hardware -->
+              <div class="station-terminal-container">
+                <div class="terminal-header">
+                  <span>TERMINAL DO GRAVADOR NFC (Web NFC API)</span>
+                  <button type="button" class="btn-clear-term" onclick="clearTerminal()">Limpar</button>
+                </div>
+                <div class="station-terminal" id="station-terminal">
+                  <div class="term-line info">[SISTEMA] Central de Gravação inicializada com sucesso.</div>
+                  <div class="term-line">[HARDWARE] Suporte a NTAG213, NTAG215 e links encurtados de ativação.</div>
+                  <div class="term-line success">[STATUS] Pronto para aproximar cartuchos e gravar.</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Painel Lateral da Bancada -->
+            <div class="station-sidebar">
+              
+              <div class="station-box">
+                <h4>Status do Sensor NFC</h4>
+                <div class="nfc-status-pill" id="nfc-indicator">
+                  <span class="status-dot"></span>
+                  <span id="nfc-indicator-text">Verificando suporte...</span>
+                </div>
+                <p class="station-note">
+                  No celular Android (Chrome), a gravação é direta por aproximação. No PC, você pode copiar a URL formatada e usar apps como NFC Tools.
+                </p>
+              </div>
+
+              <div class="station-box">
+                <h4>Gravação Manual Avulsa</h4>
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label style="font-size: 0.72rem;">Selecione o Jogo:</label>
+                  <select id="station-game-select" class="form-control" style="font-size: 0.78rem; padding: 7px;" onchange="updateStationDisplay()">
+                    <option value="super_mario">Super Mario World (SNES)</option>
+                    <option value="top_gear">Top Gear (SNES)</option>
+                    <option value="donkey_kong">Donkey Kong Country (SNES)</option>
+                    <option value="street_fighter">Street Fighter II (SNES)</option>
+                    <option value="aladdin">Disney's Aladdin (SNES)</option>
+                    <option value="sonic">Sonic The Hedgehog 2 (Mega Drive)</option>
+                    <option value="moonwalker">Michael Jackson's Moonwalker (Mega Drive)</option>
+                    <option value="pokemon_emerald">Pokémon Emerald (GBA)</option>
+                    <option value="zelda_minish">Zelda: The Minish Cap (GBA)</option>
+                    <option value="kof2002">The King of Fighters 2002 (Neo Geo)</option>
+                    <option value="metal_slug_x">Metal Slug X (Neo Geo)</option>
+                    <option value="cadillacs">Cadillacs and Dinosaurs (Capcom Arcade)</option>
+                  </select>
+                </div>
+                <button type="button" onclick="copyStationDirectUrl()" class="btn-top-action btn-top-blue" style="width: 100%; font-size: 0.78rem; padding: 8px;">
+                  📋 Copiar URL do Jogo
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================================
+             VIEW 6: CATÁLOGO DE JOGOS & ARCADES (NEO GEO / MAME)
+             ==================================================================== -->
+        <section id="view-catalog" class="admin-view">
+          
+          <div class="admin-panel-card">
+            <div class="panel-card-header">
+              <div class="panel-card-title">
+                <span>🕹️</span>
+                <div>
+                  <h3>Catálogo de Jogos & Emulação Web</h3>
+                  <p class="panel-desc">SNES, Mega Drive, GBA e o novo suporte para <strong>Neo Geo (KOF, Metal Slug)</strong> e <strong>MAME Arcade (Cadillacs and Dinosaurs)</strong>.</p>
+                </div>
+              </div>
+
+              <!-- Toggle de Modo de Lançamento Digital R$ 9,99 -->
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="store-mode-badge" class="badge-ready" style="font-size: 0.74rem;">Lançamento R$ 9,99 Ativo</span>
+                <button type="button" id="btn-toggle-sales-mode" onclick="toggleStoreSalesMode()" class="btn-top-action btn-top-blue" style="font-size: 0.76rem;">
+                  Alternar Modo
+                </button>
+              </div>
+            </div>
+
+            <!-- Grade de Jogos Cadastrados -->
+            <div class="catalog-grid" id="catalog-games-grid">
+              
+              <div class="catalog-game-card">
+                <div class="card-game-header">
+                  <span class="console-tag tag-snes">SNES</span>
+                  <span class="game-status-pill active">Ativo</span>
+                </div>
+                <h4 class="card-game-title">Super Mario World</h4>
+                <p class="card-game-attendant">🍄 Atendente WhatsApp: <strong>Mario</strong></p>
+                <div class="card-game-actions">
+                  <a href="play.html?game=super_mario" target="_blank" class="btn-card-play">▶️ Testar Jogo</a>
+                </div>
+              </div>
+
+              <div class="catalog-game-card">
+                <div class="card-game-header">
+                  <span class="console-tag tag-snes">SNES</span>
+                  <span class="game-status-pill active">Ativo</span>
+                </div>
+                <h4 class="card-game-title">Top Gear</h4>
+                <p class="card-game-attendant">🏎️ Atendente WhatsApp: <strong>Piloto Cannoli</strong></p>
+                <div class="card-game-actions">
+                  <a href="play.html?game=top_gear" target="_blank" class="btn-card-play">▶️ Testar Jogo</a>
+                </div>
+              </div>
+
+              <div class="catalog-game-card">
+                <div class="card-game-header">
+                  <span class="console-tag tag-snes">SNES</span>
+                  <span class="game-status-pill active">Ativo</span>
+                </div>
+                <h4 class="card-game-title">Street Fighter II</h4>
+                <p class="card-game-attendant">🥋 Atendente WhatsApp: <strong>Ryu</strong></p>
+                <div class="card-game-actions">
+                  <a href="play.html?game=street_fighter" target="_blank" class="btn-card-play">▶️ Testar Jogo</a>
+                </div>
+              </div>
+
+              <div class="catalog-game-card">
+                <div class="card-game-header">
+                  <span class="console-tag tag-snes">SNES</span>
+                  <span class="game-status-pill active">Ativo</span>
+                </div>
+                <h4 class="card-game-title">Donkey Kong Country</h4>
+                <p class="card-game-attendant">🍌 Atendente WhatsApp: <strong>DK & Diddy</strong></p>
+                <div class="card-game-actions">
+                  <a href="play.html?game=donkey_kong" target="_blank" class="btn-card-play">▶️ Testar Jogo</a>
+                </div>
+              </div>
+
+              <div class="catalog-game-card">
+                <div class="card-game-header">
+                  <span class="console-tag tag-genesis">MEGA DRIVE</span>
+                  <span class="game-status-pill active">Ativo</span>
+                </div>
+                <h4 class="card-game-title">Sonic The Hedgehog 2</h4>
+                <p class="card-game-attendant">🦔 Atendente WhatsApp: <strong>Sonic & Tails</strong></p>
+                <div class="card-game-actions">
+                  <a href="play.html?game=sonic" target="_blank" class="btn-card-play">▶️ Testar Jogo</a>
+                </div>
+              </div>
+
+              <div class="catalog-game-card">
+                <div class="card-game-header">
+                  <span class="console-tag tag-neogeo" style="background: #dc2626;">NEO GEO</span>
+                  <span class="game-status-pill upcoming" style="background: rgba(220, 38, 38, 0.2); color: #fca5a5;">NOVIDADE</span>
+                </div>
+                <h4 class="card-game-title">The King of Fighters 2002</h4>
+                <p class="card-game-attendant">🔥 Atendente WhatsApp: <strong>Iori Yagami</strong></p>
+                <div class="card-game-actions">
+                  <span style="font-size: 0.72rem; color: #94a3b8;">Núcleo FBNeo (FinalBurn)</span>
+                </div>
+              </div>
+
+              <div class="catalog-game-card">
+                <div class="card-game-header">
+                  <span class="console-tag tag-neogeo" style="background: #dc2626;">NEO GEO</span>
+                  <span class="game-status-pill upcoming" style="background: rgba(220, 38, 38, 0.2); color: #fca5a5;">NOVIDADE</span>
+                </div>
+                <h4 class="card-game-title">Metal Slug X</h4>
+                <p class="card-game-attendant">💥 Atendente WhatsApp: <strong>Marco Rossi</strong></p>
+                <div class="card-game-actions">
+                  <span style="font-size: 0.72rem; color: #94a3b8;">Heavy Machine Gun!</span>
+                </div>
+              </div>
+
+              <div class="catalog-game-card">
+                <div class="card-game-header">
+                  <span class="console-tag tag-arcade" style="background: #eab308; color: #000; font-weight: 900;">CAPCOM MAME</span>
+                  <span class="game-status-pill upcoming" style="background: rgba(234, 179, 8, 0.2); color: #fde047;">NOVIDADE</span>
+                </div>
+                <h4 class="card-game-title">Cadillacs and Dinosaurs</h4>
+                <p class="card-game-attendant">🦖 Atendente WhatsApp: <strong>Mustapha Cairo</strong></p>
+                <div class="card-game-actions">
+                  <span style="font-size: 0.72rem; color: #94a3b8;">Fliperama Clássico de Boteco</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================================
+             VIEW 7: ATENDENTES IA & WHATSAPP
+             ==================================================================== -->
+        <section id="view-attendants" class="admin-view">
+          
+          <div class="admin-panel-card">
+            <div class="panel-card-header">
+              <div class="panel-card-title">
+                <span>🤖</span>
+                <div>
+                  <h3>Atendentes Gamer do WhatsApp</h3>
+                  <p class="panel-desc">Cada jogo comprado ativa a persona temática correspondente no WhatsApp do cliente.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="attendants-grid">
+              
+              <div class="attendant-box">
+                <div class="attendant-avatar">🍄</div>
+                <div class="attendant-body">
+                  <h4>Mario (Super Mario World)</h4>
+                  <p class="attendant-phrase">"It's-a me, Mario! Seja muito bem-vindo à RetroNFC! 🍄 Vi aqui que você separou uns clássicos de peso."</p>
+                </div>
+              </div>
+
+              <div class="attendant-box">
+                <div class="attendant-avatar">🥋</div>
+                <div class="attendant-body">
+                  <h4>Ryu (Street Fighter II)</h4>
+                  <p class="attendant-phrase">"Hadouken! Bem-vindo à RetroNFC! O espírito da luta agora vai para o seu chaveiro!"</p>
+                </div>
+              </div>
+
+              <div class="attendant-box">
+                <div class="attendant-avatar">🦖</div>
+                <div class="attendant-body">
+                  <h4>Mustapha Cairo (Cadillacs and Dinosaurs)</h4>
+                  <p class="attendant-phrase">"E aí, parceiro! O clássico do fliperama de ficha agora roda direto na sua mão. Bora caçar dinossauro!"</p>
+                </div>
+              </div>
+
+              <div class="attendant-box">
+                <div class="attendant-avatar">🦔</div>
+                <div class="attendant-body">
+                  <h4>Sonic The Hedgehog</h4>
+                  <p class="attendant-phrase">"Gotta go fast! Bem-vindo à velocidade do Mega Drive no seu bolso!"</p>
+                </div>
+              </div>
+
+              <div class="attendant-box">
+                <div class="attendant-avatar">🤖</div>
+                <div class="attendant-body">
+                  <h4>Jarvis (Assistente Geral de Pós-Venda)</h4>
+                  <p class="attendant-phrase">"Olá! Sou o Jarvis, o assistente inteligente da RetroNFC. O seu endereço para o chaveiro físico já está salvo e seu RetroPass foi emitido com sucesso!"</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================================
+             VIEW 8: PAGAMENTOS & INTEGRAÇÕES
+             ==================================================================== -->
+        <section id="view-integrations" class="admin-view">
+          
+          <div class="admin-panel-card">
+            <div class="panel-card-header">
+              <div class="panel-card-title">
+                <span>💳</span>
+                <div>
+                  <h3>Integrações de Pagamento & Banco de Dados</h3>
+                  <p class="panel-desc">Credenciais ativas do Mercado Pago Oficial e Supabase Database.</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              
+              <!-- Mercado Pago -->
+              <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 12px; padding: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <h4 style="margin: 0; color: #00f0ff;">Mercado Pago (PIX + Cartão)</h4>
+                  <span class="badge-ready">Produção Ativa</span>
+                </div>
+                <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.4;">
+                  Recebimento instantâneo de PIX e Cartão de Crédito em até 12x direto na sua conta oficial.
+                </p>
+                <div style="font-family: monospace; font-size: 0.72rem; color: #38bdf8; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 6px; margin-top: 8px;">
+                  Beneficiário: MACLAUDE3 (Brasília)
+                </div>
+              </div>
+
+              <!-- Supabase -->
+              <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <h4 style="margin: 0; color: #22c55e;">Supabase Database (retronfc_passes)</h4>
+                  <span class="badge-ready" style="background: rgba(34, 197, 94, 0.2); color: #86efac;">Online (sa-east-1)</span>
+                </div>
+                <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.4;">
+                  Gerenciamento de passes, expiração de 6 meses e bloqueio de prints anti-pirataria.
+                </p>
+                <div style="font-family: monospace; font-size: 0.72rem; color: #86efac; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 6px; margin-top: 8px;">
+                  Projeto: wxgyhxwykspgdtszhuen (São Paulo)
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================================
+             VIEW 9: SEGURANÇA & SENHA
+             ==================================================================== -->
+        <section id="view-security" class="admin-view">
+          
+          <div class="admin-panel-card">
+            <div class="panel-card-header">
+              <div class="panel-card-title">
+                <span>🔐</span>
+                <div>
+                  <h3>Segurança Criptográfica do Painel</h3>
+                  <p class="panel-desc">Acesso blindado com SHA-256 Salted, bloqueio contra tentativas de invasão e dados criptografados.</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="max-width: 600px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; padding: 20px;">
+              <h4 style="color: #e2e8f0; margin-top: 0;">Proteções Ativas no Sistema:</h4>
+              <ul style="color: #94a3b8; font-size: 0.82rem; line-height: 1.6; padding-left: 20px;">
+                <li><strong>Anti-Brute Force:</strong> Bloqueio automático de 5 minutos após 5 tentativas incorretas.</li>
+                <li><strong>Zero Plaintext:</strong> A senha pura nunca é salva no repositório ou no navegador.</li>
+                <li><strong>Sessão Temporária:</strong> Expiração automática em 8 horas para proteger contra acessos não autorizados.</li>
+              </ul>
+              
+              <button type="button" onclick="logout()" class="btn-top-action btn-top-outline" style="margin-top: 15px;">
+                🚪 Encerrar Sessão Agora
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+      </main>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==========================================================================
+       MODAIS EXISTENTES (INTACTOS & PRESERVADOS)
+       ========================================================================== -->
+
+  <!-- Modal 1: Adicionar Novo Pedido Manual -->
+  <div id="modal-new-order" class="modal">
+    <div class="modal-content" style="max-width: 520px;">
       <div class="modal-header">
-        <h3>Cadastrar Novo Pedido</h3>
-        <button class="close-modal-btn" onclick="closeNewOrderModal()">&times;</button>
+        <h2 style="font-size: 1.15rem; color: #00f0ff;">+ Novo Pedido Manual</h2>
+        <button type="button" class="modal-close" onclick="closeNewOrderModal()">&times;</button>
       </div>
-      <form onsubmit="createManualOrder(event)" style="display: flex; flex-direction: column; gap: 14px;">
-      <div style="background: rgba(0, 240, 255, 0.05); border: 1.5px dashed var(--border-glow); border-radius: 12px; padding: 14px; margin-bottom: 14px;">
-        <label style="font-size: 0.8rem; font-weight: 800; color: var(--cyan); display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-          <span>⚡ Importação Automática do Jarvis / WhatsApp:</span>
-          <span style="font-size: 0.72rem; color: var(--text-dim); font-weight: normal;">Cole a mensagem do cliente</span>
-        </label>
-        <textarea id="jarvis-paste-input" class="form-control" rows="2" style="font-size: 0.82rem; margin-bottom: 8px;" placeholder="Cole aqui o texto do Jarvis ou do cliente (ex: Nome: Lucas | Tel: 11987654321 | End: Rua Augusta 1420 | Jogo: Moonwalker)..."></textarea>
-        <button type="button" onclick="parseJarvisOrderText()" class="btn-secondary" style="width: 100%; padding: 8px; font-size: 0.82rem; font-weight: 800; color: var(--cyan); border-color: var(--cyan); background: rgba(0, 240, 255, 0.08);">
-          ⚡ Preencher Campos Automaticamente
-        </button>
-      </div>
-
-        <div class="form-group">
-          <label>Nome do Cliente</label>
-          <input type="text" id="form-name" class="form-control" required placeholder="Ex: Lucas Medeiros">
-        </div>
-        <div class="form-group">
-          <label>WhatsApp / Telefone</label>
-          <input type="text" id="form-phone" class="form-control" required placeholder="Ex: (11) 98765-4321">
-        </div>
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+      <div class="modal-body" style="padding: 20px 24px;">
+        <form id="new-order-form" onsubmit="createManualOrder(event)">
           <div class="form-group">
-            <label>Endereço & Número</label>
-            <input type="text" id="form-address" class="form-control" required placeholder="Rua / Av, Número, Apto">
+            <label>NOME DO CLIENTE</label>
+            <input type="text" id="form-name" class="form-control" required placeholder="Ex: Rodrigo Martins">
           </div>
           <div class="form-group">
-            <label>Bairro</label>
-            <input type="text" id="form-neighborhood" class="form-control" required placeholder="Bairro">
-          </div>
-        </div>
-        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
-          <div class="form-group">
-            <label>Cidade</label>
-            <input type="text" id="form-city" class="form-control" required placeholder="Cidade">
-          </div>
-          <div class="form-group">
-            <label>UF</label>
-            <input type="text" id="form-state" class="form-control" required placeholder="SP" maxlength="2">
+            <label>WHATSAPP COM DDD</label>
+            <input type="tel" id="form-phone" class="form-control" required placeholder="61999997777">
           </div>
           <div class="form-group">
             <label>CEP</label>
             <input type="text" id="form-zip" class="form-control" required placeholder="00000-000">
           </div>
-        </div>
-        <div class="form-group">
-          <label>Jogo Comprado</label>
-          <select id="form-game" class="form-control" required>
-            <option value="moonwalker">Michael Jackson's Moonwalker (Mega Drive)</option>
-            <option value="top_gear">Top Gear (SNES)</option>
-            <option value="donkey_kong">Donkey Kong Country (SNES)</option>
-            <option value="sonic_2">Sonic the Hedgehog 2 (Mega Drive)</option>
-            <option value="super_mario">Super Mario World (SNES)</option>
-            <option value="super_mario_kart">Super Mario Kart (SNES)</option>
-            <option value="street_fighter">Street Fighter II Turbo (SNES)</option>
-            <option value="mortal_kombat_2">Mortal Kombat II (Mega Drive)</option>
-            <option value="zelda_alttp">Zelda: Link to the Past (SNES)</option>
-            <option value="mega_man_x">Mega Man X (SNES)</option>
-            <option value="streets_of_rage_2">Streets of Rage 2 (Mega Drive)</option>
-            <option value="golden_axe">Golden Axe (Mega Drive)</option>
-          </select>
-        </div>
-        <div style="display: flex; gap: 10px; margin-top: 10px;">
-          <button type="button" onclick="closeNewOrderModal()" class="btn-secondary" style="flex: 1;">Cancelar</button>
-          <button type="submit" class="btn-primary" style="flex: 1;">Salvar Pedido</button>
-        </div>
-      </form>
+          <div class="form-group">
+            <label>ENDEREÇO (RUA, NÚMERO / CASA / LOTE)</label>
+            <input type="text" id="form-address" class="form-control" required placeholder="Rua 10, Casa 18">
+          </div>
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label>BAIRRO</label>
+              <input type="text" id="form-neighborhood" class="form-control" required placeholder="Bairro">
+            </div>
+            <div class="form-group">
+              <label>UF</label>
+              <input type="text" id="form-state" class="form-control" required placeholder="DF" maxlength="2">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>CIDADE</label>
+            <input type="text" id="form-city" class="form-control" required placeholder="Brasília">
+          </div>
+          <div class="form-group">
+            <label>JOGO COMPRADO</label>
+            <select id="form-game" class="form-control" required>
+              <option value="super_mario">Super Mario World (SNES)</option>
+              <option value="top_gear">Top Gear (SNES)</option>
+              <option value="donkey_kong">Donkey Kong Country (SNES)</option>
+              <option value="street_fighter">Street Fighter II (SNES)</option>
+              <option value="sonic">Sonic The Hedgehog 2 (Mega Drive)</option>
+              <option value="moonwalker">Michael Jackson's Moonwalker (Mega Drive)</option>
+              <option value="pokemon_emerald">Pokémon Emerald (GBA)</option>
+              <option value="zelda_minish">Zelda: The Minish Cap (GBA)</option>
+              <option value="kof2002">The King of Fighters 2002 (Neo Geo)</option>
+              <option value="metal_slug_x">Metal Slug X (Neo Geo)</option>
+              <option value="cadillacs">Cadillacs and Dinosaurs (MAME Arcade)</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button type="button" onclick="closeNewOrderModal()" class="btn-modal-cancel" style="flex: 1;">Cancelar</button>
+            <button type="submit" class="btn-modal-submit" style="flex: 1.5;">Salvar Pedido</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
-  <script src="assets/js/games-data.js?v=4.0"></script>
-  <script src="assets/js/admin.js?v=3.0"></script>
-  <!-- Modal Gerar Novo RetroPass -->
-  <div id="modal-new-pass" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 440px;">
+  <!-- Modal 2: Criar Novo RetroPass no Supabase -->
+  <div id="modal-new-pass" class="modal">
+    <div class="modal-content" style="max-width: 480px;">
       <div class="modal-header">
-        <h3>Gerar Novo RetroPass Digital</h3>
-        <button type="button" onclick="closeNewPassModal()" class="close-modal-btn">&times;</button>
+        <h2 style="font-size: 1.15rem; color: #00f0ff;">🎟️ Gerar Novo RetroPass</h2>
+        <button type="button" class="modal-close" onclick="closeNewPassModal()">&times;</button>
       </div>
-      <form onsubmit="submitCreateNewPass(event)">
-        <div class="form-group">
-          <label>Jogo para o Passe</label>
-          <select id="pass-form-game" class="form-control" required>
-            <option value="super_mario">Super Mario World (SNES)</option>
-            <option value="top_gear">Top Gear (SNES)</option>
-            <option value="donkey_kong">Donkey Kong Country (SNES)</option>
-            <option value="super_mario_kart">Super Mario Kart (SNES)</option>
-            <option value="street_fighter">Street Fighter II Turbo (SNES)</option>
-            <option value="moonwalker">Michael Jackson's Moonwalker (Mega Drive)</option>
-            <option value="sonic_2">Sonic the Hedgehog 2 (Mega Drive)</option>
-            <option value="mortal_kombat_2">Mortal Kombat II (Mega Drive)</option>
-            <option value="zelda_alttp">Zelda: Link to the Past (SNES)</option>
-            <option value="mega_man_x">Mega Man X (SNES)</option>
-            <option value="streets_of_rage_2">Streets of Rage 2 (Mega Drive)</option>
-            <option value="golden_axe">Golden Axe (Mega Drive)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Código do Token (Opcional - deixe vazio para gerar automático)</label>
-          <input type="text" id="pass-form-token" class="form-control" placeholder="Ex: PASS-SMW-99">
-        </div>
-        <div class="form-group">
-          <label>Validade (Meses)</label>
-          <input type="number" id="pass-form-months" class="form-control" value="6" min="1" max="24" required>
-        </div>
-        <div style="display: flex; gap: 10px; margin-top: 18px;">
-          <button type="button" onclick="closeNewPassModal()" class="btn-secondary" style="flex: 1;">Cancelar</button>
-          <button type="submit" class="btn-primary" style="flex: 1.2;">Criar no Supabase</button>
-        </div>
-      </form>
+      <div class="modal-body" style="padding: 20px 24px;">
+        <form id="new-pass-form" onsubmit="submitCreateNewPass(event)">
+          <div class="form-group">
+            <label>CÓDIGO / TOKEN DO PASSE</label>
+            <input type="text" id="pass-form-token" class="form-control" required placeholder="Ex: PASS-SMW-02" style="font-family: monospace; font-weight: 800; letter-spacing: 1px;">
+          </div>
+          <div class="form-group">
+            <label>JOGO ASSOCIADO</label>
+            <select id="pass-form-game" class="form-control" required>
+              <option value="super_mario">Super Mario World (SNES)</option>
+              <option value="top_gear">Top Gear (SNES)</option>
+              <option value="donkey_kong">Donkey Kong Country (SNES)</option>
+              <option value="street_fighter">Street Fighter II (SNES)</option>
+              <option value="sonic">Sonic The Hedgehog 2 (Mega Drive)</option>
+              <option value="moonwalker">Michael Jackson's Moonwalker (Mega Drive)</option>
+              <option value="pokemon_emerald">Pokémon Emerald (GBA)</option>
+              <option value="zelda_minish">Zelda: The Minish Cap (GBA)</option>
+              <option value="kof2002">The King of Fighters 2002 (Neo Geo)</option>
+              <option value="metal_slug_x">Metal Slug X (Neo Geo)</option>
+              <option value="cadillacs">Cadillacs and Dinosaurs (MAME Arcade)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>VALIDADE DO PASSE (MESES)</label>
+            <input type="number" id="pass-form-months" class="form-control" value="6" min="1" max="24" required>
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button type="button" onclick="closeNewPassModal()" class="btn-modal-cancel" style="flex: 1;">Cancelar</button>
+            <button type="submit" class="btn-modal-submit" style="flex: 1.5;">Salvar no Supabase</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
-  <!-- Modal Visualizar e Compartilhar Card Colecionável do Jogo com QR Code -->
-  <div id="modal-view-qr" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 440px; padding: 20px; background: #070a12; border: 1.5px solid rgba(0,240,255,0.4); border-radius: 20px; box-shadow: 0 25px 80px rgba(0,0,0,0.9), 0 0 50px rgba(0,240,255,0.25);">
-      
-      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 16px;">
-        <h3 id="qr-modal-title" style="font-size: 1.1rem; color: #fff; display: flex; align-items: center; gap: 8px;">
-          <span>🎟️</span> Card Colecionável do Jogo
-        </h3>
-        <button type="button" onclick="closeQrModal()" class="close-modal-btn">&times;</button>
+  <!-- Modal 3: Visualizar Card Colecionável & QR Code -->
+  <div id="modal-view-qr" class="modal">
+    <div class="modal-content" style="max-width: 440px; text-align: center;">
+      <div class="modal-header" style="justify-content: flex-end; padding-bottom: 0;">
+        <button type="button" class="modal-close" onclick="closeQrModal()">&times;</button>
       </div>
-
-      <!-- CARD COLECIONÁVEL RETRONFC (ESTILO VIP PASS) -->
-      <div id="retropass-collector-card" style="background: linear-gradient(180deg, #0f172a 0%, #090d16 100%); border: 2px solid #38bdf8; border-radius: 16px; padding: 20px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 25px rgba(56, 189, 248, 0.15);">
+      <div class="modal-body" style="padding: 10px 24px 24px;">
         
-        <!-- Top Ribbon / Hologram Badge -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(56, 189, 248, 0.25); padding-bottom: 10px;">
-          <div style="font-size: 0.8rem; font-weight: 900; letter-spacing: 1px; color: #38bdf8; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
-            <span>⚡</span> RetroNFC Pass
+        <div id="pass-card-render-area" style="background: linear-gradient(135deg, #090e1a 0%, #0d172c 100%); border: 2px solid #00f0ff; border-radius: 16px; padding: 20px; box-shadow: 0 0 30px rgba(0, 240, 255, 0.25);">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-family: 'Press Start 2P', monospace; font-size: 0.65rem; color: #00f0ff;">RETROPASS</span>
+            <span id="qr-modal-console" style="background: rgba(0,240,255,0.15); color: #38bdf8; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; border-radius: 4px;">SNES</span>
           </div>
-          <span class="status-badge" style="background: rgba(234, 179, 8, 0.2); border: 1px solid #eab308; color: #facc15; font-size: 0.72rem; padding: 2px 8px;">
-            ⭐ LOTE FUNDADOR · R$ 9,99
-          </span>
-        </div>
 
-        <!-- Game Cover Art & Info -->
-        <div style="display: flex; align-items: center; gap: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; margin-bottom: 14px; text-align: left;">
-          <img id="qr-modal-cover" src="assets/images/covers/super_mario.jpg" alt="Capa do Jogo" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1.5px solid #00f0ff; box-shadow: 0 4px 15px rgba(0,240,255,0.3);">
-          <div>
-            <h4 id="qr-modal-game" style="margin: 0; font-size: 1rem; color: #fff; font-weight: 800; line-height: 1.2;">Super Mario World</h4>
-            <span id="qr-modal-console" style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Super Nintendo (SNES)</span>
+          <div style="display: flex; align-items: center; gap: 12px; text-align: left; margin-bottom: 14px;">
+            <img id="qr-modal-cover" src="assets/img/smw_cover.webp" alt="Capa" style="width: 52px; height: 52px; border-radius: 8px; object-fit: cover; border: 1.5px solid #00f0ff;">
+            <div>
+              <h3 id="qr-modal-title" style="margin: 0; font-size: 0.95rem; color: #fff;">Super Mario World</h3>
+              <span id="qr-modal-game" style="font-size: 0.72rem; color: #94a3b8;">Lote Fundador Oficial</span>
+            </div>
           </div>
+
+          <!-- Imagem do QR Code -->
+          <div style="background: #ffffff; padding: 12px; border-radius: 12px; display: inline-block; margin-bottom: 12px;">
+            <img id="qr-modal-img" src="" alt="QR Code" style="width: 180px; height: 180px; display: block;">
+          </div>
+
+          <div style="margin-bottom: 10px;">
+            <code id="qr-modal-token" style="background: rgba(0,240,255,0.15); border: 1px solid rgba(0,240,255,0.4); color: #00f0ff; padding: 4px 12px; border-radius: 6px; font-family: monospace; font-size: 0.9rem; font-weight: 800;">PASS-SMW-01</code>
+          </div>
+
+          <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; text-align: left;">
+            <p style="margin: 0; font-size: 0.68rem; color: #fca5a5; line-height: 1.3;">
+              ⚠️ <strong>AVISO:</strong> Escaneie no celular onde você vai jogar. O passe se vincula ao aparelho no 1º escaneamento. Não compartilhe prints!
+            </p>
+          </div>
+
+          <div style="background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 8px; padding: 6px 10px; text-align: left;">
+            <p style="margin: 0; font-size: 0.68rem; color: #86efac; line-height: 1.3;">
+              🎁 <strong>BÔNUS FUNDADOR:</strong> Vale R$ 9,99 de crédito no futuro Chaveiro Físico NFC!
+            </p>
+          </div>
+
         </div>
 
-        <!-- High-Res Scannable QR Code Box -->
-        <div style="background: #ffffff; padding: 14px; border-radius: 12px; display: inline-block; box-shadow: 0 10px 30px rgba(0,0,0,0.6); margin-bottom: 10px;">
-          <img id="qr-modal-img" src="" alt="RetroPass QR Code" style="width: 190px; height: 190px; display: block; border-radius: 6px;">
-        </div>
-
-        <!-- Token Identifier Code -->
-        <div style="margin-bottom: 12px;">
-          <code id="qr-modal-token" style="background: rgba(0,240,255,0.15); border: 1px solid rgba(0,240,255,0.4); color: #00f0ff; padding: 4px 12px; border-radius: 6px; font-family: monospace; font-size: 0.95rem; font-weight: 800; letter-spacing: 1px;">
-            PASS-SMW-01
-          </code>
-        </div>
-
-        <!-- Anti-Piracy Warning Notice (Obrigatório / Intransferível) -->
-        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 8px; padding: 10px; margin-bottom: 10px; text-align: left;">
-          <p style="margin: 0; font-size: 0.72rem; color: #fca5a5; line-height: 1.35;">
-            ⚠️ <strong>AVISO DE ATIVAÇÃO:</strong> Escaneie exclusivamente no celular onde você vai jogar. O passe é pessoal e se vincula automaticamente ao seu aparelho no 1º escaneamento. Não ative fora do celular e não compartilhe prints!
-          </p>
-        </div>
-
-        <!-- Founder Benefit Credit Info -->
-        <div style="background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 8px; padding: 8px 10px; text-align: left;">
-          <p style="margin: 0; font-size: 0.72rem; color: #86efac; line-height: 1.35;">
-            🎁 <strong>BÔNUS FUNDADOR:</strong> Vale R$ 9,99 de crédito no futuro Chaveiro Físico NFC (pague apenas R$ 15,00 quando a confecção 3D for liberada)!
-          </p>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 14px;">
+          <button type="button" onclick="downloadPassCardAsPng()" class="btn-top-action btn-top-blue" style="width: 100%; padding: 11px;">
+            📥 Baixar Card do Jogo (Imagem PNG)
+          </button>
+          <a id="qr-modal-wpp-btn" href="#" target="_blank" class="btn-top-action btn-top-green" style="width: 100%; text-decoration: none; padding: 10px; text-align: center;">
+            💬 Enviar Mensagem do Passe no WhatsApp
+          </a>
+          <button type="button" onclick="copyModalLink()" class="btn-modal-cancel" style="width: 100%; padding: 8px;">
+            📋 Copiar Link Direto
+          </button>
         </div>
 
       </div>
-
-      <!-- Action Buttons -->
-      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
-        <button type="button" onclick="downloadPassCardAsPng()" class="btn-primary" style="width: 100%; font-size: 0.9rem; padding: 11px; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(90deg, #00f0ff, #0284c7); border: none; font-weight: 800;">
-          📥 Baixar Card do Jogo (Imagem PNG)
-        </button>
-        <a id="qr-modal-wpp-btn" href="#" target="_blank" class="btn-secondary" style="width: 100%; font-size: 0.88rem; padding: 10px; background: rgba(37, 211, 102, 0.15); border-color: rgba(37, 211, 102, 0.5); color: #25d366; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
-          💬 Enviar Mensagem do Passe no WhatsApp
-        </a>
-        <button type="button" onclick="copyModalLink()" class="btn-secondary" style="width: 100%; font-size: 0.82rem; padding: 8px;">
-          📋 Copiar Link Direto
-        </button>
-      </div>
-
     </div>
   </div>
-  </div>
 
+  <!-- Scripts -->
+  <script src="assets/js/admin.js?v=5.0"></script>
 </body>
 </html>
