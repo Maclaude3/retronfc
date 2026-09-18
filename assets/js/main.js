@@ -1181,9 +1181,17 @@ async function handleCepAutoFill(cepValue) {
   const cleanCep = cepValue.replace(/\D/g, '');
   if (cleanCep.length !== 8) return;
 
+  const tipEl = document.getElementById('cep-status-tip');
+  if (tipEl) {
+    tipEl.innerHTML = '<span style="color:#facc15">⏳ Buscando endereço no ViaCEP...</span>';
+  }
+
   try {
     const resp = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
-    if (!resp.ok) return;
+    if (!resp.ok) {
+      if (tipEl) tipEl.innerHTML = '<span style="color:#ef4444">⚠️ CEP não encontrado</span>';
+      return;
+    }
     const data = await resp.json();
 
     if (!data.erro) {
@@ -1191,16 +1199,27 @@ async function handleCepAutoFill(cepValue) {
       const neighEl = document.getElementById('cust-neighborhood');
       const cityEl = document.getElementById('cust-city');
       const stateEl = document.getElementById('cust-state');
+      const numEl = document.getElementById('cust-number');
 
-      if (addrEl && data.logradouro && !addrEl.value) addrEl.value = data.logradouro;
-      if (neighEl && data.bairro && !neighEl.value) neighEl.value = data.bairro;
+      if (addrEl && data.logradouro) addrEl.value = data.logradouro;
+      if (neighEl && data.bairro) neighEl.value = data.bairro;
       if (cityEl && data.localidade) cityEl.value = data.localidade;
       if (stateEl && data.uf) stateEl.value = data.uf;
 
-      if (addrEl) addrEl.focus();
+      if (tipEl) {
+        tipEl.innerHTML = '<span style="color:#22c55e">✅ Endereço preenchido! Digite o Nº/Casa/Lote/Apto</span>';
+      }
+
+      // Foca automaticamente no campo de Casa/Lote/Número!
+      if (numEl) {
+        setTimeout(() => numEl.focus(), 150);
+      }
+    } else {
+      if (tipEl) tipEl.innerHTML = '<span style="color:#ef4444">⚠️ CEP não localizado (preencha manualmente)</span>';
     }
   } catch (e) {
     console.warn('ViaCEP offline ou indisponível:', e);
+    if (tipEl) tipEl.innerHTML = '<span style="color:#94a3b8">Preencha o endereço manualmente</span>';
   }
 }
 
@@ -1216,10 +1235,13 @@ function submitFinalCheckoutToWhatsApp(event) {
   const name = document.getElementById('cust-name').value.trim();
   const phone = document.getElementById('cust-phone').value.trim();
   const address = document.getElementById('cust-address').value.trim();
+  const number = document.getElementById('cust-number') ? document.getElementById('cust-number').value.trim() : '';
+  const complement = document.getElementById('cust-complement') ? document.getElementById('cust-complement').value.trim() : '';
   const neighborhood = document.getElementById('cust-neighborhood').value.trim();
   const city = document.getElementById('cust-city').value.trim();
   const state = document.getElementById('cust-state').value.trim().toUpperCase();
   const zip = document.getElementById('cust-zip').value.trim();
+  const fullAddressLine = `${address}, ${number}${complement ? ` (${complement})` : ''}`;
 
   const notesInput = document.getElementById('cust-notes') || document.getElementById('cart-notes-input');
   const notes = notesInput ? notesInput.value.trim() : '';
@@ -1227,7 +1249,7 @@ function submitFinalCheckoutToWhatsApp(event) {
   // Salva no navegador para próximas compras
   try {
     localStorage.setItem('retronfc_customer_info', JSON.stringify({
-      name, phone, address, neighborhood, city, state, zip
+      name, phone, address, number, complement, neighborhood, city, state, zip
     }));
   } catch (e) {}
 
@@ -1262,10 +1284,11 @@ function submitFinalCheckoutToWhatsApp(event) {
 • WhatsApp: ${phone}
 
 📍 *ENDEREÇO COMPLETO CADASTRADO:*
+• CEP: ${zip}
 • Logradouro: ${address}
+• Casa / Lote / Nº / Apto: ${number}${complement ? ` (${complement})` : ''}
 • Bairro: ${neighborhood}
 • Cidade/UF: ${city} - ${state}
-• CEP: ${zip}
 
 🕹️ *JOGO(S) COMPRADO(S):*
 ${itemsList}
