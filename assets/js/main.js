@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFaq();
   initNavbar();
   initSearch();
+  initCart();
 });
 
 // Renderização do Catálogo Completo com Filtros Múltiplos
@@ -749,4 +750,262 @@ function initParallax() {
       ticking = true;
     }
   }, { passive: true });
+}
+
+
+// ==========================================================================
+// 🛒 SISTEMA DE CARRINHO DE COMPRAS RETRONFC (ESTILO THYNKLAB)
+// ==========================================================================
+let cart = [];
+
+function initCart() {
+  try {
+    const saved = localStorage.getItem('retronfc_cart');
+    cart = saved ? JSON.parse(saved) : [];
+  } catch (e) {
+    cart = [];
+  }
+  updateCartUI();
+}
+
+function saveCart() {
+  try {
+    localStorage.setItem('retronfc_cart', JSON.stringify(cart));
+  } catch (e) {
+    console.error('Erro ao salvar carrinho no localStorage:', e);
+  }
+  updateCartUI();
+}
+
+function toggleCartDrawer(open) {
+  if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
+  const drawer = document.getElementById('cart-drawer');
+  const backdrop = document.getElementById('cart-drawer-backdrop');
+  if (!drawer || !backdrop) return;
+
+  const willOpen = open !== undefined ? open : !drawer.classList.contains('open');
+
+  if (willOpen) {
+    renderCartDrawer();
+    drawer.classList.add('open');
+    backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  } else {
+    drawer.classList.remove('open');
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+function updateCartUI() {
+  const badge = document.getElementById('header-cart-count');
+  const totalUnits = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+
+  if (badge) {
+    badge.textContent = totalUnits;
+    if (totalUnits === 0) {
+      badge.setAttribute('data-empty', 'true');
+    } else {
+      badge.removeAttribute('data-empty');
+      // Animação de pulse
+      badge.classList.remove('pulse');
+      void badge.offsetWidth; // Força reflow
+      badge.classList.add('pulse');
+      setTimeout(() => badge.classList.remove('pulse'), 400);
+    }
+  }
+
+  renderCartDrawer();
+}
+
+function addToCart(item) {
+  const existingIdx = cart.findIndex(i => 
+    i.id === item.id && 
+    i.format === item.format && 
+    i.color === item.color
+  );
+
+  if (existingIdx !== -1) {
+    cart[existingIdx].qty += item.qty || 1;
+  } else {
+    cart.push({
+      id: item.id,
+      title: item.title,
+      consoleName: item.consoleName || 'Retro',
+      cover: item.cover || '',
+      price: item.price || 29.90,
+      extraPrice: item.extraPrice || 0,
+      format: item.format || 'Chaveiro com Argola',
+      color: item.color || 'Cinza Clássico',
+      qty: item.qty || 1
+    });
+  }
+
+  saveCart();
+  toggleCartDrawer(true);
+}
+
+function addItemToCartFromModal() {
+  if (!activeCustomizingGame) return;
+  if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
+
+  const qty = parseInt(document.getElementById('modal-order-qty').value, 10) || 1;
+  const colorEl = document.getElementById('modal-shell-color');
+  const color = colorEl ? colorEl.options[colorEl.selectedIndex].text : 'Cinza Clássico';
+  
+  const attachEl = document.getElementById('modal-attachment-type');
+  const format = attachEl ? attachEl.options[attachEl.selectedIndex].text : 'Chaveiro com Argola';
+  const extraPrice = parseFloat(attachEl ? attachEl.value : 0) || 0;
+
+  addToCart({
+    id: activeCustomizingGame.id,
+    title: activeCustomizingGame.title,
+    consoleName: activeCustomizingGame.consoleName,
+    cover: activeCustomizingGame.cover,
+    price: activeCustomizingGame.price,
+    extraPrice: extraPrice,
+    format: format,
+    color: color,
+    qty: qty
+  });
+
+  closeCustomizeModal();
+}
+
+function changeCartItemQty(index, delta) {
+  if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
+  if (index < 0 || index >= cart.length) return;
+
+  cart[index].qty += delta;
+  if (cart[index].qty <= 0) {
+    cart.splice(index, 1);
+  }
+  saveCart();
+}
+
+function removeCartItem(index) {
+  if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
+  if (index < 0 || index >= cart.length) return;
+  cart.splice(index, 1);
+  saveCart();
+}
+
+function renderCartDrawer() {
+  const container = document.getElementById('cart-drawer-items');
+  const unitsEl = document.getElementById('cart-total-units');
+  const priceEl = document.getElementById('cart-total-price');
+  const checkoutBtn = document.querySelector('.cart-checkout-btn');
+
+  if (!container) return;
+
+  if (cart.length === 0) {
+    container.innerHTML = `
+      <div class="cart-empty-state">
+        <div class="cart-empty-icon">🕹️</div>
+        <div class="cart-empty-title">Seu carrinho está vazio</div>
+        <div class="cart-empty-desc">Escolha os cartuchos e chaveiros NFC que marcaram sua infância para adicionar ao pedido.</div>
+        <a href="#catalogo" onclick="toggleCartDrawer(false)" class="btn btn-cyan btn-sm">
+          Explorar Catálogo de Jogos
+        </a>
+      </div>
+    `;
+    if (unitsEl) unitsEl.textContent = '0 unidades';
+    if (priceEl) priceEl.textContent = 'R$ 0,00';
+    if (checkoutBtn) {
+      checkoutBtn.disabled = true;
+      checkoutBtn.innerHTML = `💬 Finalizar Pedido via WhatsApp &rarr;`;
+    }
+    return;
+  }
+
+  let totalUnits = 0;
+  let totalPrice = 0;
+
+  container.innerHTML = cart.map((item, idx) => {
+    const itemUnitPrice = (item.price || 29.90) + (item.extraPrice || 0);
+    const itemSubtotal = itemUnitPrice * item.qty;
+    totalUnits += item.qty;
+    totalPrice += itemSubtotal;
+
+    return `
+      <div class="cart-item-card">
+        <img class="cart-item-thumb" src="${item.cover || 'assets/images/snes-cartridge-sample.jpeg'}" alt="${item.title}" onerror="this.src='assets/images/snes-cartridge-sample.jpeg';"/>
+        <div class="cart-item-info">
+          <div class="cart-item-head">
+            <h4 class="cart-item-title" title="${item.title}">${item.title}</h4>
+            <button onclick="removeCartItem(${idx})" class="cart-item-remove" title="Remover item" aria-label="Remover">&times;</button>
+          </div>
+          <div class="cart-item-meta">
+            <span>Console: <strong style="color:#fff">${item.consoleName}</strong></span>
+            <span>Tipo: <strong style="color:var(--cyan)">${item.format}</strong></span>
+            <span>Carcaça: <strong style="color:#cbd5e1">${item.color}</strong></span>
+          </div>
+          <div class="cart-item-foot">
+            <div class="cart-stepper">
+              <button onclick="changeCartItemQty(${idx}, -1)" class="cart-stepper-btn" aria-label="Diminuir">-</button>
+              <span class="cart-stepper-val">${item.qty}</span>
+              <button onclick="changeCartItemQty(${idx}, 1)" class="cart-stepper-btn" aria-label="Aumentar">+</button>
+            </div>
+            <div class="cart-item-price">
+              R$ ${itemSubtotal.toFixed(2).replace('.', ',')}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  if (unitsEl) unitsEl.textContent = `${totalUnits} unidade${totalUnits > 1 ? 's' : ''}`;
+  if (priceEl) priceEl.textContent = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+
+  if (checkoutBtn) {
+    checkoutBtn.disabled = false;
+    checkoutBtn.innerHTML = `<span style="font-size: 1.25rem;">💬</span> Finalizar (${totalUnits} un · R$ ${totalPrice.toFixed(2).replace('.', ',')}) &rarr;`;
+  }
+}
+
+function checkoutCartWhatsApp() {
+  if (cart.length === 0) {
+    alert('Seu carrinho está vazio! Escolha pelo menos um jogo no catálogo.');
+    return;
+  }
+  if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
+
+  const notesInput = document.getElementById('cart-notes-input');
+  const notes = notesInput ? notesInput.value.trim() : '';
+
+  let totalUnits = 0;
+  let totalPrice = 0;
+
+  const itemsText = cart.map((item, idx) => {
+    const itemUnitPrice = (item.price || 29.90) + (item.extraPrice || 0);
+    const itemSubtotal = itemUnitPrice * item.qty;
+    totalUnits += item.qty;
+    totalPrice += itemSubtotal;
+
+    return `• *${item.qty}x ${item.title}* (${item.consoleName})
+  - Formato: ${item.format}
+  - Cor: ${item.color}
+  - Subtotal: R$ ${itemSubtotal.toFixed(2).replace('.', ',')}`;
+  }).join('\n\n');
+
+  let message = `🎮 *NOVO PEDIDO - RETRONFC.COM.BR*
+
+Olá! Montei meu carrinho no site RetroNFC e gostaria de finalizar meu pedido:
+
+🛒 *ITENS SELECIONADOS:*
+${itemsText}
+
+📦 *Volume Total:* ${totalUnits} unidade(s)
+💰 *VALOR TOTAL:* R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+
+  if (notes) {
+    message += `\n📝 *Observações do Cliente:*\n${notes}`;
+  }
+
+  message += `\n\nComo combinamos o frete (CEP) e a forma de pagamento (PIX / Cartão)?`;
+
+  const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+  toggleCartDrawer(false);
 }

@@ -17,7 +17,7 @@
   <title>RetroNFC.com.br — Colecionáveis Retrô & Tecnologia NFC</title>
   
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="assets/css/style.css?v=6.0">
+  <link rel="stylesheet" href="assets/css/style.css?v=7.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
 </head>
 <body>
@@ -54,9 +54,13 @@
       </ul>
 
       <div class="nav-actions">
-        <a href="#atacado" class="btn btn-glass btn-sm">📦 Atacado R$ 7,50</a>
-        <button onclick="orderViaWhatsApp()" class="btn btn-cyan btn-sm">
-          Fazer Pedido
+        <a href="#atacado" class="btn btn-glass btn-sm">💼 Atacado R$ 7,50</a>
+        <a href="#catalogo" class="btn btn-cyan btn-sm">
+          🕹️ Catálogo
+        </a>
+        <button onclick="toggleCartDrawer(true)" class="btn btn-glass btn-sm cart-nav-btn" aria-label="Abrir Carrinho" title="Abrir Carrinho">
+          <span style="font-size: 1.15rem; line-height: 1;">🛒</span>
+          <span id="header-cart-count" class="cart-badge" data-empty="true">0</span>
         </button>
         <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Abrir Menu">
           ☰
@@ -610,9 +614,14 @@
         <span id="modal-total-display" style="font-size: 1.5rem; font-weight: 800; color: var(--cyan); font-family: var(--font-mono);">R$ 29,90</span>
       </div>
 
-      <button onclick="submitCustomizedOrder()" class="btn btn-cyan btn-lg" style="width: 100%; font-size: 1.05rem;">
-        🚀 Enviar Pedido Pronto no WhatsApp
-      </button>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button onclick="addItemToCartFromModal()" class="btn btn-cyan btn-lg" style="width: 100%; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          🛒 Adicionar ao Carrinho
+        </button>
+        <button onclick="submitCustomizedOrder()" class="btn btn-glass btn-sm" style="width: 100%; font-size: 0.88rem; color: #94a3b8; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          💬 Comprar Apenas Este Direto no WhatsApp
+        </button>
+      </div>
 
     </div>
   </div>
@@ -720,6 +729,53 @@
     </div>
   </footer>
 
+    <!-- ═══ CART DRAWER / CARRINHO DE COMPRAS RETRONFC ═══ -->
+  <div class="cart-drawer-backdrop" id="cart-drawer-backdrop" onclick="toggleCartDrawer(false)"></div>
+  <aside class="cart-drawer" id="cart-drawer" aria-label="Carrinho de Compras RetroNFC">
+    <div class="cart-drawer-header">
+      <div class="cart-drawer-title-group">
+        <span class="cart-drawer-eyebrow">SEU PEDIDO EXCLUSIVO</span>
+        <h3 class="cart-drawer-title">Carrinho RetroNFC</h3>
+      </div>
+      <button class="cart-drawer-close" onclick="toggleCartDrawer(false)" aria-label="Fechar Carrinho">&times;</button>
+    </div>
+
+    <!-- Items List -->
+    <div class="cart-drawer-body" id="cart-drawer-items">
+      <!-- Injetado dinamicamente via JS -->
+    </div>
+
+    <!-- Notes -->
+    <div class="cart-drawer-notes">
+      <label for="cart-notes-input" class="cart-notes-label">📝 Observações ou Instruções:</label>
+      <textarea id="cart-notes-input" class="cart-notes-textarea" placeholder="Ex: Nome para gravação na base, CEP para cálculo de frete, etc..."></textarea>
+    </div>
+
+    <!-- Footer with totals and WhatsApp CTA -->
+    <div class="cart-drawer-footer" id="cart-drawer-footer">
+      <div class="cart-promo-banner" id="cart-promo-banner">
+        <span>🚚 <strong>Envio Seguro para todo o Brasil</strong> com rastreamento!</span>
+      </div>
+      
+      <div class="cart-totals-row">
+        <div>
+          <div class="cart-totals-label">Total do Pedido:</div>
+          <div class="cart-totals-units" id="cart-total-units">0 unidades</div>
+        </div>
+        <div class="cart-totals-price" id="cart-total-price">R$ 0,00</div>
+      </div>
+
+      <button class="btn btn-whatsapp btn-block cart-checkout-btn" onclick="checkoutCartWhatsApp()">
+        <span style="font-size: 1.25rem;">💬</span>
+        Finalizar Pedido via WhatsApp &rarr;
+      </button>
+
+      <button class="btn btn-glass btn-block" onclick="toggleCartDrawer(false)" style="margin-top: 8px; font-size: 0.85rem;">
+        Continuar Escolhendo Jogos
+      </button>
+    </div>
+  </aside>
+
   <!-- Floating WhatsApp Action -->
   <a href="javascript:void(0)" onclick="orderViaWhatsApp()" class="whatsapp-float" title="Fale Conosco no WhatsApp">
     💬
@@ -728,7 +784,7 @@
   <!-- Script Principal -->
   <script src="assets/js/games-data.js?v=4.0"></script>
   <script src="assets/js/gameplay-preview.js"></script>
-  <script src="assets/js/main.js?v=4.0"></script>
+  <script src="assets/js/main.js?v=5.0"></script>
 
   
 
