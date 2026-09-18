@@ -2710,3 +2710,29 @@ h1, h2, h3, h4 {
   transform: translateY(-1px);
   box-shadow: 0 6px 24px rgba(0, 240, 255, 0.6);
 }
+
+
+/* Atendente Rotativo Gamer Badge */
+.checkout-attendant-box {
+  margin-top: 8px;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: #a5f3fc;
+}
+
+.checkout-attendant-avatar {
+  font-size: 1.35rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.4));
+}
+
+.checkout-attendant-name {
+  color: #fff;
+  font-weight: 800;
+}

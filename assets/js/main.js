@@ -1016,6 +1016,26 @@ ${itemsText}
 // 📋 CHECKOUT ADDRESS MODAL & AUTO-PREENCHIMENTO (ESTILO ADMIN)
 // ==========================================================================
 
+const PERSONA_MAP = {
+  'super_mario': { name: 'Mario', icon: '🍄', game: 'Super Mario World', code: 'MARIO', quote: "Mamma Mia! It's-a me, Mario!" },
+  'super_mario_kart': { name: 'Mario', icon: '🏎️', game: 'Super Mario Kart', code: 'MARIO_KART', quote: "Vamos acelerar nesse kart!" },
+  'street_fighter': { name: 'Ryu', icon: '🥋', game: 'Street Fighter II', code: 'RYU', quote: "Hadouken! Bem-vindo ao dojo da RetroNFC!" },
+  'sonic_2': { name: 'Sonic', icon: '🦔', game: 'Sonic the Hedgehog 2', code: 'SONIC', quote: "Gotta go fast! Aqui é o Sonic!" },
+  'moonwalker': { name: 'Michael Jackson', icon: '🕺', game: "Michael Jackson's Moonwalker", code: 'MOONWALKER', quote: "Hee-hee! Shamone!" },
+  'top_gear': { name: 'Piloto Horizons', icon: '🏎️', game: 'Top Gear', code: 'TOP_GEAR', quote: "Pisa fundo e segura o nitro!" },
+  'donkey_kong': { name: 'Donkey Kong', icon: '🍌', game: 'Donkey Kong Country', code: 'DK', quote: "Ooh-ooh aah-aah! Na selva dos 16-bits!" },
+  'mortal_kombat_2': { name: 'Scorpion', icon: '🔥', game: 'Mortal Kombat II', code: 'SCORPION', quote: "GET OVER HERE!" },
+  'zelda_alttp': { name: 'Link', icon: '🗡️', game: 'Zelda: Link to the Past', code: 'LINK', quote: "Hey, Listen! O Herói de Hyrule!" },
+  'mega_man_x': { name: 'Mega Man X', icon: '⚡', game: 'Mega Man X', code: 'MEGA_MAN', quote: "X-Buster carregado na potência máxima!" },
+  'streets_of_rage_2': { name: 'Axel Stone', icon: '🥊', game: 'Streets of Rage 2', code: 'AXEL', quote: "Grand Upper! Limpando as ruas com nostalgia!" },
+  'golden_axe': { name: 'Gilius Thunderhead', icon: '🪓', game: 'Golden Axe', code: 'GILIUS', quote: "Pela glória do machado de ouro!" }
+};
+
+function getAttendantForCart() {
+  const primaryId = cart.length > 0 ? cart[0].id : 'super_mario';
+  return PERSONA_MAP[primaryId] || { name: 'Mario', icon: '🍄', game: 'Super Mario World', code: 'MARIO', quote: "Mamma Mia! It's-a me, Mario!" };
+}
+
 function openCheckoutAddressModal() {
   if (cart.length === 0) {
     alert('Seu carrinho está vazio! Escolha pelo menos um jogo no catálogo.');
@@ -1023,13 +1043,22 @@ function openCheckoutAddressModal() {
   }
   if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
 
-  // Fecha o drawer do carrinho para dar foco ao modal
   const drawer = document.getElementById('cart-drawer');
   const backdrop = document.getElementById('cart-drawer-backdrop');
   if (drawer) drawer.classList.remove('open');
   if (backdrop) backdrop.classList.remove('open');
 
-  // Preenche o resumo dos jogos comprados (campo JOGO COMPRADO travado)
+  const attendant = getAttendantForCart();
+
+  // Exibe badge do atendente temático
+  const attendantEl = document.getElementById('checkout-attendant-preview');
+  if (attendantEl) {
+    attendantEl.innerHTML = `
+      <span class="checkout-attendant-avatar">${attendant.icon}</span>
+      <span>Atendente Gamer no WhatsApp: <strong class="checkout-attendant-name">${attendant.name}</strong> (${attendant.game})</span>
+    `;
+  }
+
   const gamesDisplay = document.getElementById('cust-games-display');
   if (gamesDisplay) {
     let totalPrice = 0;
@@ -1061,7 +1090,6 @@ function openCheckoutAddressModal() {
     `;
   }
 
-  // Recupera dados salvos anteriormente no navegador do cliente (se houver)
   try {
     const saved = localStorage.getItem('retronfc_customer_info');
     if (saved) {
@@ -1170,7 +1198,11 @@ function submitFinalCheckoutToWhatsApp(event) {
   - Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}`;
   }).join('\n\n');
 
+  const attendant = getAttendantForCart();
+
   let message = `🎮 *PEDIDO CONFIRMADO - RETRONFC.COM.BR*
+🤖 *ATENDENTE DESIGNADO:* ${attendant.icon} ${attendant.name} (${attendant.game})
+🏷️ *TAG DO ROBÔ:* [PERSONA:${attendant.code}]
 
 👤 *DADOS DO CLIENTE:*
 • Nome: ${name}
@@ -1186,16 +1218,12 @@ function submitFinalCheckoutToWhatsApp(event) {
 ${itemsList}
 
 📦 *Volume Total:* ${totalUnits} unidade(s)
-💰 *VALOR TOTAL:* R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+💰 *VALOR TOTAL:* R$ ${totalPrice.toFixed(2).replace('.', ',')}
 
-  if (notes) {
-    message += `\n\n📝 *Observações:* ${notes}`;
-  }
-
-  message += `\n\n🔒 *DECLARAÇÃO DO CLIENTE:*
+🔒 *DECLARAÇÃO DO CLIENTE:*
 Confirmo que os dados de entrega e os jogos acima estão corretos. Estou ciente de que os chips NFC são gravados fisicamente e bloqueados permanentemente contra regravação.
 
-Jarvis, por favor confirme o pedido e envie o link de pagamento!`;
+${attendant.name}, por favor confirme o pedido e envie o link de pagamento seguro!`;
 
   const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
   window.open(url, '_blank');
