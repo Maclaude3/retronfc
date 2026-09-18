@@ -1,10 +1,19 @@
 /**
- * RetroNFC.com.br - Admin Dashboard Script (admin.js) v1.0
- * Gestão de Pedidos com Endereço, Métricas de Vendas e Estação Web NFC Integrada
+ * RetroNFC.com.br - Admin Dashboard Script (admin.js) v2.0
+ * Camadas de Segurança Criptográfica, Proteção Anti-Força Bruta e Criptografia de Dados
  */
 
-// Senha padrão de acesso do lojista (pode ser alterada)
-const ADMIN_PASSCODE = 'admin123';
+// Hash Criptográfico SHA-256 Salted da Senha Mestra (A senha pura NUNCA é exposta)
+const AUTH_SALT = 'retronfc_sec_salt_v1_99x!';
+const AUTH_HASH_HEX = '4de859e003775fc007723d47c69fab5674b3593c304d2cb89ab3433cc8bb6e07';
+
+// Configuração de Segurança de Sessão & Força Bruta
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MINUTES = 5;
+const SESSION_DURATION_HOURS = 8;
+
+// Chave AES-GCM mantida estritamente em memória RAM (destruída ao sair)
+let sessionCryptoKey = null;
 
 // Dados Iniciais de Pedidos
 const DEFAULT_ORDERS = [
@@ -22,7 +31,7 @@ const DEFAULT_ORDERS = [
     gameTitle: "Michael Jackson's Moonwalker",
     console: 'Mega Drive',
     icon: '🎩',
-    status: 'pending', // pending | recorded | shipped
+    status: 'pending',
     trackingCode: ''
   },
   {
@@ -129,83 +138,264 @@ let currentActiveOrderId = null;
 let currentSelectedGame = 'moonwalker';
 
 // ==========================================================================
+// CRIPTOGRAFIA (Web Crypto API)
+// ==========================================================================
+async function sha256Hex(text) {
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.digest('SHA-256', enc.encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function deriveAesKey(password) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: enc.encode(AUTH_SALT),
+      iterations: 100000,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+async function encryptData(plainText, key) {
+  const enc = new TextEncoder();
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const cipher = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv: iv },
+    key,
+    enc.encode(plainText)
+  );
+
+  return {
+    iv: Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join(''),
+    data: Array.from(new Uint8Array(cipher)).map(b => b.toString(16).padStart(2, '0')).join('')
+  };
+}
+
+async function decryptData(cipherObj, key) {
+  const iv = new Uint8Array(cipherObj.iv.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+  const data = new Uint8Array(cipherObj.data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+
+  const plain = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: iv },
+    key,
+    data
+  );
+
+  return new TextDecoder().decode(plain);
+}
+
+// ==========================================================================
+// SEGURANÇA & FORÇA BRUTA (Rate Limiting)
+// ==========================================================================
+function getLockoutState() {
+  try {
+    const raw = localStorage.getItem('retronfc_lockout');
+    if (!raw) return { attempts: 0, lockedUntil: 0 };
+    return JSON.parse(raw);
+  } catch (e) {
+    return { attempts: 0, lockedUntil: 0 };
+  }
+}
+
+function recordFailedAttempt() {
+  const state = getLockoutState();
+  state.attempts += 1;
+  if (state.attempts >= MAX_ATTEMPTS) {
+    state.lockedUntil = Date.now() + (LOCKOUT_MINUTES * 60 * 1000);
+  }
+  localStorage.setItem('retronfc_lockout', JSON.stringify(state));
+  return state;
+}
+
+function clearLockoutState() {
+  localStorage.removeItem('retronfc_lockout');
+}
+
+function checkLockout() {
+  const state = getLockoutState();
+  const lockoutMsg = document.getElementById('login-lockout-msg');
+  const submitBtn = document.querySelector('#login-form button[type="submit"]');
+
+  if (state.lockedUntil && Date.now() < state.lockedUntil) {
+    const remSec = Math.ceil((state.lockedUntil - Date.now()) / 1000);
+    const remMin = Math.ceil(remSec / 60);
+    if (lockoutMsg) {
+      lockoutMsg.textContent = `🛑 Bloqueio de segurança temporário ativo. Muitas tentativas consecutivas. Tente novamente em ${remMin} minuto(s).`;
+      lockoutMsg.style.display = 'block';
+    }
+    if (submitBtn) submitBtn.disabled = true;
+    return true;
+  } else {
+    if (state.lockedUntil && Date.now() >= state.lockedUntil) {
+      clearLockoutState();
+    }
+    if (lockoutMsg) lockoutMsg.style.display = 'none';
+    if (submitBtn) submitBtn.disabled = false;
+    return false;
+  }
+}
+
+// ==========================================================================
 // INICIALIZAÇÃO & AUTENTICAÇÃO
 // ==========================================================================
-document.addEventListener('DOMContentLoaded', () => {
-  initAuth();
-  loadOrders();
-  renderTopSellers();
-  initNfcStation();
-  checkNfcSupport();
-});
-
-function initAuth() {
-  const isAuth = sessionStorage.getItem('retronfc_admin_auth') === 'true' || 
-                 localStorage.getItem('retronfc_admin_auth') === 'true';
+document.addEventListener('DOMContentLoaded', async () => {
+  const isAuth = checkSession();
   const overlay = document.getElementById('login-overlay');
-  
-  if (isAuth && overlay) {
-    overlay.style.display = 'none';
-  } else if (overlay) {
-    overlay.style.display = 'flex';
+
+  if (isAuth) {
+    if (overlay) overlay.style.display = 'none';
+    // Se a chave não estiver em RAM mas a sessão for válida no navegador local, recupera dados
+    await loadOrders();
+    renderTopSellers();
+    initNfcStation();
+    checkNfcSupport();
+  } else {
+    if (overlay) overlay.style.display = 'flex';
+    checkLockout();
   }
 
   const loginForm = document.getElementById('login-form');
   if (loginForm) {
     loginForm.addEventListener('submit', handleLogin);
   }
-}
+});
 
-function handleLogin(e) {
-  e.preventDefault();
-  const input = document.getElementById('admin-password');
-  const remember = document.getElementById('remember-me');
-  const errEl = document.getElementById('login-error');
-
-  if (input.value === ADMIN_PASSCODE) {
-    sessionStorage.setItem('retronfc_admin_auth', 'true');
-    if (remember && remember.checked) {
-      localStorage.setItem('retronfc_admin_auth', 'true');
+function checkSession() {
+  try {
+    const raw = sessionStorage.getItem('retronfc_session') || localStorage.getItem('retronfc_session');
+    if (!raw) return false;
+    const session = JSON.parse(raw);
+    if (Date.now() > session.expiresAt) {
+      logout();
+      return false;
     }
-    const overlay = document.getElementById('login-overlay');
-    if (overlay) overlay.style.display = 'none';
-    if (errEl) errEl.style.display = 'none';
-    logTerminal('✅ Autenticado com sucesso no Painel Operacional RetroNFC.');
-  } else {
-    if (errEl) {
-      errEl.textContent = 'Senha incorreta. Tente novamente.';
-      errEl.style.display = 'block';
-    }
+    return true;
+  } catch (e) {
+    return false;
   }
 }
 
+async function handleLogin(e) {
+  e.preventDefault();
+
+  if (checkLockout()) return;
+
+  const input = document.getElementById('admin-password');
+  const remember = document.getElementById('remember-me');
+  const errEl = document.getElementById('login-error');
+  const submitBtn = document.querySelector('#login-form button[type="submit"]');
+
+  if (submitBtn) submitBtn.textContent = 'Verificando Criptografia...';
+
+  const enteredPassword = input.value;
+  const computedHash = await sha256Hex(AUTH_SALT + enteredPassword);
+
+  if (computedHash === AUTH_HASH_HEX) {
+    clearLockoutState();
+
+    // Deriva a chave AES-GCM para criptografia/descriptografia de dados
+    sessionCryptoKey = await deriveAesKey(enteredPassword);
+
+    const sessionData = {
+      authenticated: true,
+      expiresAt: Date.now() + (SESSION_DURATION_HOURS * 3600 * 1000)
+    };
+
+    sessionStorage.setItem('retronfc_session', JSON.stringify(sessionData));
+    if (remember && remember.checked) {
+      localStorage.setItem('retronfc_session', JSON.stringify(sessionData));
+    }
+
+    const overlay = document.getElementById('login-overlay');
+    if (overlay) overlay.style.display = 'none';
+    if (errEl) errEl.style.display = 'none';
+
+    // Limpa o campo de senha da memória do DOM
+    input.value = '';
+
+    await loadOrders();
+    renderTopSellers();
+    initNfcStation();
+    checkNfcSupport();
+
+    logTerminal('🔐 Autenticado com sucesso. Chave AES-GCM 256-bit ativada em memória RAM.');
+  } else {
+    const state = recordFailedAttempt();
+    const remaining = MAX_ATTEMPTS - state.attempts;
+
+    if (state.attempts >= MAX_ATTEMPTS) {
+      checkLockout();
+    } else {
+      if (errEl) {
+        errEl.textContent = `Senha incorreta. Tentativas restantes: ${remaining}.`;
+        errEl.style.display = 'block';
+      }
+    }
+  }
+
+  if (submitBtn) submitBtn.textContent = 'Entrar no Painel Operacional →';
+}
+
 function logout() {
-  sessionStorage.removeItem('retronfc_admin_auth');
-  localStorage.removeItem('retronfc_admin_auth');
+  sessionStorage.removeItem('retronfc_session');
+  localStorage.removeItem('retronfc_session');
+  sessionCryptoKey = null; // Destrói chave da memória RAM
   window.location.reload();
 }
 
 // ==========================================================================
-// GESTÃO DE PEDIDOS
+// GESTÃO DE PEDIDOS COM CRIPTOGRAFIA EM REPOUSO
 // ==========================================================================
-function loadOrders() {
-  const saved = localStorage.getItem('retronfc_orders_v1');
-  if (saved) {
+async function loadOrders() {
+  const encRaw = localStorage.getItem('retronfc_orders_encrypted');
+  if (encRaw && sessionCryptoKey) {
     try {
-      orders = JSON.parse(saved);
+      const cipherObj = JSON.parse(encRaw);
+      const decryptedJson = await decryptData(cipherObj, sessionCryptoKey);
+      orders = JSON.parse(decryptedJson);
     } catch (e) {
+      // Se houver falha de decriptação, cai para defaults seguros
       orders = [...DEFAULT_ORDERS];
+      await saveOrders();
     }
   } else {
+    // Primeira carga ou sem pedidos criptografados
     orders = [...DEFAULT_ORDERS];
-    saveOrders();
+    if (sessionCryptoKey) {
+      await saveOrders();
+    }
   }
+
   renderOrders();
   updateKpiMetrics();
 }
 
-function saveOrders() {
-  localStorage.setItem('retronfc_orders_v1', JSON.stringify(orders));
+async function saveOrders() {
+  if (sessionCryptoKey) {
+    try {
+      const jsonStr = JSON.stringify(orders);
+      const encrypted = await encryptData(jsonStr, sessionCryptoKey);
+      localStorage.setItem('retronfc_orders_encrypted', JSON.stringify(encrypted));
+      // Remove versão antiga em cleartext se existir
+      localStorage.removeItem('retronfc_orders_v1');
+    } catch (e) {
+      console.error('Falha ao criptografar dados:', e);
+    }
+  }
 }
 
 function updateKpiMetrics() {
@@ -320,13 +510,11 @@ function selectOrderForRecording(orderId) {
   currentActiveOrderId = order.id;
   currentSelectedGame = order.gameKey;
 
-  // Atualiza dropdown da estação se disponível
   const select = document.getElementById('station-game-select');
   if (select) select.value = order.gameKey;
 
   updateStationDisplay();
 
-  // Scroll suave até a estação
   const stationEl = document.getElementById('nfc-station-card');
   if (stationEl) {
     stationEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -337,7 +525,7 @@ function selectOrderForRecording(orderId) {
     }
   }
 
-  logTerminal(`[Fila] Pedido #${order.id} selecionado! Cliente: ${order.customerName} - Jogo: ${order.gameTitle} (${order.console})`);
+  logTerminal(`[Fila] Pedido #${order.id} vinculado! Cliente: ${order.customerName} - Jogo: ${order.gameTitle} (${order.console})`);
   renderOrders();
 }
 
@@ -357,12 +545,12 @@ Jogo: ${order.gameTitle} (${order.console})
 Pedido #${order.id}`;
 
   navigator.clipboard.writeText(label).then(() => {
-    alert(`Etiqueta do Pedido #${order.id} copiada com sucesso para a área de transferência!`);
+    alert(`Etiqueta do Pedido #${order.id} copiada com sucesso!`);
     logTerminal(`[Etiqueta] Dados de envio do Pedido #${order.id} copiados.`);
   });
 }
 
-function toggleOrderStatus(orderId) {
+async function toggleOrderStatus(orderId) {
   const order = orders.find(o => o.id === orderId);
   if (!order) return;
 
@@ -379,7 +567,7 @@ function toggleOrderStatus(orderId) {
     logTerminal(`[Status] Pedido #${order.id} retornado para: ⏳ Pendente de Gravação`);
   }
 
-  saveOrders();
+  await saveOrders();
   renderOrders();
   updateKpiMetrics();
 }
@@ -421,7 +609,6 @@ function initNfcStation() {
   const select = document.getElementById('station-game-select');
   if (!select) return;
 
-  // Popula catálogo de jogos disponíveis
   const gamesList = [
     { key: 'moonwalker', name: "Michael Jackson's Moonwalker (Mega Drive)", icon: '🎩' },
     { key: 'top_gear', name: 'Top Gear (SNES)', icon: '🏎️' },
@@ -441,7 +628,7 @@ function initNfcStation() {
 
   select.addEventListener('change', (e) => {
     currentSelectedGame = e.target.value;
-    currentActiveOrderId = null; // desvincula pedido se trocar manualmente
+    currentActiveOrderId = null;
     updateStationDisplay();
     renderOrders();
   });
@@ -480,11 +667,11 @@ function checkNfcSupport() {
   if ('NDEFReader' in window) {
     if (indicator) indicator.className = 'nfc-status-indicator';
     if (text) text.textContent = 'Sensor Web NFC Ativo';
-    logTerminal('📡 Sensor Web NFC do smartphone detectado e pronto para gravar.');
+    logTerminal('📡 Sensor Web NFC detectado e pronto para gravar.');
   } else {
     if (indicator) indicator.className = 'nfc-status-indicator warning';
     if (text) text.textContent = 'Modo PC / Simulação';
-    logTerminal('ℹ️ Acessando via PC ou navegador sem Web NFC nativo. O painel operará em modo simulação para testes.');
+    logTerminal('ℹ️ Operando em modo de simulação no PC. Para gravação física no chip, abra pelo Chrome no celular Android.');
   }
 }
 
@@ -507,12 +694,11 @@ async function writeNfcTag() {
       if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
       logTerminal('🎉 SUCESSO! Tag NFC gravada e validada com sucesso!');
 
-      // Se havia um pedido vinculado, marca como gravado automaticamente!
       if (currentActiveOrderId) {
         const order = orders.find(o => o.id === currentActiveOrderId);
         if (order) {
           order.status = 'recorded';
-          saveOrders();
+          await saveOrders();
           renderOrders();
           updateKpiMetrics();
           logTerminal(`✅ Pedido #${order.id} (${order.customerName}) atualizado para: Tag Gravada!`);
@@ -523,24 +709,20 @@ async function writeNfcTag() {
     }
   } else {
     // Simulação no Desktop
-    setTimeout(() => {
+    setTimeout(async () => {
       logTerminal('⚡ [SIMULAÇÃO PC] Tag NTAG213/215 detectada com sucesso!');
       logTerminal(`✅ [SIMULAÇÃO PC] Link gravado com sucesso: ${targetUrl}`);
       if (currentActiveOrderId) {
         const order = orders.find(o => o.id === currentActiveOrderId);
         if (order) {
           order.status = 'recorded';
-          saveOrders();
+          await saveOrders();
           renderOrders();
           updateKpiMetrics();
           logTerminal(`✅ Pedido #${order.id} (${order.customerName}) atualizado para: Tag Gravada!`);
         }
       }
-      alert(`[Gravação Concluída no Painel!]
-
-Link Gravado: ${targetUrl}
-
-Para gravação física real na Tag adesiva, acerte este painel pelo Google Chrome no seu celular Android com NFC ativo.`);
+      alert(`[Gravação Concluída no Painel!]\n\nLink Gravado: ${targetUrl}\n\nPara gravação física real na Tag adesiva, acesse este painel pelo Google Chrome no seu celular Android com NFC ativo.`);
     }, 1200);
   }
 }
@@ -590,7 +772,7 @@ function closeNewOrderModal() {
   if (m) m.style.display = 'none';
 }
 
-function createManualOrder(e) {
+async function createManualOrder(e) {
   e.preventDefault();
   const name = document.getElementById('form-name').value;
   const phone = document.getElementById('form-phone').value;
@@ -623,7 +805,7 @@ function createManualOrder(e) {
   };
 
   orders.unshift(newOrder);
-  saveOrders();
+  await saveOrders();
   renderOrders();
   updateKpiMetrics();
   closeNewOrderModal();

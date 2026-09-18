@@ -1,0 +1,7 @@
+# RetroNFC.com.br - Robots Disallow for Operational Areas
+User-agent: *
+Disallow: /admin.html
+Disallow: /nfc-tool.html
+Disallow: /assets/js/admin.js
+Disallow: /assets/css/admin.css
+Disallow: /roms/

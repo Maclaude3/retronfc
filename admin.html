@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <title>Painel do Lojista & Central de Gravação NFC - RetroNFC.com.br</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,7 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="assets/css/style.css?v=6.0">
-  <link rel="stylesheet" href="assets/css/admin.css?v=1.0">
+  <link rel="stylesheet" href="assets/css/admin.css?v=2.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔒</text></svg>">
 </head>
 <body>
@@ -30,6 +33,7 @@
           <input type="password" id="admin-password" class="form-control" placeholder="Digite a senha de acesso..." required autocomplete="current-password">
         </div>
 
+        <div id="login-lockout-msg" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--red); border-radius: 8px; padding: 12px; font-size: 0.82rem; color: #fca5a5; font-weight: 700; margin-bottom: 12px; text-align: center;"></div>
         <div id="login-error" style="color: var(--red); font-size: 0.82rem; font-weight: 700; display: none; margin-top: -6px;"></div>
 
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -42,9 +46,7 @@
         </button>
       </form>
 
-      <div class="login-hint">
-        Dica: A senha padrão inicial é <strong>admin123</strong>
-      </div>
+      
     </div>
   </div>
 
@@ -296,6 +298,6 @@
     </div>
   </div>
 
-  <script src="assets/js/admin.js?v=1.0"></script>
+  <script src="assets/js/admin.js?v=2.0"></script>
 </body>
 </html>
