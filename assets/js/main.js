@@ -7,10 +7,15 @@
 const CONFIG = {
   whatsappNumber: '5561991252332', // WhatsApp oficial integrado com Jarvis
   currencySymbol: 'R$',
-  retailPrice: 29.90,
+  retailPrice: 24.99,
+  launchPassPrice: 9.99,
   wholesalePrice: 7.50,
   wholesaleMinQty: 20,
-  suggestedResell: 25.00
+  suggestedResell: 25.00,
+  // Verifica se o modo de vendas é 100% digital (padrão true enquanto não tem impressora 3D)
+  get isDigitalLaunch() {
+    return localStorage.getItem('retronfc_sales_mode') !== 'physical_active';
+  }
 };
 
 // Efeitos Sonoros Retrô Sintetizados (Web Audio API)
@@ -341,12 +346,16 @@ function updateModalTotal() {
   if (!activeCustomizingGame) return;
   const qty = parseInt(document.getElementById('modal-order-qty').value, 10) || 1;
   const attachmentExtra = parseFloat(document.getElementById('modal-attachment-type').value) || 0;
-  const unitPrice = activeCustomizingGame.price + attachmentExtra;
+  const unitPrice = CONFIG.isDigitalLaunch ? CONFIG.launchPassPrice : (activeCustomizingGame.price + attachmentExtra);
   const total = unitPrice * qty;
 
   const totalEl = document.getElementById('modal-total-display');
   if (totalEl) {
-    totalEl.textContent = `${CONFIG.currencySymbol} ${total.toFixed(2).replace('.', ',')}`;
+    if (CONFIG.isDigitalLaunch) {
+      totalEl.innerHTML = `${CONFIG.currencySymbol} ${total.toFixed(2).replace('.', ',')} <span style="font-size: 0.75rem; color: #38bdf8; font-weight: normal;">(Promoção RetroPass)</span>`;
+    } else {
+      totalEl.textContent = `${CONFIG.currencySymbol} ${total.toFixed(2).replace('.', ',')}`;
+    }
   }
 
   // Toggle da foto da Base de Mesa
@@ -858,15 +867,16 @@ function addItemToCartFromModal() {
   const format = attachEl ? attachEl.options[attachEl.selectedIndex].text : 'Chaveiro com Argola';
   const extraPrice = parseFloat(attachEl ? attachEl.value : 0) || 0;
 
+  const isLaunch = CONFIG.isDigitalLaunch;
   addToCart({
     id: activeCustomizingGame.id,
     title: activeCustomizingGame.title,
     consoleName: activeCustomizingGame.consoleName,
     cover: activeCustomizingGame.cover,
-    price: activeCustomizingGame.price,
-    extraPrice: extraPrice,
-    format: format,
-    color: color,
+    price: isLaunch ? CONFIG.launchPassPrice : (activeCustomizingGame.price || 24.99),
+    extraPrice: isLaunch ? 0 : extraPrice,
+    format: isLaunch ? 'RetroPass Digital (QR Code)' : format,
+    color: isLaunch ? 'Digital (Sem carcaça física)' : color,
     qty: qty
   });
 
@@ -947,8 +957,9 @@ function renderCartDrawer() {
   }
 
   container.innerHTML = cart.map((item, idx) => {
-    const basePrice = isWholesale ? (CONFIG.wholesalePrice || 7.50) : (item.price || 29.90);
-    const itemUnitPrice = basePrice + (item.extraPrice || 0);
+    const isLaunch = CONFIG.isDigitalLaunch && !isWholesale;
+    const basePrice = isWholesale ? (CONFIG.wholesalePrice || 7.50) : (isLaunch ? CONFIG.launchPassPrice : (item.price || 24.99));
+    const itemUnitPrice = basePrice + (isLaunch ? 0 : (item.extraPrice || 0));
     const itemSubtotal = itemUnitPrice * item.qty;
     totalPrice += itemSubtotal;
 
@@ -973,9 +984,13 @@ function renderCartDrawer() {
             </div>
             <div class="cart-item-price">
               ${isWholesale ? `
-                <span style="font-size: 0.75rem; text-decoration: line-through; color: #64748b; margin-right: 4px;">R$ ${((29.90 + (item.extraPrice || 0)) * item.qty).toFixed(2).replace('.', ',')}</span>
+                <span style="font-size: 0.75rem; text-decoration: line-through; color: #64748b; margin-right: 4px;">R$ ${((24.99 + (item.extraPrice || 0)) * item.qty).toFixed(2).replace('.', ',')}</span>
                 <span style="color: #22c55e; font-weight: 800;">R$ ${itemSubtotal.toFixed(2).replace('.', ',')}</span>
                 <span style="display: block; font-size: 0.68rem; color: #22c55e; font-weight: 700;">(Tarifa Atacado R$ 7,50/un)</span>
+              ` : isLaunch ? `
+                <span style="font-size: 0.75rem; text-decoration: line-through; color: #64748b; margin-right: 4px;">R$ ${(24.99 * item.qty).toFixed(2).replace('.', ',')}</span>
+                <span style="color: #38bdf8; font-weight: 800;">R$ ${itemSubtotal.toFixed(2).replace('.', ',')}</span>
+                <span style="display: block; font-size: 0.68rem; color: #38bdf8; font-weight: 700;">(Lote Fundador R$ 9,99)</span>
               ` : `
                 R$ ${itemSubtotal.toFixed(2).replace('.', ',')}
               `}
@@ -1218,20 +1233,20 @@ function submitFinalCheckoutToWhatsApp(event) {
 
   const totalCartUnits = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
   const isWholesale = totalCartUnits >= (CONFIG.wholesaleMinQty || 20);
+  const isLaunch = CONFIG.isDigitalLaunch && !isWholesale;
   let totalPrice = 0;
   let totalUnits = 0;
 
   const itemsList = cart.map(item => {
-    const basePrice = isWholesale ? (CONFIG.wholesalePrice || 7.50) : (item.price || 29.90);
-    const unitPrice = basePrice + (item.extraPrice || 0);
+    const basePrice = isWholesale ? (CONFIG.wholesalePrice || 7.50) : (isLaunch ? CONFIG.launchPassPrice : (item.price || 24.99));
+    const unitPrice = basePrice + (isLaunch ? 0 : (item.extraPrice || 0));
     const subtotal = unitPrice * item.qty;
     totalPrice += subtotal;
     totalUnits += item.qty;
 
     return `• *${item.qty}x ${item.title}* (${item.consoleName})
-  - Formato: ${item.format}
-  - Carcaça: ${item.color}
-  - Tarifa: ${isWholesale ? 'Atacado (R$ 7,50/un)' : 'Varejo (R$ 29,90/un)'}
+  - Tipo: ${isLaunch ? 'RetroPass Digital (QR Code)' : item.format}
+  - Tarifa: ${isWholesale ? 'Atacado (R$ 7,50/un)' : (isLaunch ? 'Lançamento Promocional (R$ 9,99/un)' : 'Varejo (R$ 24,99/un)')}
   - Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}`;
   }).join('\n\n');
 
@@ -1240,28 +1255,31 @@ function submitFinalCheckoutToWhatsApp(event) {
   let message = `🎮 *PEDIDO CONFIRMADO - RETRONFC.COM.BR*
 🤖 *ATENDENTE DESIGNADO:* ${attendant.icon} ${attendant.name} (${attendant.game})
 🏷️ *TAG DO ROBÔ:* [PERSONA:${attendant.code}]
-💼 *MODALIDADE:* ${isWholesale ? "ATACADO B2B (R$ 7,50/un - 20+ peças)" : "VAREJO (R$ 29,90/un)"}
+💼 *MODALIDADE:* ${isWholesale ? "ATACADO B2B (R$ 7,50/un - 20+ peças)" : (isLaunch ? "RETROPASS DIGITAL (LANÇAMENTO PROMOCIONAL R$ 9,99/un)" : "CHAVEIRO FÍSICO NFC VAREJO (R$ 24,99/un)")}
 
 👤 *DADOS DO CLIENTE:*
 • Nome: ${name}
 • WhatsApp: ${phone}
 
-📍 *ENDEREÇO COMPLETO DE ENTREGA:*
+📍 *ENDEREÇO COMPLETO CADASTRADO:*
 • Logradouro: ${address}
 • Bairro: ${neighborhood}
 • Cidade/UF: ${city} - ${state}
 • CEP: ${zip}
 
-🕹️ *JOGOS SELECIONADOS PARA PRODUÇÃO:*
+🕹️ *JOGO(S) COMPRADO(S):*
 ${itemsList}
 
 📦 *Volume Total:* ${totalUnits} unidade(s)
-💰 *VALOR TOTAL:* R$ ${totalPrice.toFixed(2).replace('.', ',')}
+💰 *VALOR TOTAL A PAGAR:* R$ ${totalPrice.toFixed(2).replace('.', ',')}
 
-${notes ? `📝 *Observações:* ${notes}\n\n` : ''}🔒 *DECLARAÇÃO DO CLIENTE:*
-Confirmo que os dados de entrega e os jogos acima estão corretos. Estou ciente de que os chips NFC são gravados fisicamente e bloqueados permanentemente contra regravação.
+${isLaunch ? `🎁 *BENEFÍCIO LOTE FUNDADOR APLICADO:*
+Estou adquirindo o RetroPass Digital por R$ 9,99 para entrega imediata do Card com QR Code no WhatsApp. Meus dados de entrega acima já estão salvos no sistema para resgatar o Chaveiro Físico NFC no futuro pagando apenas a diferença (R$ 15,00/un)!
 
-${attendant.name}, por favor confirme o pedido e envie o link de pagamento seguro!`;
+🔒 *DECLARAÇÃO DO CLIENTE:*
+Estou ciente de que a confecção do chaveiro físico 3D ainda não começou e que receberei o Card com QR Code no WhatsApp, com acesso pessoal e intransferível no meu celular após o 1º escaneamento.\n\n` : `🔒 *DECLARAÇÃO DO CLIENTE:*
+Confirmo que os dados de entrega e os jogos acima estão corretos. Estou ciente de que os chips NFC são gravados fisicamente e bloqueados permanentemente contra regravação.\n\n`}
+${notes ? `📝 *Observações:* ${notes}\n\n` : ''}${attendant.name}, por favor confirme meu pedido e envie a chave PIX para liberação do meu Card com QR Code!`;
 
   const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
   window.open(url, '_blank');

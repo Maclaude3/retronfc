@@ -364,6 +364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initNfcStation();
     checkNfcSupport();
     loadSupabasePasses();
+    initStoreMode();
   } else {
     if (overlay) overlay.style.display = 'flex';
     checkLockout();
@@ -434,6 +435,7 @@ async function handleLogin(e) {
     initNfcStation();
     checkNfcSupport();
     loadSupabasePasses();
+    initStoreMode();
 
     logTerminal('🔐 Autenticado com sucesso. Chave AES-GCM 256-bit ativada em memória RAM.');
   } else {
@@ -1108,6 +1110,7 @@ async function submitCreateNewPass(e) {
 
     closeNewPassModal();
     loadSupabasePasses();
+    initStoreMode();
     logTerminal(`[RetroPass] Novo passe digital criado: ${token} para ${title}!`);
     openQrModal(token, gameKey, title);
   } catch (err) {
@@ -1116,7 +1119,50 @@ async function submitCreateNewPass(e) {
   }
 }
 
-let currentModalPassUrl = '';
+// ==========================================================================
+// ⚙️ CONTROLE OPERACIONAL DE MODO DA LOJA (DIGITAL R$ 9,99 vs FÍSICO R$ 24,99)
+// ==========================================================================
+function initStoreMode() {
+  const isPhysical = localStorage.getItem('retronfc_sales_mode') === 'physical_active';
+  updateStoreModeUI(isPhysical);
+}
+
+function toggleStoreSalesMode() {
+  const current = localStorage.getItem('retronfc_sales_mode') === 'physical_active';
+  const next = !current;
+  localStorage.setItem('retronfc_sales_mode', next ? 'physical_active' : 'digital_only');
+  updateStoreModeUI(next);
+  logTerminal(`[Modo de Vendas] Alterado para: ${next ? 'Físico + Digital Liberado' : 'Apenas RetroPass Digital (R$ 9,99)'}`);
+  alert(`Modo da Loja alterado para: ${next ? 'Vendas de Chaveiros Físicos Liberadas (R$ 24,99)' : 'Apenas RetroPass Digital (R$ 9,99)'}`);
+}
+
+function updateStoreModeUI(isPhysical) {
+  const badge = document.getElementById('store-mode-badge');
+  const btn = document.getElementById('btn-toggle-sales-mode');
+  if (badge) {
+    if (isPhysical) {
+      badge.className = 'status-badge recorded';
+      badge.textContent = '✅ Chaveiros Físicos Liberados (R$ 24,99)';
+    } else {
+      badge.className = 'status-badge pending';
+      badge.textContent = '🔒 Apenas RetroPass Digital (R$ 9,99)';
+    }
+  }
+  if (btn) {
+    btn.textContent = isPhysical ? '🔒 Bloquear Vendas Físicas (Modo Digital)' : '✅ Liberar Vendas de Chaveiros Físicos';
+  }
+}
+
+// ==========================================================================
+// 🎟️ GERENCIADOR DE CARD COLECIONÁVEL RETROPASS & DOWNLOAD EM PNG
+// ==========================================================================
+let currentModalPassData = {
+  token: '',
+  gameKey: '',
+  gameTitle: '',
+  coverUrl: '',
+  consoleName: ''
+};
 
 function openQrModal(token, gameKey, gameTitle) {
   const modal = document.getElementById('modal-view-qr');
@@ -1125,17 +1171,47 @@ function openQrModal(token, gameKey, gameTitle) {
   const url = `https://retronfc.com.br/play.html?game=${encodeURIComponent(gameKey)}&pass=${encodeURIComponent(token)}`;
   currentModalPassUrl = url;
 
+  // Localiza dados do jogo no catálogo
+  const gameObj = (typeof GAMES_DATABASE !== 'undefined')
+    ? GAMES_DATABASE.find(g => g.id === gameKey)
+    : null;
+
+  const coverUrl = gameObj && gameObj.cover ? gameObj.cover : 'assets/images/covers/super_mario.jpg';
+  const consoleName = gameObj && gameObj.consoleName ? gameObj.consoleName : 'Super Nintendo (SNES)';
+
+  currentModalPassData = {
+    token: token,
+    gameKey: gameKey,
+    gameTitle: gameTitle || (gameObj ? gameObj.title : 'Jogo Clássico'),
+    coverUrl: coverUrl,
+    consoleName: consoleName
+  };
+
   const titleEl = document.getElementById('qr-modal-title');
   const gameEl = document.getElementById('qr-modal-game');
+  const consoleEl = document.getElementById('qr-modal-console');
+  const coverEl = document.getElementById('qr-modal-cover');
+  const tokenEl = document.getElementById('qr-modal-token');
   const imgEl = document.getElementById('qr-modal-img');
   const wppEl = document.getElementById('qr-modal-wpp-btn');
 
-  if (titleEl) titleEl.textContent = `RetroPass: ${token}`;
-  if (gameEl) gameEl.textContent = gameTitle;
+  if (titleEl) titleEl.innerHTML = `<span>🎟️</span> Card Colecionável: ${token}`;
+  if (gameEl) gameEl.textContent = currentModalPassData.gameTitle;
+  if (consoleEl) consoleEl.textContent = currentModalPassData.consoleName;
+  if (coverEl) coverEl.src = coverUrl;
+  if (tokenEl) tokenEl.textContent = token;
   if (imgEl) imgEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&data=${encodeURIComponent(url)}`;
 
   if (wppEl) {
-    const wppMsg = `🎮 *Seu RetroPass Digital da RetroNFC Chegou!*\n\nOlá! Aqui está o seu link de acesso exclusivo para jogar *${gameTitle}* direto no seu smartphone:\n\n👉 ${url}\n\n⚠️ *Regras de Segurança:* Este passe tem validade de 6 meses e será vinculado ao primeiro aparelho que abrir o link. Não compartilhe prints!`;
+    const wppMsg = `🎮 *Seu Card Colecionável RetroPass Chegou!*\n\nOlá! Aqui está o seu acesso exclusivo para jogar *${currentModalPassData.gameTitle}* direto no seu celular:
+
+👉 ${url}
+
+⚠️ *AVISO DE ATIVAÇÃO PESSOAL:*
+Escaneie exclusivamente no smartphone onde você vai jogar. O passe é pessoal e se vincula automaticamente ao seu aparelho no 1º escaneamento. Não ative fora do celular e não compartilhe prints!
+
+🎁 *LOTE FUNDADOR - CRÉDITO GARANTIDO:*
+Você tem R$ 9,99 de crédito garantido para resgatar seu Chaveiro Físico NFC no futuro. Quando a confecção 3D for liberada, você só pagará a diferença de R$ 15,00!`;
     wppEl.href = `https://wa.me/?text=${encodeURIComponent(wppMsg)}`;
   }
 
@@ -1165,6 +1241,164 @@ function copyPassLink(token, gameKey) {
   });
 }
 
+async function downloadPassCardAsPng() {
+  if (!currentModalPassData.token) return;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 600;
+  canvas.height = 920;
+  const ctx = canvas.getContext('2d');
+
+  // Fundo gradiente cyberpunk escuro
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, 920);
+  bgGrad.addColorStop(0, '#0f172a');
+  bgGrad.addColorStop(0.5, '#090d16');
+  bgGrad.addColorStop(1, '#020617');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, 600, 920);
+
+  // Borda neon degradê externa
+  const borderGrad = ctx.createLinearGradient(0, 0, 600, 920);
+  borderGrad.addColorStop(0, '#00f0ff');
+  borderGrad.addColorStop(0.5, '#7928ca');
+  borderGrad.addColorStop(1, '#ff0055');
+  ctx.strokeStyle = borderGrad;
+  ctx.lineWidth = 8;
+  ctx.strokeRect(10, 10, 580, 900);
+
+  // Borda sutil interna
+  ctx.strokeStyle = 'rgba(0, 240, 255, 0.25)';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(20, 20, 560, 880);
+
+  // Top Ribbon / Título
+  ctx.fillStyle = '#00f0ff';
+  ctx.font = 'bold 22px Arial, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('⚡ RETRONFC DIGITAL PASS', 40, 60);
+
+  // Selo Dourado Lote Fundador
+  ctx.fillStyle = '#facc15';
+  ctx.font = 'bold 15px Arial, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('⭐ LOTE FUNDADOR · R$ 9,99', 560, 60);
+
+  // Linha divisória
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.beginPath();
+  ctx.moveTo(40, 78);
+  ctx.lineTo(560, 78);
+  ctx.stroke();
+
+  function loadImage(src) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+  }
+
+  const coverImg = await loadImage(currentModalPassData.coverUrl || 'assets/images/covers/super_mario.jpg');
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=12&data=${encodeURIComponent(currentModalPassUrl)}`;
+  const qrImg = await loadImage(qrUrl);
+
+  // Caixa de Informações do Jogo
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+  ctx.fillRect(40, 95, 520, 105);
+  ctx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
+  ctx.strokeRect(40, 95, 520, 105);
+
+  if (coverImg) {
+    ctx.drawImage(coverImg, 55, 105, 85, 85);
+    ctx.strokeStyle = '#00f0ff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(55, 105, 85, 85);
+  }
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 24px Arial, sans-serif';
+  ctx.fillText(currentModalPassData.gameTitle, 155, 145);
+
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 16px Arial, sans-serif';
+  ctx.fillText(currentModalPassData.consoleName, 155, 175);
+
+  // Área Branca do QR Code
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(160, 220, 280, 280);
+  ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+  ctx.strokeRect(160, 220, 280, 280);
+
+  if (qrImg) {
+    ctx.drawImage(qrImg, 160, 220, 280, 280);
+  }
+
+  // Token Badge
+  ctx.fillStyle = 'rgba(0, 240, 255, 0.15)';
+  ctx.fillRect(160, 515, 280, 42);
+  ctx.strokeStyle = '#00f0ff';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(160, 515, 280, 42);
+
+  ctx.fillStyle = '#00f0ff';
+  ctx.font = 'bold 20px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(currentModalPassData.token, 300, 543);
+
+  // Box Vermelho de Advertência Anti-Pirataria
+  ctx.fillStyle = 'rgba(239, 68, 68, 0.14)';
+  ctx.fillRect(40, 575, 520, 120);
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(40, 575, 520, 120);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#f87171';
+  ctx.font = 'bold 15px Arial, sans-serif';
+  ctx.fillText('⚠️ AVISO DE ATIVAÇÃO PESSOAL NO SMARTPHONE:', 55, 602);
+
+  ctx.fillStyle = '#fca5a5';
+  ctx.font = '13.5px Arial, sans-serif';
+  ctx.fillText('• Escaneie exclusivamente no celular que você vai usar para jogar.', 55, 628);
+  ctx.fillText('• O passe se vincula ao seu aparelho no 1º escaneamento (intransferível).', 55, 650);
+  ctx.fillText('• Não ative fora do celular e não compartilhe prints com terceiros.', 55, 672);
+
+  // Box Verde de Benefício Lote Fundador
+  ctx.fillStyle = 'rgba(34, 197, 94, 0.14)';
+  ctx.fillRect(40, 710, 520, 105);
+  ctx.strokeStyle = '#22c55e';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(40, 710, 520, 105);
+
+  ctx.fillStyle = '#4ade80';
+  ctx.font = 'bold 15px Arial, sans-serif';
+  ctx.fillText('🎁 BÔNUS DO LOTE FUNDADOR (CRÉDITO GARANTIDO):', 55, 737);
+
+  ctx.fillStyle = '#86efac';
+  ctx.font = '13.5px Arial, sans-serif';
+  ctx.fillText('• Você garantiu R$ 9,99 de crédito para o Chaveiro Físico NFC.', 55, 763);
+  ctx.fillText('• Quando a confecção 3D for liberada, pague apenas a diferença (R$ 15,00)!', 55, 785);
+
+  // Rodapé
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#64748b';
+  ctx.font = '12px Arial, sans-serif';
+  ctx.fillText('RetroNFC.com.br · Validade: 6 meses a partir da 1ª ativação', 300, 850);
+
+  // Download trigger
+  const dataUrl = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = `RetroPass_${currentModalPassData.token}_${currentModalPassData.gameKey}.png`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  logTerminal(`[RetroPass] Card baixado: ${a.download}`);
+}
+
 async function resetPassDevice(token) {
   if (!confirm(`Deseja desvincular o aparelho do passe ${token}?\n\nIsso permitirá que o cliente ative o passe novamente em outro smartphone.`)) {
     return;
@@ -1188,6 +1422,7 @@ async function resetPassDevice(token) {
       logTerminal(`[RetroPass] Vínculo de aparelho removido com sucesso para o passe ${token}.`);
       alert(`O aparelho vinculado ao passe ${token} foi removido com sucesso!`);
       loadSupabasePasses();
+    initStoreMode();
     } else {
       alert('Não foi possível desvincular o aparelho no Supabase.');
     }

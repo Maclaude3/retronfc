@@ -18,7 +18,7 @@ const GAMES_DATABASE = [
     icon: '🍄',
     desc: 'O maior clássico de plataforma de todos os tempos. Encoste a tag e jogue com Yoshi pelas 96 fases!',
     romParam: 'super_mario',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'mario nintendo plataforma yoshi snes classico'
   },
   {
@@ -32,7 +32,7 @@ const GAMES_DATABASE = [
     icon: '🏎️',
     desc: 'O início da maior franquia de corrida da história com cascos, moedas e o incrível chip Mode 7.',
     romParam: 'super_mario_kart',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'kart corrida mario nintendo snes casco'
   },
   {
@@ -46,7 +46,7 @@ const GAMES_DATABASE = [
     icon: '🦖',
     desc: 'Visuais de desenho feito à mão com giz de cera e o poder do chip Super FX 2 no ápice do SNES.',
     romParam: 'yoshis_island',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'yoshi baby mario plataforma snes nintendo'
   },
   {
@@ -60,7 +60,7 @@ const GAMES_DATABASE = [
     icon: '🏎️',
     desc: 'Aqueça os motores com a trilha sonora mais nostálgica dos 16-bits. Corridas em pistas clássicas!',
     romParam: 'top_gear',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'corrida carro velocidade nitro snes top gear'
   },
   {
@@ -74,7 +74,7 @@ const GAMES_DATABASE = [
     icon: '🏁',
     desc: 'Customização completa de motor, pneus, pintura e nitro para disputar os campeonatos mundiais.',
     romParam: 'top_gear_2',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'corrida top gear 2 nitro velocidade snes'
   },
   {
@@ -88,7 +88,7 @@ const GAMES_DATABASE = [
     icon: '🍌',
     desc: 'Gráficos pré-renderizados revolucionários e a trilha lendária de David Wise direto no seu bolso.',
     romParam: 'donkey_kong',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'macaco selva dkc rare snes dkt'
   },
   {
@@ -102,7 +102,7 @@ const GAMES_DATABASE = [
     icon: '🐒',
     desc: 'Considerado por muitos a obra-prima da trilogia. Resgate Donkey Kong com Diddy e Dixie!',
     romParam: 'donkey_kong_2',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'dkc2 diddy dixie rare plataforma snes'
   },
   {
@@ -116,7 +116,7 @@ const GAMES_DATABASE = [
     icon: '👶',
     desc: 'Explore o arquipélago norte com Dixie e o bebê Kiddy Kong a bordo de hovercrafts e lanchas.',
     romParam: 'donkey_kong_3',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'dkc3 dixie kiddy rare plataforma snes'
   },
   {
@@ -130,7 +130,7 @@ const GAMES_DATABASE = [
     icon: '🗡️',
     desc: 'Explore Hyrule e o Dark World na jornada definitiva de Link. O ápice dos RPGs de ação.',
     romParam: 'zelda_alttp',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'zelda link espada aventura rpg hyrule snes'
   },
   {
@@ -144,7 +144,7 @@ const GAMES_DATABASE = [
     icon: '⏳',
     desc: 'Viagens no tempo, múltiplos finais e a obra-prima da Squaresoft com arte de Akira Toriyama.',
     romParam: 'chrono_trigger',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'rpg chrono viagem tempo goku square snes toriyama'
   },
   {
@@ -158,7 +158,7 @@ const GAMES_DATABASE = [
     icon: '🥊',
     desc: 'Hadouken no bolso! O jogo de luta definitivo com Ryu, Ken, Chun-Li e todos os guerreiros mundiais.',
     romParam: 'street_fighter',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'luta fight ryu ken hadouken capcom snes'
   },
   {
@@ -172,7 +172,7 @@ const GAMES_DATABASE = [
     icon: '🐉',
     desc: 'Fatality no seu smartphone! Sub-Zero, Scorpion, Raiden e toda a brutalidade do torneio.',
     romParam: 'mortal_kombat_2',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'luta fatality scorpion subzero sangue snes'
   },
   {
@@ -186,7 +186,7 @@ const GAMES_DATABASE = [
     icon: '🥷',
     desc: 'Ninjas clássicos, combos brutais, Animality, Brutality e a jogabilidade mais rápida da franquia.',
     romParam: 'umk3',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'mortal kombat umk3 luta fatality ninja snes'
   },
   {
@@ -200,7 +200,7 @@ const GAMES_DATABASE = [
     icon: '🚀',
     desc: 'Explore as profundezas do planeta Zebes no jogo que definiu o gênero Metroidvania.',
     romParam: 'super_metroid',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'samus metroidvania espaco alien tiro snes'
   },
   {
@@ -214,7 +214,7 @@ const GAMES_DATABASE = [
     icon: '🤖',
     desc: 'Ação futurista, dash, escalada em paredes e as armaduras lendárias do robô azul.',
     romParam: 'mega_man_x',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'robo tiro capcom dash armor zero snes'
   },
   {
@@ -228,7 +228,7 @@ const GAMES_DATABASE = [
     icon: '🤠',
     desc: 'Bury me with my money! Tiroteio frenético no velho oeste com Steve, Billy, Bob e Cormano.',
     romParam: 'sunset_riders',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'faroeste tiro cormano konami snes'
   },
   {
@@ -242,7 +242,7 @@ const GAMES_DATABASE = [
     icon: '⚽',
     desc: 'O pai do futebol virtual com o lendário atacante Allejo! Narração emocionante e faltas com cãozinho.',
     romParam: 'iss_deluxe',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'futebol allejo konami gol snes copa'
   },
   {
@@ -256,7 +256,7 @@ const GAMES_DATABASE = [
     icon: '💣',
     desc: 'Batalhas multiplayer com cangurus Louies montáveis e labirintos cheios de dinamites!',
     romParam: 'super_bomberman_3',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'bomba explosao bomberman hudson snes'
   },
   {
@@ -270,7 +270,7 @@ const GAMES_DATABASE = [
     icon: '🎣',
     desc: 'Resolva quebra-cabeças jogando pedras e barris na ilha dos piratas criado por Shinji Mikami.',
     romParam: 'goof_troop',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'pateta max disney coop puzzle capcom snes'
   },
   {
@@ -284,7 +284,7 @@ const GAMES_DATABASE = [
     icon: '🍕',
     desc: 'Cowabunga! As Tartarugas Ninja viajando no tempo e arremessando soldados na tela da TV!',
     romParam: 'tmnt_turtles_in_time',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'tartarugas ninja pizza konami beat em up snes'
   },
 
@@ -302,7 +302,7 @@ const GAMES_DATABASE = [
     icon: '🦊',
     desc: 'Gire, salte e quebre caixas de frutas Wumpa com o marsupial mais famoso da Sony!',
     romParam: 'crash_bandicoot',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'crash ps1 sony plataforma wumpa 3d playstation'
   },
   {
@@ -316,7 +316,7 @@ const GAMES_DATABASE = [
     icon: '🏎️',
     desc: 'O melhor jogo de kart do PS1 com turbo por derrapagem e disputas contra Nitros Oxide.',
     romParam: 'crash_team_racing',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'ctr crash corrida kart naughty dog ps1'
   },
   {
@@ -330,7 +330,7 @@ const GAMES_DATABASE = [
     icon: '🥋',
     desc: 'O ápice dos jogos de luta 3D do PS1! Jin Kazama, Eddy Gordo, Hwoarang e Paul Phoenix.',
     romParam: 'tekken_3',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'tekken luta jin eddy gordo namco ps1 playstation'
   },
   {
@@ -344,7 +344,7 @@ const GAMES_DATABASE = [
     icon: '⚽',
     desc: '100% Atualizado, é ruim de aturar! O futebol que embalou as tardes de toda uma geração.',
     romParam: 'winning_eleven',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'futebol bomba patch winning eleven konami gol ps1'
   },
   {
@@ -358,7 +358,7 @@ const GAMES_DATABASE = [
     icon: '🏎️',
     desc: 'Mais de 600 carros licenciados e pistas lendárias em dois discos no auge da era PS1.',
     romParam: 'gran_turismo_2',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'corrida simulador carro sony ps1 velocidade playstation gt2'
   },
   {
@@ -372,7 +372,7 @@ const GAMES_DATABASE = [
     icon: '🧟',
     desc: 'STARS! Fuja de Nemesis pelas ruas destruídas de Raccoon City no controle de Jill Valentine.',
     romParam: 'resident_evil_3',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'nemesis resident evil capcom terror zumbi ps1'
   },
   {
@@ -386,7 +386,7 @@ const GAMES_DATABASE = [
     icon: '🧛',
     desc: 'A obra-prima suprema de Alucard pelo castelo invertido de Drácula com trilha orquestrada.',
     romParam: 'castlevania_sotn',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'alucard dracula metroidvania castlevania konami ps1'
   },
   {
@@ -400,7 +400,7 @@ const GAMES_DATABASE = [
     icon: '🛹',
     desc: 'Manobras épicas de skate ao som de punk rock e a icônica música Guerrilla Radio.',
     romParam: 'tony_hawk_2',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'skate manobra thps tony hawk bob burnquist ps1'
   },
   {
@@ -414,7 +414,7 @@ const GAMES_DATABASE = [
     icon: '🃏',
     desc: 'Fusões lendárias como o Dragão Meteoro Negro nas areias do Egito Antigo no PS1.',
     romParam: 'yugioh_forbidden',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'yugioh cartas dragao konami egito ps1'
   },
   {
@@ -428,7 +428,7 @@ const GAMES_DATABASE = [
     icon: '🦖',
     desc: 'Ação ininterrupta e pontuação de combos enfrentando T-Rex, Velociraptores e dinossauros!',
     romParam: 'dino_crisis_2',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'dinossauro regina capcom tiro acao ps1'
   },
 
@@ -446,7 +446,7 @@ const GAMES_DATABASE = [
     icon: '⭐',
     desc: 'Mergulhe nas pinturas mágicas do Castelo da Peach na maior obra de arte do Nintendo 64.',
     romParam: 'mario_64',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'mario 64 n64 peach bowser estrela 3d nintendo'
   },
   {
@@ -460,7 +460,7 @@ const GAMES_DATABASE = [
     icon: '🏎️',
     desc: 'Cascos de tartaruga, derrapadas turbo e disputas insanas de kart nas pistas mais clássicas.',
     romParam: 'mario_kart_64',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'kart corrida nintendo mario n64 casco'
   },
   {
@@ -474,7 +474,7 @@ const GAMES_DATABASE = [
     icon: '🧝',
     desc: 'Aclamado universalmente como um dos melhores jogos já criados. A lenda de Hyrule e Epona.',
     romParam: 'zelda_oot',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'zelda ocarina link epona n64 master sword'
   },
   {
@@ -488,7 +488,7 @@ const GAMES_DATABASE = [
     icon: '🎭',
     desc: 'Você tem apenas 3 dias para impedir a lua de colidir contra a terra de Termina com máscaras mágicas.',
     romParam: 'zelda_majoras',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'zelda majora mascara lua n64 link'
   },
   {
@@ -502,7 +502,7 @@ const GAMES_DATABASE = [
     icon: '💥',
     desc: 'O primeiro e lendário embate entre Mario, Pikachu, Link, Donkey Kong, Samus e Fox McCloud.',
     romParam: 'smash_bros_64',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'smash bros luta crossover nintendo pikachu mario n64'
   },
   {
@@ -516,7 +516,7 @@ const GAMES_DATABASE = [
     icon: '🔫',
     desc: 'O jogo de tiro e espionagem de James Bond que revolucionou os consoles para sempre.',
     romParam: 'goldeneye_007',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: '007 james bond tiro fps rare n64'
   },
   {
@@ -530,7 +530,7 @@ const GAMES_DATABASE = [
     icon: '🐻',
     desc: 'O urso e a pássara da mochila em mundos coloridos cheios de notas musicais e peças de quebra-cabeça.',
     romParam: 'banjo_kazooie',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'banjo urso passaro rare plataforma n64'
   },
   {
@@ -544,7 +544,7 @@ const GAMES_DATABASE = [
     icon: '✈️',
     desc: 'Corridas de carro, aerobarco e avião na ilha mágica de Timber contra o vilão Wizpig.',
     romParam: 'diddy_kong_racing',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'diddy kart corrida aviao barco rare n64'
   },
 
@@ -562,7 +562,7 @@ const GAMES_DATABASE = [
     icon: '🔥',
     desc: 'Reviva a região clássica de Kanto com gráficos em 32-bits e capture todos os 151 originais!',
     romParam: 'pokemon_firered',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'pokemon gba firered charizard kanto rpg'
   },
   {
@@ -576,7 +576,7 @@ const GAMES_DATABASE = [
     icon: '🐉',
     desc: 'A aventura definitiva de Hoenn com Rayquaza, Equipes Magma e Aqua e a Batalha da Fronteira.',
     romParam: 'pokemon_emerald',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'pokemon gba emerald rayquaza hoenn'
   },
   {
@@ -590,7 +590,7 @@ const GAMES_DATABASE = [
     icon: '🍄',
     desc: 'Velocidade frenética portátil com 40 pistas completas e todas as copas do SNES.',
     romParam: 'mario_kart_gba',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'mario kart gba corrida nintendo'
   },
   {
@@ -604,7 +604,7 @@ const GAMES_DATABASE = [
     icon: '👒',
     desc: 'Encolha ao tamanho dos gnomos Minish com o chapéu falante Ezlo em um dos Zeldas mais bonitos.',
     romParam: 'zelda_minish_cap',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'zelda gba minish cap link capcom'
   },
   {
@@ -618,7 +618,7 @@ const GAMES_DATABASE = [
     icon: '👾',
     desc: 'Samus Aran infectada pelo Parasita X enfrentando seu próprio clone mortal na estação BSL.',
     romParam: 'metroid_fusion',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'metroid fusion samus parasita x gba'
   },
   {
@@ -632,7 +632,7 @@ const GAMES_DATABASE = [
     icon: '🦇',
     desc: 'Soma Cruz absorve as almas dos monstros no castelo durante um eclipse solar no Japão.',
     romParam: 'castlevania_aria',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'castlevania soma cruz almas metroidvania gba'
   },
 
@@ -649,7 +649,7 @@ const GAMES_DATABASE = [
     icon: '🎩',
     desc: 'Smooth Criminal! Jogue o chapéu, faça o Moonwalk, dance com os inimigos e vire o robô gigante no clássico mais lendário do Rei do Pop.',
     romParam: 'moonwalker',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'michael jackson moonwalker sega mega drive genesis smooth criminal beat em up danca rei do pop'
   },
   // ==========================================
@@ -664,7 +664,7 @@ const GAMES_DATABASE = [
     icon: '🦔',
     desc: 'Velocidade máxima em 16-bits com Sonic & Tails na clássica carcaça preta do Mega Drive!',
     romParam: 'sonic_2',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'sega sonic tails velocidade genesis'
   },
   {
@@ -678,7 +678,7 @@ const GAMES_DATABASE = [
     icon: '💎',
     desc: 'A fusão dos dois cartuchos criando a maior e mais espetacular aventura de Sonic nos 16-bits!',
     romParam: 'sonic_3_knuckles',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'sonic 3 knuckles esmeralda hyper sega genesis'
   },
   {
@@ -692,7 +692,7 @@ const GAMES_DATABASE = [
     icon: '🥋',
     desc: 'O beat em up definitivo da Sega. Trilha sonora inesquecível de Yuzo Koshiro e porrada estancando!',
     romParam: 'streets_of_rage_2',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'briga rua sega yuzo koshiro soco genesis'
   },
   {
@@ -706,7 +706,7 @@ const GAMES_DATABASE = [
     icon: '🪓',
     desc: 'Magias devastadoras, dragões montáveis e bárbaros vingando seus reinos contra Death Adder.',
     romParam: 'golden_axe',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'golden axe barbaro magia sega mega drive'
   },
   {
@@ -720,7 +720,7 @@ const GAMES_DATABASE = [
     icon: '🗡️',
     desc: 'O ninja Joe Musashi com corridas a cavalo, prancha de surfe e shurikens mortais.',
     romParam: 'shinobi_3',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'shinobi ninja sega joe musashi mega drive'
   },
   {
@@ -734,7 +734,7 @@ const GAMES_DATABASE = [
     icon: '🐺',
     desc: 'Rise from your grave! Colete esferas de poder e transforme-se em lobisomem, dragão e urso.',
     romParam: 'altered_beast',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'altered beast lobisomem sega mega drive classico'
   },
 
@@ -752,7 +752,7 @@ const GAMES_DATABASE = [
     icon: '🔥',
     desc: 'O maior torneio dos fliperamas de shopping e rodoviária! Iori Yagami, Kyo Kusanagi e Rugal.',
     romParam: 'kof_98',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'kof 98 snk iori kyo rugal arcade luta fliperama'
   },
   {
@@ -766,7 +766,7 @@ const GAMES_DATABASE = [
     icon: '🥊',
     desc: 'A rainha dos combos! O fliperama mais competitivo do Brasil onde quem perdia passava a ficha.',
     romParam: 'kof_2002',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'kof 2002 snk arcade fliperama luta rugal'
   },
   {
@@ -780,7 +780,7 @@ const GAMES_DATABASE = [
     icon: '💣',
     desc: 'Heavy Machine Gun! Destruição desenfreada com tanques, prisioneiros e explosões em pixel art.',
     romParam: 'metal_slug',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'metal slug tiro snk heavy machine gun tanque arcade'
   },
   {
@@ -794,7 +794,7 @@ const GAMES_DATABASE = [
     icon: '🦕',
     desc: 'Mustapha Cairo e seu golpe de voadora lendário distribuindo socos em caçadores e dinossauros!',
     romParam: 'cadillacs_dinosaurs',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'mustapha cadillacs dinossauro capcom arcade fliperama'
   },
 
@@ -812,7 +812,7 @@ const GAMES_DATABASE = [
     icon: '⚡',
     desc: 'Inicie sua jornada com Pikachu te seguindo por Kanto no inconfundível cartucho amarelo!',
     romParam: 'pokemon_yellow',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'pokemon pikachu kanto nintendo rpg gameboy'
   },
   {
@@ -826,7 +826,7 @@ const GAMES_DATABASE = [
     icon: '🥚',
     desc: 'Acorde o Peixe do Vento na mágica e misteriosa Ilha Koholint no clássico portátil.',
     romParam: 'zelda_links_awakening',
-    price: 29.90,
+    price: 24.99, passPrice: 9.99,
     tags: 'zelda gameboy color koholint link nintendo'
   }
 ];
