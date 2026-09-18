@@ -960,7 +960,8 @@ function renderCartDrawer() {
 
   if (checkoutBtn) {
     checkoutBtn.disabled = false;
-    checkoutBtn.innerHTML = `<span style="font-size: 1.25rem;">💬</span> Finalizar (${totalUnits} un · R$ ${totalPrice.toFixed(2).replace('.', ',')}) &rarr;`;
+    checkoutBtn.onclick = openCheckoutAddressModal;
+    checkoutBtn.innerHTML = `<span style="font-size: 1.25rem;">📦</span> Avançar para Entrega (${totalUnits} un · R$ ${totalPrice.toFixed(2).replace('.', ',')}) &rarr;`;
   }
 }
 
@@ -1008,4 +1009,195 @@ ${itemsText}
   const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
   window.open(url, '_blank');
   toggleCartDrawer(false);
+}
+
+
+// ==========================================================================
+// 📋 CHECKOUT ADDRESS MODAL & AUTO-PREENCHIMENTO (ESTILO ADMIN)
+// ==========================================================================
+
+function openCheckoutAddressModal() {
+  if (cart.length === 0) {
+    alert('Seu carrinho está vazio! Escolha pelo menos um jogo no catálogo.');
+    return;
+  }
+  if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
+
+  // Fecha o drawer do carrinho para dar foco ao modal
+  const drawer = document.getElementById('cart-drawer');
+  const backdrop = document.getElementById('cart-drawer-backdrop');
+  if (drawer) drawer.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+
+  // Preenche o resumo dos jogos comprados (campo JOGO COMPRADO travado)
+  const gamesDisplay = document.getElementById('cust-games-display');
+  if (gamesDisplay) {
+    let totalPrice = 0;
+    let totalUnits = 0;
+
+    const itemsHtml = cart.map(item => {
+      const unitPrice = (item.price || 29.90) + (item.extraPrice || 0);
+      const subtotal = unitPrice * item.qty;
+      totalPrice += subtotal;
+      totalUnits += item.qty;
+
+      return `
+        <div class="checkout-game-pill">
+          <div>
+            <div class="checkout-game-pill-title">${item.qty}x ${item.title} (${item.consoleName})</div>
+            <div class="checkout-game-pill-sub">${item.format} · ${item.color}</div>
+          </div>
+          <div class="checkout-game-pill-price">R$ ${subtotal.toFixed(2).replace('.', ',')}</div>
+        </div>
+      `;
+    }).join('');
+
+    gamesDisplay.innerHTML = `
+      ${itemsHtml}
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.18); font-weight: 800;">
+        <span style="color: #fff; font-size: 0.88rem;">Total a Pagar (${totalUnits} un):</span>
+        <span style="color: var(--cyan); font-family: var(--font-mono); font-size: 1.15rem;">R$ ${totalPrice.toFixed(2).replace('.', ',')}</span>
+      </div>
+    `;
+  }
+
+  // Recupera dados salvos anteriormente no navegador do cliente (se houver)
+  try {
+    const saved = localStorage.getItem('retronfc_customer_info');
+    if (saved) {
+      const data = JSON.parse(saved);
+      if (data.name) document.getElementById('cust-name').value = data.name;
+      if (data.phone) document.getElementById('cust-phone').value = data.phone;
+      if (data.address) document.getElementById('cust-address').value = data.address;
+      if (data.neighborhood) document.getElementById('cust-neighborhood').value = data.neighborhood;
+      if (data.city) document.getElementById('cust-city').value = data.city;
+      if (data.state) document.getElementById('cust-state').value = data.state;
+      if (data.zip) document.getElementById('cust-zip').value = data.zip;
+    }
+  } catch (e) {}
+
+  const modal = document.getElementById('checkout-address-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeCheckoutAddressModal() {
+  if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
+  const modal = document.getElementById('checkout-address-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+}
+
+function formatCepInput(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length > 5) {
+    v = v.substring(0, 5) + '-' + v.substring(5, 8);
+  }
+  input.value = v;
+}
+
+async function handleCepAutoFill(cepValue) {
+  if (!cepValue) return;
+  const cleanCep = cepValue.replace(/\D/g, '');
+  if (cleanCep.length !== 8) return;
+
+  try {
+    const resp = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+    if (!resp.ok) return;
+    const data = await resp.json();
+
+    if (!data.erro) {
+      const addrEl = document.getElementById('cust-address');
+      const neighEl = document.getElementById('cust-neighborhood');
+      const cityEl = document.getElementById('cust-city');
+      const stateEl = document.getElementById('cust-state');
+
+      if (addrEl && data.logradouro && !addrEl.value) addrEl.value = data.logradouro;
+      if (neighEl && data.bairro && !neighEl.value) neighEl.value = data.bairro;
+      if (cityEl && data.localidade) cityEl.value = data.localidade;
+      if (stateEl && data.uf) stateEl.value = data.uf;
+
+      if (addrEl) addrEl.focus();
+    }
+  } catch (e) {
+    console.warn('ViaCEP offline ou indisponível:', e);
+  }
+}
+
+function submitFinalCheckoutToWhatsApp(event) {
+  event.preventDefault();
+  if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
+
+  if (cart.length === 0) {
+    alert('Seu carrinho está vazio!');
+    return;
+  }
+
+  const name = document.getElementById('cust-name').value.trim();
+  const phone = document.getElementById('cust-phone').value.trim();
+  const address = document.getElementById('cust-address').value.trim();
+  const neighborhood = document.getElementById('cust-neighborhood').value.trim();
+  const city = document.getElementById('cust-city').value.trim();
+  const state = document.getElementById('cust-state').value.trim().toUpperCase();
+  const zip = document.getElementById('cust-zip').value.trim();
+
+  const notesInput = document.getElementById('cart-notes-input');
+  const notes = notesInput ? notesInput.value.trim() : '';
+
+  // Salva no navegador para próximas compras
+  try {
+    localStorage.setItem('retronfc_customer_info', JSON.stringify({
+      name, phone, address, neighborhood, city, state, zip
+    }));
+  } catch (e) {}
+
+  let totalPrice = 0;
+  let totalUnits = 0;
+
+  const itemsList = cart.map(item => {
+    const unitPrice = (item.price || 29.90) + (item.extraPrice || 0);
+    const subtotal = unitPrice * item.qty;
+    totalPrice += subtotal;
+    totalUnits += item.qty;
+
+    return `• *${item.qty}x ${item.title}* (${item.consoleName})
+  - Formato: ${item.format}
+  - Carcaça: ${item.color}
+  - Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+  }).join('\n\n');
+
+  let message = `🎮 *PEDIDO CONFIRMADO - RETRONFC.COM.BR*
+
+👤 *DADOS DO CLIENTE:*
+• Nome: ${name}
+• WhatsApp: ${phone}
+
+📍 *ENDEREÇO COMPLETO DE ENTREGA:*
+• Logradouro: ${address}
+• Bairro: ${neighborhood}
+• Cidade/UF: ${city} - ${state}
+• CEP: ${zip}
+
+🕹️ *JOGOS SELECIONADOS PARA PRODUÇÃO:*
+${itemsList}
+
+📦 *Volume Total:* ${totalUnits} unidade(s)
+💰 *VALOR TOTAL:* R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+
+  if (notes) {
+    message += `\n\n📝 *Observações:* ${notes}`;
+  }
+
+  message += `\n\n🔒 *DECLARAÇÃO DO CLIENTE:*
+Confirmo que os dados de entrega e os jogos acima estão corretos. Estou ciente de que os chips NFC são gravados fisicamente e bloqueados permanentemente contra regravação.
+
+Jarvis, por favor confirme o pedido e envie o link de pagamento!`;
+
+  const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+  closeCheckoutAddressModal();
 }

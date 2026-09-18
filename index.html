@@ -17,7 +17,7 @@
   <title>RetroNFC.com.br — Colecionáveis Retrô & Tecnologia NFC</title>
   
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="assets/css/style.css?v=7.0">
+  <link rel="stylesheet" href="assets/css/style.css?v=8.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
 </head>
 <body>
@@ -765,7 +765,7 @@
         <div class="cart-totals-price" id="cart-total-price">R$ 0,00</div>
       </div>
 
-      <button class="btn btn-whatsapp btn-block cart-checkout-btn" onclick="checkoutCartWhatsApp()">
+      <button class="btn btn-whatsapp btn-block cart-checkout-btn" onclick="openCheckoutAddressModal()">
         <span style="font-size: 1.25rem;">💬</span>
         Finalizar Pedido via WhatsApp &rarr;
       </button>
@@ -776,6 +776,81 @@
     </div>
   </aside>
 
+  <!-- ═══ MODAL DE CADASTRO DE ENTREGA DO CLIENTE (CHECKOUT RETRONFC) ═══ -->
+  <div id="checkout-address-modal" class="checkout-modal-backdrop" style="display: none;">
+    <div class="checkout-modal-card">
+      <div class="checkout-modal-header">
+        <div>
+          <span class="checkout-modal-eyebrow">CHECKOUT OFICIAL RETRONFC</span>
+          <h3 class="checkout-modal-title">Dados de Entrega & Produção</h3>
+        </div>
+        <button type="button" onclick="closeCheckoutAddressModal()" class="checkout-modal-close" aria-label="Fechar">&times;</button>
+      </div>
+
+      <form id="checkout-address-form" onsubmit="submitFinalCheckoutToWhatsApp(event)">
+        <div class="form-group">
+          <label>NOME DO CLIENTE</label>
+          <input type="text" id="cust-name" class="form-control" required placeholder="Ex: Lucas Medeiros">
+        </div>
+
+        <div class="form-group">
+          <label>WHATSAPP / TELEFONE</label>
+          <input type="tel" id="cust-phone" class="form-control" required placeholder="Ex: (11) 98765-4321">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>ENDEREÇO & NÚMERO</label>
+            <input type="text" id="cust-address" class="form-control" required placeholder="Rua / Av, Número, Apto">
+          </div>
+          <div class="form-group">
+            <label>BAIRRO</label>
+            <input type="text" id="cust-neighborhood" class="form-control" required placeholder="Bairro">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1.3fr; gap: 10px;">
+          <div class="form-group">
+            <label>CIDADE</label>
+            <input type="text" id="cust-city" class="form-control" required placeholder="Cidade">
+          </div>
+          <div class="form-group">
+            <label>UF</label>
+            <input type="text" id="cust-state" class="form-control" required placeholder="SP" maxlength="2" style="text-transform: uppercase;">
+          </div>
+          <div class="form-group">
+            <label>CEP</label>
+            <input type="text" id="cust-zip" class="form-control" required placeholder="00000-000" maxlength="9" oninput="formatCepInput(this)" onblur="handleCepAutoFill(this.value)">
+          </div>
+        </div>
+
+        <!-- Jogo(s) Comprado(s) - Pré-preenchido e Travado do Carrinho -->
+        <div class="form-group">
+          <label>JOGO COMPRADO</label>
+          <div id="cust-games-display" class="checkout-games-box">
+            <!-- Renderizado dinamicamente com os jogos do carrinho -->
+          </div>
+        </div>
+
+        <!-- Aviso de Bloqueio Físico NFC -->
+        <div class="checkout-nfc-notice">
+          <span class="nfc-notice-icon">🔒</span>
+          <div class="nfc-notice-text">
+            <strong>Trava Permanente de Segurança:</strong> As tags NFC físicas dos seus mini cartuchos serão gravadas e bloqueadas no chip para garantir autenticidade. Confirme os jogos e endereço acima antes de enviar ao Jarvis.
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button type="button" onclick="closeCheckoutAddressModal()" class="btn-modal-cancel" style="flex: 1;">Cancelar</button>
+          <button type="submit" class="btn-modal-submit" style="flex: 1.4;">
+            Salvar Pedido & Ir para WhatsApp &rarr;
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
   <!-- Floating WhatsApp Action -->
   <a href="javascript:void(0)" onclick="orderViaWhatsApp()" class="whatsapp-float" title="Fale Conosco no WhatsApp">
     💬
@@ -784,7 +859,7 @@
   <!-- Script Principal -->
   <script src="assets/js/games-data.js?v=4.0"></script>
   <script src="assets/js/gameplay-preview.js"></script>
-  <script src="assets/js/main.js?v=5.0"></script>
+  <script src="assets/js/main.js?v=6.0"></script>
 
   
 
