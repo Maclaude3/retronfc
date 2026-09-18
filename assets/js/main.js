@@ -1223,6 +1223,196 @@ async function handleCepAutoFill(cepValue) {
   }
 }
 
+
+// ==========================================================================
+// 💳 INTEGRAÇÃO MERCADO PAGO (PIX + CARTÃO DE CRÉDITO / DÉBITO)
+// ==========================================================================
+const MERCADO_PAGO_CONFIG = {
+  publicKey: 'APP_USR-308564e7-8ed9-4a7b-b463-20f067e81a90',
+  accessToken: 'APP_USR-3619403629607337-091815-7d36997965599e839c39de61b4a862fc-42459188'
+};
+
+let selectedCheckoutPaymentMethod = 'pix';
+
+function selectCheckoutPaymentMethod(method) {
+  selectedCheckoutPaymentMethod = method;
+  if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
+
+  const labelPix = document.getElementById('label-pay-pix');
+  const labelCard = document.getElementById('label-pay-card');
+  const descEl = document.getElementById('payment-badge-desc');
+  const btnIcon = document.getElementById('btn-pay-icon');
+  const btnText = document.getElementById('btn-pay-text');
+
+  if (method === 'pix') {
+    if (labelPix) {
+      labelPix.style.borderColor = '#00f0ff';
+      labelPix.style.background = 'rgba(0, 240, 255, 0.12)';
+      labelPix.querySelector('strong').style.color = '#fff';
+    }
+    if (labelCard) {
+      labelCard.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+      labelCard.style.background = 'rgba(15, 23, 42, 0.6)';
+      labelCard.querySelector('strong').style.color = '#cbd5e1';
+    }
+    if (descEl) descEl.innerHTML = '⚡ <strong>PIX:</strong> Pagamento instantâneo pelo app do seu banco. Seu RetroPass é liberado na hora!';
+    if (btnIcon) btnIcon.textContent = '⚡';
+    if (btnText) btnText.textContent = 'Pagar com PIX & Liberar RetroPass';
+  } else {
+    if (labelCard) {
+      labelCard.style.borderColor = '#00f0ff';
+      labelCard.style.background = 'rgba(0, 240, 255, 0.12)';
+      labelCard.querySelector('strong').style.color = '#fff';
+    }
+    if (labelPix) {
+      labelPix.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+      labelPix.style.background = 'rgba(15, 23, 42, 0.6)';
+      labelPix.querySelector('strong').style.color = '#cbd5e1';
+    }
+    if (descEl) descEl.innerHTML = '💳 <strong>Cartão:</strong> Pague no crédito em até 12x ou débito via Mercado Pago Seguro.';
+    if (btnIcon) btnIcon.textContent = '💳';
+    if (btnText) btnText.textContent = 'Pagar com Cartão no Mercado Pago';
+  }
+}
+
+async function createMercadoPagoPreference(customerData, totalAmount, items) {
+  const mpItems = items.map(item => ({
+    title: `${item.title} (${item.consoleName}) - RetroPass`,
+    quantity: item.qty || 1,
+    unit_price: parseFloat((item.price || 9.99).toFixed(2)),
+    currency_id: 'BRL'
+  }));
+
+  const primaryGame = items[0] ? items[0].gameKey : 'super_mario';
+
+  const payload = {
+    items: mpItems,
+    payer: {
+      name: customerData.name || 'Cliente RetroNFC',
+      phone: { number: customerData.phone ? customerData.phone.replace(/\D/g, '') : '' },
+      address: {
+        zip_code: customerData.zip ? customerData.zip.replace(/\D/g, '') : '',
+        street_name: customerData.address || '',
+        street_number: customerData.number || ''
+      }
+    },
+    payment_methods: {
+      installments: 12
+    },
+    back_urls: {
+      success: `https://retronfc.com.br/play.html?game=${primaryGame}&paid=1`,
+      pending: `https://retronfc.com.br/index.html?status=pending`,
+      failure: `https://retronfc.com.br/index.html?status=failure`
+    },
+    auto_return: 'approved'
+  };
+
+  const resp = await fetch('https://api.mercadopago.com/checkout/preferences', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${MERCADO_PAGO_CONFIG.accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!resp.ok) {
+    const errData = await resp.json();
+    throw new Error(errData.message || 'Falha ao criar cobrança no Mercado Pago');
+  }
+
+  return await resp.json();
+}
+
+async function handleCheckoutWithMercadoPago(e) {
+  e.preventDefault();
+  if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();
+
+  if (cart.length === 0) {
+    alert('Seu carrinho está vazio!');
+    return;
+  }
+
+  const name = document.getElementById('cust-name').value.trim();
+  const phone = document.getElementById('cust-phone').value.trim();
+  const address = document.getElementById('cust-address').value.trim();
+  const number = document.getElementById('cust-number') ? document.getElementById('cust-number').value.trim() : '';
+  const complement = document.getElementById('cust-complement') ? document.getElementById('cust-complement').value.trim() : '';
+  const neighborhood = document.getElementById('cust-neighborhood').value.trim();
+  const city = document.getElementById('cust-city').value.trim();
+  const state = document.getElementById('cust-state').value.trim().toUpperCase();
+  const zip = document.getElementById('cust-zip').value.trim();
+
+  if (!name || !phone || !address || !number || !city || !state || !zip) {
+    alert('Por favor, preencha todos os campos obrigatórios de endereço (incluindo Casa/Lote/Número)!');
+    return;
+  }
+
+  const customerData = { name, phone, address, number, complement, neighborhood, city, state, zip };
+  try {
+    localStorage.setItem('retronfc_customer_info', JSON.stringify(customerData));
+  } catch (err) {}
+
+  const btnSubmit = document.getElementById('btn-submit-pay');
+  const btnText = document.getElementById('btn-pay-text');
+  const originalText = btnText ? btnText.textContent : 'Pagar';
+
+  if (btnSubmit) btnSubmit.disabled = true;
+  if (btnText) btnText.textContent = '⏳ Conectando ao Mercado Pago...';
+
+  try {
+    const totalCartUnits = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+    const isWholesale = totalCartUnits >= (CONFIG.wholesaleMinQty || 20);
+    const isLaunch = CONFIG.isDigitalLaunch && !isWholesale;
+
+    const processedItems = cart.map(item => {
+      const basePrice = isWholesale ? (CONFIG.wholesalePrice || 7.50) : (isLaunch ? CONFIG.launchPassPrice : (item.price || 24.99));
+      return {
+        ...item,
+        price: basePrice
+      };
+    });
+
+    const preference = await createMercadoPagoPreference(customerData, 9.99, processedItems);
+
+    if (preference && preference.init_point) {
+      if (btnText) btnText.textContent = '✅ Abrindo Pagamento Seguro...';
+
+      // Se o SDK do Mercado Pago estiver disponível, abre o modal direto!
+      if (typeof MercadoPago !== 'undefined') {
+        try {
+          const mp = new MercadoPago(MERCADO_PAGO_CONFIG.publicKey, { locale: 'pt-BR' });
+          mp.checkout({
+            preference: {
+              id: preference.id
+            },
+            autoOpen: true
+          });
+          if (btnSubmit) btnSubmit.disabled = false;
+          if (btnText) btnText.textContent = originalText;
+          return;
+        } catch (sdkErr) {
+          console.warn('Erro ao abrir modal MP SDK, abrindo init_point direto:', sdkErr);
+        }
+      }
+
+      // Redireciona diretamente para o link de checkout do Mercado Pago
+      window.location.href = preference.init_point;
+    } else {
+      throw new Error('Não foi possível obter o link de pagamento do Mercado Pago.');
+    }
+  } catch (error) {
+    console.error('Erro Mercado Pago:', error);
+    alert('Ocorreu um erro ao gerar o pagamento com o Mercado Pago: ' + error.message + '\n\nVocê pode falar diretamente com o nosso atendente no WhatsApp!');
+    if (btnSubmit) btnSubmit.disabled = false;
+    if (btnText) btnText.textContent = originalText;
+  }
+}
+
+function submitDirectToWhatsAppFallback() {
+  submitFinalCheckoutToWhatsApp(new Event('submit'));
+}
+
 function submitFinalCheckoutToWhatsApp(event) {
   event.preventDefault();
   if (typeof SoundFX !== 'undefined' && SoundFX.playClick) SoundFX.playClick();

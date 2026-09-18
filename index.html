@@ -19,6 +19,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="assets/css/style.css?v=10.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
 </head>
 <body>
   <!-- Ambient Parallax Layer -->
@@ -806,7 +807,7 @@
         <button type="button" onclick="closeCheckoutAddressModal()" class="checkout-modal-close" aria-label="Fechar">&times;</button>
       </div>
 
-      <form id="checkout-address-form" onsubmit="submitFinalCheckoutToWhatsApp(event)">
+      <form id="checkout-address-form" onsubmit="handleCheckoutWithMercadoPago(event)">
         <!-- Alerta de Lançamento Digital & Retenção de Endereço para Upgrade -->
         <div style="background: rgba(0, 240, 255, 0.08); border: 1.5px solid rgba(0, 240, 255, 0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;">
           <div style="font-weight: 800; color: #00f0ff; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
@@ -907,11 +908,49 @@
           </div>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-          <button type="button" onclick="closeCheckoutAddressModal()" class="btn-modal-cancel" style="flex: 1;">Cancelar</button>
-          <button type="submit" class="btn-modal-submit" style="flex: 1.4;">
-            Salvar Pedido & Ir para WhatsApp &rarr;
+        <!-- 💳 ESCOLHA DA FORMA DE PAGAMENTO MERCADO PAGO -->
+        <div class="payment-method-selector-box" style="background: rgba(15, 23, 42, 0.75); border: 1.5px solid rgba(0, 240, 255, 0.4); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+          <div style="font-size: 0.82rem; font-weight: 800; color: #00f0ff; letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="display: flex; align-items: center; gap: 6px;">💳 FORMA DE PAGAMENTO AUTOMÁTICA</span>
+            <span style="font-size: 0.72rem; color: #22c55e; font-weight: 700; background: rgba(34, 197, 94, 0.15); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(34, 197, 94, 0.3);">⚡ Mercado Pago Seguro</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <!-- Opção 1: PIX Automático (Padrão) -->
+            <label id="label-pay-pix" class="pay-method-card active" onclick="selectCheckoutPaymentMethod('pix')" style="cursor: pointer; border: 2px solid #00f0ff; background: rgba(0, 240, 255, 0.12); border-radius: 10px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; text-align: center; transition: all 0.2s ease;">
+              <input type="radio" name="pay-method" value="pix" checked style="display: none;">
+              <span style="font-size: 1.5rem; margin-bottom: 4px;">⚡</span>
+              <strong style="color: #fff; font-size: 0.9rem;">PIX Instantâneo</strong>
+              <span style="font-size: 0.72rem; color: #38bdf8; margin-top: 2px;">Liberação Imediata</span>
+            </label>
+
+            <!-- Opção 2: Cartão de Crédito / Débito -->
+            <label id="label-pay-card" class="pay-method-card" onclick="selectCheckoutPaymentMethod('card')" style="cursor: pointer; border: 2px solid rgba(148, 163, 184, 0.3); background: rgba(15, 23, 42, 0.6); border-radius: 10px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; text-align: center; transition: all 0.2s ease;">
+              <input type="radio" name="pay-method" value="card" style="display: none;">
+              <span style="font-size: 1.5rem; margin-bottom: 4px;">💳</span>
+              <strong style="color: #cbd5e1; font-size: 0.9rem;">Cartão de Crédito</strong>
+              <span style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">Até 12x ou Débito</span>
+            </label>
+          </div>
+
+          <div id="payment-badge-desc" style="font-size: 0.74rem; color: #94a3b8; text-align: center; margin-top: 10px; line-height: 1.35;">
+            ⚡ <strong>PIX:</strong> Pagamento direto e seguro pelo Mercado Pago. Seu RetroPass é liberado na hora!
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px;">
+          <button type="submit" id="btn-submit-pay" class="btn-modal-submit" style="width: 100%; font-size: 1rem; padding: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 0 20px rgba(0, 240, 255, 0.35); font-weight: 800;">
+            <span id="btn-pay-icon">⚡</span> <span id="btn-pay-text">Pagar com PIX & Liberar RetroPass</span> &rarr;
           </button>
+
+          <div style="display: flex; gap: 10px;">
+            <button type="button" onclick="closeCheckoutAddressModal()" class="btn-modal-cancel" style="flex: 1; padding: 10px;">
+              Cancelar
+            </button>
+            <button type="button" onclick="submitDirectToWhatsAppFallback()" style="flex: 2; background: transparent; border: 1px dashed rgba(34, 197, 94, 0.5); color: #22c55e; border-radius: 8px; padding: 10px; font-size: 0.76rem; cursor: pointer; transition: all 0.2s ease;">
+              💬 Prefiro falar com o Atendente no WhatsApp
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -926,7 +965,7 @@
   <!-- Script Principal -->
   <script src="assets/js/games-data.js?v=4.0"></script>
   <script src="assets/js/gameplay-preview.js"></script>
-  <script src="assets/js/main.js?v=12.0"></script>
+  <script src="assets/js/main.js?v=13.0"></script>
 
   
 
