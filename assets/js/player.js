@@ -4,7 +4,41 @@
  */
 
 // Mapeamento Expandido de ROMs e Emuladores (Multiconsoles: SNES, PS1, N64, GBA, Genesis, Arcade)
+
+// Mapeamento de apelidos e atalhos de jogos
+const GAME_ALIASES = {
+  'sonic': 'sonic_2',
+  'sonic2': 'sonic_2',
+  'kof2002': 'kof_2002',
+  'kof': 'kof_2002',
+  'metal_slug_x': 'metal_slug',
+  'metalslug': 'metal_slug',
+  'cadillacs': 'cadillacs',
+  'cadillac': 'cadillacs',
+  'dino': 'cadillacs',
+  'sf2': 'street_fighter',
+  'dkc': 'donkey_kong',
+  'smw': 'super_mario',
+  'mk2': 'mortal_kombat_2',
+  'sor2': 'streets_of_rage_2',
+  'zelda': 'zelda_alttp'
+};
+
+function resolveGameKey(rawKey) {
+  if (!rawKey) return null;
+  // Remove aspas, barras invertidas ou caracteres de escape
+  const clean = rawKey.replace(/['"\/]/g, '').trim().toLowerCase();
+  return GAME_ALIASES[clean] || clean;
+}
+
 const GAMES_MAP = {
+    cadillacs: {
+    title: 'Cadillacs and Dinosaurs',
+    console: 'arcade',
+    consoleName: 'Capcom Arcade (MAME)',
+    romUrl: 'roms/dino.zip',
+    icon: '🦖'
+  },
   // SNES (Super Nintendo)
   super_mario: {
     title: 'Super Mario World',
@@ -447,14 +481,26 @@ async function parseUrlAndBoot() {
 
   const isAdministrator = checkAdminTestAccess();
 
+  // Sanitiza a chave do jogo recebida na URL
+  gameKey = resolveGameKey(gameKey);
+
   // Se for o Administrador testando a partir do painel
   if (isAdministrator) {
-    console.log('[RetroNFC] Acesso de Administrador confirmado para teste de emulação.');
+    console.log('[RetroNFC] Acesso de Administrador confirmado para teste de emulação do jogo:', gameKey);
     const loader = document.getElementById('nfc-loader');
     if (loader) loader.style.display = 'none';
-    
+
     if (gameKey && GAMES_MAP[gameKey]) {
       currentGame = GAMES_MAP[gameKey];
+    } else if (gameKey) {
+      // Jogo avulso ou customizado
+      currentGame = {
+        title: gameKey.replace(/_/g, ' ').toUpperCase(),
+        console: params.get('console') || 'snes',
+        consoleName: 'Console Retrô',
+        romUrl: `roms/${gameKey}.smc`,
+        icon: '🎮'
+      };
     } else {
       currentGame = GAMES_MAP['super_mario'];
     }
