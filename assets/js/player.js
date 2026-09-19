@@ -241,21 +241,21 @@ const GAMES_MAP = {
   // Arcade
   kof_98: {
     title: 'The King of Fighters 98',
-    console: 'fba',
+    console: 'arcade',
     consoleName: 'Fliperama / Neo Geo',
     romUrl: 'roms/kof98.zip',
     icon: '🔥'
   },
   kof_2002: {
     title: 'The King of Fighters 2002',
-    console: 'fba',
+    console: 'arcade',
     consoleName: 'Fliperama / Neo Geo',
     romUrl: 'roms/kof2002.zip',
     icon: '🥊'
   },
   metal_slug: {
     title: 'Metal Slug Super Vehicle',
-    console: 'fba',
+    console: 'arcade',
     consoleName: 'Fliperama / Neo Geo',
     romUrl: 'roms/mslug.zip',
     icon: '💣'
@@ -628,9 +628,18 @@ function loadEmulatorEngine(game) {
   const absoluteRomUrl = new URL(game.romUrl, window.location.href).href;
 
   window.EJS_player = '#game-container';
-  window.EJS_core = game.console || 'snes';
+  let targetCore = game.console || 'snes';
+  if (targetCore === 'fba' || targetCore === 'neogeo' || targetCore === 'fbneo') {
+    targetCore = 'arcade';
+  }
+  window.EJS_core = targetCore;
   window.EJS_gameUrl = absoluteRomUrl;
   window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+
+  // Suporte a BIOS de Neo Geo para Arcade
+  if (targetCore === 'arcade' && game.biosUrl) {
+    window.EJS_biosUrl = new URL(game.biosUrl, window.location.href).href;
+  }
   window.EJS_gameName = game.title;
   window.EJS_startOnLoaded = true;
   window.EJS_fullscreenOnLoaded = true;
