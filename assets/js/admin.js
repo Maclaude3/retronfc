@@ -1679,3 +1679,23 @@ function copyStationDirectUrl() {
   navigator.clipboard.writeText(url);
   alert(`URL copiada para gravação manual no NFC:\n${url}`);
 }
+
+
+// ==========================================================================
+// 👑 MODO DE TESTE EXCLUSIVO DO ADMINISTRADOR
+// ==========================================================================
+function openAdminGameTest(gameKey) {
+  // Garante que a sessão criptografada de administrador esteja salva
+  const sessionData = {
+    authenticated: true,
+    isAdmin: true,
+    expiresAt: Date.now() + (8 * 3600 * 1000)
+  };
+  try {
+    localStorage.setItem('retronfc_session', JSON.stringify(sessionData));
+    sessionStorage.setItem('retronfc_session', JSON.stringify(sessionData));
+  } catch (e) {}
+
+  logTerminal(`[Admin Test] Abrindo teste do jogo: ${gameKey}`);
+  window.open(`play.html?game=${gameKey}&admin=1`, '_blank');
+}

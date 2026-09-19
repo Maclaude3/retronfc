@@ -375,7 +375,10 @@ async function validateRetroPass(token, requestedGameKey) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!isMobileOrSimulator()) {
+  const isAdministrator = checkAdminTestAccess();
+
+  // Bloqueio Desktop só se aplica a clientes comuns
+  if (!isMobileOrSimulator() && !isAdministrator) {
     const guard = document.getElementById('desktop-guard-screen');
     if (guard) guard.style.display = 'flex';
     const loader = document.getElementById('nfc-loader');
@@ -388,10 +391,77 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Parser de Parâmetros da Tag NFC
+
+// ==========================================================================
+// 👑 VERIFICAÇÃO DE SESSÃO DO ADMINISTRADOR PARA TESTES DE JOGOS
+// ==========================================================================
+function checkAdminTestAccess() {
+  const params = new URLSearchParams(window.location.search);
+  const isAdminParam = params.get('admin') === '1';
+  let isAdminSession = false;
+  try {
+    const raw = sessionStorage.getItem('retronfc_session') || localStorage.getItem('retronfc_session');
+    if (raw) {
+      const sess = JSON.parse(raw);
+      if (sess && sess.authenticated && sess.expiresAt > Date.now()) {
+        isAdminSession = true;
+      }
+    }
+  } catch (e) {}
+
+  return isAdminParam && isAdminSession;
+}
+
+function showAdminTestBadge(gameTitle) {
+  if (document.getElementById('admin-test-hud-badge')) return;
+  const badge = document.createElement('div');
+  badge.id = 'admin-test-hud-badge';
+  badge.style.cssText = `
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.95);
+    border: 1.5px solid #00f0ff;
+    border-radius: 30px;
+    padding: 6px 18px;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  `;
+  badge.innerHTML = `
+    <span style="font-size: 1.1rem;">👑</span>
+    <span style="color: #00f0ff; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px;">MODO ADMINISTRADOR (TESTE DE JOGO: ${gameTitle || ''})</span>
+    <button type="button" onclick="window.close()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; cursor: pointer;">✕ Fechar</button>
+  `;
+  document.body.appendChild(badge);
+}
+
 async function parseUrlAndBoot() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get('pass') || params.get('token') || params.get('p');
   let gameKey = params.get('game') || params.get('jogo') || params.get('rom');
+
+  const isAdministrator = checkAdminTestAccess();
+
+  // Se for o Administrador testando a partir do painel
+  if (isAdministrator) {
+    console.log('[RetroNFC] Acesso de Administrador confirmado para teste de emulação.');
+    const loader = document.getElementById('nfc-loader');
+    if (loader) loader.style.display = 'none';
+    
+    if (gameKey && GAMES_MAP[gameKey]) {
+      currentGame = GAMES_MAP[gameKey];
+    } else {
+      currentGame = GAMES_MAP['super_mario'];
+    }
+    showAdminTestBadge(currentGame.title);
+    bootGame(currentGame);
+    return;
+  }
 
   // Se houver token de RetroPass QR Code, valida no Supabase!
   if (token) {
