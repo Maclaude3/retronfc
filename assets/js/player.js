@@ -251,14 +251,16 @@ const GAMES_MAP = {
     console: 'arcade',
     consoleName: 'Fliperama / Neo Geo',
     romUrl: 'roms/kof2002.zip',
-    icon: '🥊'
+    biosUrl: 'roms/neogeo.zip',
+    icon: '??'
   },
   metal_slug: {
     title: 'Metal Slug Super Vehicle',
     console: 'arcade',
     consoleName: 'Fliperama / Neo Geo',
     romUrl: 'roms/mslug.zip',
-    icon: '💣'
+    biosUrl: 'roms/neogeo.zip',
+    icon: '??'
   },
 
   // GBC
