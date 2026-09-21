@@ -1336,26 +1336,27 @@ canvas.ejs_canvas {
   background: #252a38 !important;
 }
 
-/* 9. Botões de Ação Super Nintendo (Cápsula Inclinada + 4 Cores Autênticas: X, Y, A, B) */
+/* 9. Botões de Ação Super Nintendo (Cápsula Inclinada + 4 Cores Autênticas: X, Y, A, B)
+      Circunferência Aumentada de 48px para 55px para Conforto e Precisão Superior ao Apertar */
 .ejs_virtualGamepad_right {
   position: absolute !important;
-  bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
-  right: max(12px, env(safe-area-inset-right, 12px)) !important;
-  width: 156px !important;
-  height: 156px !important;
+  bottom: max(8px, env(safe-area-inset-bottom, 8px)) !important;
+  right: max(10px, env(safe-area-inset-right, 10px)) !important;
+  width: 174px !important;
+  height: 174px !important;
   z-index: 999999 !important;
 }
 
 .ejs_virtualGamepad_right::before {
   content: '' !important;
   position: absolute !important;
-  width: 160px !important;
-  height: 104px !important;
-  top: 26px !important;
+  width: 178px !important;
+  height: 118px !important;
+  top: 28px !important;
   left: -2px !important;
   background: rgba(40, 44, 56, 0.72) !important;
   border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
-  border-radius: 52px !important;
+  border-radius: 59px !important;
   transform: rotate(-38deg) !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.2) !important;
   backdrop-filter: blur(8px) !important;
@@ -1365,9 +1366,9 @@ canvas.ejs_canvas {
 }
 
 .ejs_virtualGamepad_button {
-  width: 48px !important;
-  height: 48px !important;
-  line-height: 44px !important;
+  width: 55px !important;
+  height: 55px !important;
+  line-height: 51px !important;
   text-align: center !important;
   display: flex !important;
   align-items: center !important;
@@ -1375,9 +1376,9 @@ canvas.ejs_canvas {
   border-radius: 50% !important;
   border: none !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  font-size: 21px !important;
+  font-size: 24px !important;
   font-weight: 900 !important;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.65), inset 0 2.5px 3px rgba(255, 255, 255, 0.55), inset 0 -2.5px 3px rgba(0, 0, 0, 0.45) !important;
+  box-shadow: 0 7px 16px rgba(0, 0, 0, 0.65), inset 0 3px 3px rgba(255, 255, 255, 0.55), inset 0 -3px 3px rgba(0, 0, 0, 0.45) !important;
   transition: transform 0.06s ease, filter 0.06s ease !important;
   z-index: 10 !important;
   cursor: pointer !important;
@@ -1393,8 +1394,8 @@ canvas.ejs_canvas {
 /* X - Azul (Topo) */
 .ejs_virtualGamepad_button.b_x {
   position: absolute !important;
-  top: 6px !important;
-  left: 54px !important;
+  top: 5px !important;
+  left: 60px !important;
   right: auto !important;
   bottom: auto !important;
   background: radial-gradient(circle at 35% 30%, #3584e4 0%, #1c71d8 55%, #1a5fb4 100%) !important;
@@ -1405,8 +1406,8 @@ canvas.ejs_canvas {
 /* Y - Verde (Esquerda) */
 .ejs_virtualGamepad_button.b_y {
   position: absolute !important;
-  top: 54px !important;
-  left: 6px !important;
+  top: 60px !important;
+  left: 5px !important;
   right: auto !important;
   bottom: auto !important;
   background: radial-gradient(circle at 35% 30%, #57e389 0%, #33d17a 55%, #26a269 100%) !important;
@@ -1417,8 +1418,8 @@ canvas.ejs_canvas {
 /* A - Vermelho (Direita) */
 .ejs_virtualGamepad_button.b_a {
   position: absolute !important;
-  top: 54px !important;
-  left: 102px !important;
+  top: 60px !important;
+  left: 114px !important;
   right: auto !important;
   bottom: auto !important;
   background: radial-gradient(circle at 35% 30%, #f66151 0%, #e01b24 55%, #a51d2d 100%) !important;
@@ -1429,8 +1430,8 @@ canvas.ejs_canvas {
 /* B - Amarelo (Baixo) */
 .ejs_virtualGamepad_button.b_b {
   position: absolute !important;
-  top: 102px !important;
-  left: 54px !important;
+  top: 114px !important;
+  left: 60px !important;
   right: auto !important;
   bottom: auto !important;
   background: radial-gradient(circle at 35% 30%, #f9f06b 0%, #f6d32d 55%, #e5a50a 100%) !important;
