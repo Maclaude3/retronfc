@@ -1,68 +1,81 @@
-
 function setupRetroGamepadEnhancements() {
   const parentGamepad = document.querySelector('.ejs_virtualGamepad_parent');
-  if (!parentGamepad) return;
-
-  // 1. Garante que os botoes OPTION e EXIT estejam dentro da camada do controle virtual
   let retroNav = document.getElementById('retro-nav-left');
+
   if (!retroNav) {
     retroNav = document.createElement('div');
     retroNav.id = 'retro-nav-left';
     retroNav.className = 'retro-nav-left';
     retroNav.innerHTML = `
-      <button id="btn-retro-option" class="btn-retro-pill" title="Configurações do Emulador">OPTION</button>
-      <button id="btn-retro-exit" class="btn-retro-pill" title="Voltar para a Loja">EXIT</button>
+      <button id="btn-retro-option" class="btn-retro-pill" title="Configurações do Emulador">CONFIGURAÇÕES</button>
+      <button id="btn-retro-exit" class="btn-retro-pill" title="Sair para a Loja">SAIR</button>
     `;
-    parentGamepad.appendChild(retroNav);
-  } else if (!parentGamepad.contains(retroNav)) {
+    if (parentGamepad) {
+      parentGamepad.appendChild(retroNav);
+    } else {
+      const vp = document.getElementById('player-viewport') || document.body;
+      vp.appendChild(retroNav);
+    }
+  } else if (parentGamepad && !parentGamepad.contains(retroNav)) {
     parentGamepad.appendChild(retroNav);
   }
 
-  // Configura listeners dos botoes OPTION e EXIT
+  // Garante texto em Português e listeners ativos
   const optBtn = document.getElementById('btn-retro-option');
-  if (optBtn && !optBtn.dataset.bound) {
-    optBtn.dataset.bound = 'true';
-    optBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (window.EJS_emulator && window.EJS_emulator.menu) {
-        window.EJS_emulator.menu.toggle();
-      } else {
+  if (optBtn) {
+    if (optBtn.textContent !== 'CONFIGURAÇÕES') optBtn.textContent = 'CONFIGURAÇÕES';
+    if (!optBtn.dataset.bound) {
+      optBtn.dataset.bound = 'true';
+      optBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         const menuOpen = document.querySelector('.ejs_virtualGamepad_open') || document.querySelector('.ejs_menu_toggle');
-        if (menuOpen) menuOpen.click();
-      }
-    });
+        if (menuOpen) {
+          menuOpen.click();
+        } else if (window.EJS_emulator && window.EJS_emulator.menu && typeof window.EJS_emulator.menu.toggle === 'function') {
+          window.EJS_emulator.menu.toggle();
+        }
+      });
+    }
   }
 
   const exitBtn = document.getElementById('btn-retro-exit');
-  if (exitBtn && !exitBtn.dataset.bound) {
-    exitBtn.dataset.bound = 'true';
-    exitBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.location.href = 'index.html';
-    });
+  if (exitBtn) {
+    if (exitBtn.textContent !== 'SAIR') exitBtn.textContent = 'SAIR';
+    if (!exitBtn.dataset.bound) {
+      exitBtn.dataset.bound = 'true';
+      exitBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'index.html';
+      });
+    }
   }
 
-  // 2. Remove botoes de velocidade indesejados (ex: Rapido / Speed)
+  // Remove qualquer botão de velocidade (Rápido, etc.)
   const speedElements = document.querySelectorAll('.b_speed_fast, .b_speed_slow, .b_speed_rewind, [class*="speed"], .ejs_speed');
   speedElements.forEach(el => el.remove());
 
-  // 3. Ajusta os textos de START e SELECT para caixa alta
+  // Oculta completamente botão nativo de 3 barrinhas da direita
+  const menuToggles = document.querySelectorAll('.ejs_virtualGamepad_open, .ejs_menu_toggle');
+  menuToggles.forEach(btn => {
+    btn.style.setProperty('display', 'none', 'important');
+    btn.style.setProperty('opacity', '0', 'important');
+    btn.style.setProperty('pointer-events', 'none', 'important');
+  });
+
+  // Ajusta textos de START, SELECT, L e R
   const startBtn = document.querySelector('.b_start');
-  if (startBtn) startBtn.textContent = 'START';
+  if (startBtn && startBtn.textContent !== 'START') startBtn.textContent = 'START';
   const selectBtn = document.querySelector('.b_select');
-  if (selectBtn) selectBtn.textContent = 'SELECT';
+  if (selectBtn && selectBtn.textContent !== 'SELECT') selectBtn.textContent = 'SELECT';
 
-  // 4. Ajusta os gatilhos para L e R
   const lBtn = document.querySelector('.b_l');
-  if (lBtn) lBtn.textContent = 'L';
+  if (lBtn && lBtn.textContent !== 'L') lBtn.textContent = 'L';
   const rBtn = document.querySelector('.b_r');
-  if (bR) rBtn.textContent = 'R';
-
-  // 5. Oculta barra de ferramentas inferior nativa se aberta
-  const controlBar = document.querySelector('.ejs_control_bar');
-  if (controlBar) controlBar.style.display = 'none';
+  if (rBtn && rBtn.textContent !== 'R') rBtn.textContent = 'R';
 }
+
+
 
 ﻿/**
  * RetroNFC.com.br — Player Script (play.html) v2.0
@@ -732,6 +745,8 @@ function loadEmulatorEngine(game) {
 
   // Garante controles touch e menu de 3 barrinhas visíveis e ativos no smartphone
   window.EJS_onGameStart = () => {
+    setupRetroGamepadEnhancements();
+    setInterval(setupRetroGamepadEnhancements, 400);
     if (window.EJS_emulator) {
       window.EJS_emulator.touch = true;
       if (window.EJS_emulator.virtualGamepad) {
@@ -739,8 +754,8 @@ function loadEmulatorEngine(game) {
         window.EJS_emulator.virtualGamepad.style.opacity = '1';
       }
       if (window.EJS_emulator.elements && window.EJS_emulator.elements.menuToggle) {
-        window.EJS_emulator.elements.menuToggle.style.display = 'flex';
-        window.EJS_emulator.elements.menuToggle.style.opacity = '1';
+        window.EJS_emulator.elements.menuToggle.style.display = 'none';
+        window.EJS_emulator.elements.menuToggle.style.opacity = '0';
       }
     }
     // Suaviza o HUD após o jogo iniciar para dar foco 100% na tela do jogo
