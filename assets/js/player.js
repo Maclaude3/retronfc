@@ -454,26 +454,37 @@ function showAdminTestBadge(gameTitle) {
   badge.id = 'admin-test-hud-badge';
   badge.style.cssText = `
     position: fixed;
-    top: 10px;
+    top: 8px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(15, 23, 42, 0.95);
-    border: 1.5px solid #00f0ff;
-    border-radius: 30px;
-    padding: 6px 18px;
-    z-index: 999999;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(0, 240, 255, 0.6);
+    border-radius: 20px;
+    padding: 4px 14px;
+    z-index: 9999999;
     display: flex;
     align-items: center;
-    gap: 10px;
-    box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: opacity 0.5s ease, transform 0.5s ease;
   `;
   badge.innerHTML = `
-    <span style="font-size: 1.1rem;">👑</span>
-    <span style="color: #00f0ff; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px;">MODO ADMINISTRADOR (TESTE DE JOGO: ${gameTitle || ''})</span>
-    <button type="button" onclick="window.close()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; cursor: pointer;">✕ Fechar</button>
+    <span style="font-size: 0.9rem;">👑</span>
+    <span style="color: #00f0ff; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.3px;">TESTE ADMIN: ${gameTitle || ''}</span>
+    <button type="button" onclick="document.getElementById('admin-test-hud-badge').remove()" style="background: rgba(239, 68, 68, 0.25); border: 1px solid #ef4444; color: #fca5a5; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 10px; cursor: pointer;">✕</button>
   `;
   document.body.appendChild(badge);
+
+  // Auto-esmaece apos 3.5 segundos para liberar a visao completa do jogo
+  setTimeout(() => {
+    if (badge && badge.parentNode) {
+      badge.style.opacity = '0';
+      badge.style.pointerEvents = 'none';
+      badge.style.transform = 'translateX(-50%) translateY(-10px)';
+      setTimeout(() => badge.remove(), 600);
+    }
+  }, 3500);
 }
 
 async function parseUrlAndBoot() {
@@ -817,6 +828,10 @@ function syncRealViewportHeight() {
   const viewport = document.getElementById('player-viewport');
   if (viewport) {
     viewport.style.height = `${vh}px`;
+  }
+  const container = document.getElementById('game-container');
+  if (container) {
+    container.style.height = `${Math.max(100, vh - 36)}px`;
   }
 }
 window.addEventListener('resize', syncRealViewportHeight);
