@@ -792,21 +792,126 @@ canvas.ejs_canvas {
   image-rendering: pixelated !important;
 }
 
-/* Oculta HUD de arcade no mobile e landscape para evitar sobreposicoes */
-@media (max-height: 650px), (max-width: 1200px), (pointer: coarse) {
-  .arcade-hud {
+/* ==========================================================================
+   LAYOUT SUPER NINTENDO PREMIUM v13.0 (IDÊNTICO À FOTO DE REFERÊNCIA)
+   - Exclusivo Modo Paisagem (Landscape) com Tela de Proteção para Modo Retrato
+   - Imagem CRT Nítida HD sem scanlines borradas
+   - Topo Esquerdo: [ OPTION ] e [ EXIT ] empilhados
+   - Topo Direito: [ START ] e [ SELECT ] empilhados (sem botões de velocidade)
+   - Gatilhos L e R nas laterais na meia-altura
+   - D-Pad: Disco circular com sulcos e cruz 3D côncava original do SNES
+   - Ação: Cápsula inclinada com as 4 cores autênticas (X: Azul, Y: Verde, A: Vermelho, B: Amarelo)
+   - Menu de Configuração EmulatorJS restaurado e funcional
+   ========================================================================== */
+
+/* 1. Tela de Bloqueio de Orientação: Exclusivo Modo Paisagem */
+.portrait-lock-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  width: 100dvw;
+  height: 100vh;
+  height: 100dvh;
+  background: radial-gradient(circle at center, #111827 0%, #030712 100%);
+  z-index: 99999999;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+@media (orientation: portrait) {
+  .portrait-lock-overlay {
+    display: flex !important;
+  }
+  .ejs_virtualGamepad_parent,
+  .retro-nav-left,
+  .arcade-hud,
+  .btn-floating-exit {
     display: none !important;
   }
 }
 
-/* Oculta barra de ferramentas nativa inferior do EmulatorJS */
-.ejs_control_bar,
-.ejs_menu_bar {
+.portrait-lock-overlay .lock-card {
+  max-width: 380px;
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: 20px;
+  padding: 32px 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 240, 255, 0.2);
+}
+
+.portrait-lock-overlay .lock-phone-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  animation: rotatePhone 2s ease-in-out infinite alternate;
+}
+
+@keyframes rotatePhone {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(-90deg) scale(1.1); }
+  100% { transform: rotate(-90deg) scale(1.1); }
+}
+
+.portrait-lock-overlay h2 {
+  color: #00f0ff;
+  font-family: 'Outfit', -apple-system, sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+  letter-spacing: 0.5px;
+}
+
+.portrait-lock-overlay p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* 2. CRT Scanline Desativado & Imagem do Jogo com Máxima Nitidez */
+.crt-overlay {
+  display: none !important;
   opacity: 0 !important;
   pointer-events: none !important;
 }
 
-/* 2. Camada Pai dos Controles Virtuais */
+.arcade-hud,
+.btn-floating-exit {
+  display: none !important;
+}
+
+#game-container {
+  background: #000000 !important;
+  width: 100vw !important;
+  width: 100dvw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+#game-container canvas,
+.ejs_canvas {
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: -moz-crisp-edges !important;
+  image-rendering: -webkit-crisp-edges !important;
+  image-rendering: pixelated !important;
+  image-rendering: crisp-edges !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  aspect-ratio: 4 / 3 !important;
+  object-fit: contain !important;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.95) !important;
+}
+
+/* 3. Camada Pai dos Controles Virtuais */
 .ejs_virtualGamepad_parent {
   position: fixed !important;
   top: 0 !important;
@@ -826,49 +931,283 @@ canvas.ejs_canvas {
   pointer-events: auto !important;
 }
 
-/* 3. Direcional (D-PAD) Proximo a Margem Esquerda para nao invadir a tela do jogo */
+/* 4. Botões Topo Esquerdo: OPTION e EXIT */
+.retro-nav-left {
+  position: fixed !important;
+  top: max(12px, env(safe-area-inset-top, 12px)) !important;
+  left: max(14px, env(safe-area-inset-left, 14px)) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  z-index: 9999999 !important;
+  pointer-events: auto !important;
+}
+
+.btn-retro-pill {
+  background: rgba(18, 20, 26, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  border-radius: 5px !important;
+  color: #e2e8f0 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.8px !important;
+  padding: 0 !important;
+  width: 66px !important;
+  height: 25px !important;
+  line-height: 23px !important;
+  text-align: center !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  cursor: pointer !important;
+  outline: none !important;
+  transition: all 0.12s ease !important;
+}
+
+.btn-retro-pill:active {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.7) !important;
+  transform: scale(0.95) !important;
+}
+
+/* 5. Menu de Configurações do EmulatorJS (Ativado via botão OPTION) */
+.ejs_control_bar {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.ejs_menu_bar {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  background: rgba(15, 19, 28, 0.96) !important;
+  border: 1px solid rgba(0, 240, 255, 0.4) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 35px rgba(0, 240, 255, 0.25) !important;
+  backdrop-filter: blur(15px) !important;
+  -webkit-backdrop-filter: blur(15px) !important;
+  padding: 16px !important;
+  z-index: 99999999 !important;
+  pointer-events: auto !important;
+  max-width: 90vw !important;
+  max-height: 85vh !important;
+  overflow-y: auto !important;
+  color: #fff !important;
+}
+
+.ejs_menu_bar_hidden {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 6. Botões Topo Direito: START e SELECT (Exatamente no estilo da foto) */
+.ejs_virtualGamepad_bottom {
+  position: fixed !important;
+  top: max(12px, env(safe-area-inset-top, 12px)) !important;
+  right: max(14px, env(safe-area-inset-right, 14px)) !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  width: auto !important;
+  height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  z-index: 9999999 !important;
+  pointer-events: auto !important;
+}
+
+.ejs_virtualGamepad_bottom .b_start {
+  order: 1 !important;
+}
+
+.ejs_virtualGamepad_bottom .b_select {
+  order: 2 !important;
+}
+
+.ejs_virtualGamepad_bottom .b_start,
+.ejs_virtualGamepad_bottom .b_select {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: 66px !important;
+  height: 25px !important;
+  line-height: 23px !important;
+  padding: 0 !important;
+  font-size: 11px !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.8px !important;
+  text-transform: uppercase !important;
+  color: #e2e8f0 !important;
+  background: rgba(18, 20, 26, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  border-radius: 5px !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6) !important;
+  pointer-events: auto !important;
+  text-align: center !important;
+  outline: none !important;
+  transition: all 0.12s ease !important;
+}
+
+.ejs_virtualGamepad_bottom .b_start:active,
+.ejs_virtualGamepad_bottom .b_select:active,
+.ejs_virtualGamepad_bottom .b_start.ejs_virtualGamepad_button_down,
+.ejs_virtualGamepad_bottom .b_select.ejs_virtualGamepad_button_down {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.7) !important;
+  transform: scale(0.95) !important;
+}
+
+/* Oculta completamente botões de velocidade (Rápido, Lento, Rewind) */
+.ejs_virtualGamepad_bottom > *:not(.b_start):not(.b_select),
+.b_speed_fast,
+.b_speed_slow,
+.b_speed_rewind,
+.ejs_speed,
+[class*="speed"] {
+  display: none !important;
+}
+
+/* 7. Gatilhos L e R nas Laterais (Meia-Altura) com Texto L e R Autênticos */
+.ejs_virtualGamepad_button.b_l,
+.ejs_virtualGamepad_button.b_r {
+  position: fixed !important;
+  top: 48% !important;
+  transform: translateY(-50%) !important;
+  width: 66px !important;
+  height: 32px !important;
+  line-height: 29px !important;
+  padding: 0 !important;
+  font-size: 0 !important;
+  background: rgba(22, 25, 33, 0.78) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  text-align: center !important;
+  z-index: 999999 !important;
+  transition: transform 0.08s ease, background 0.08s ease !important;
+}
+
+.ejs_virtualGamepad_button.b_l {
+  left: 0 !important;
+  right: auto !important;
+  border-left: none !important;
+  border-radius: 0 15px 15px 0 !important;
+}
+
+.ejs_virtualGamepad_button.b_l::after {
+  content: 'L' !important;
+  font-size: 14px !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-weight: 900 !important;
+  color: rgba(255, 255, 255, 0.38) !important;
+  line-height: 30px !important;
+  display: block !important;
+}
+
+.ejs_virtualGamepad_button.b_r {
+  right: 0 !important;
+  left: auto !important;
+  border-right: none !important;
+  border-radius: 15px 0 0 15px !important;
+}
+
+.ejs_virtualGamepad_button.b_r::after {
+  content: 'R' !important;
+  font-size: 14px !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-weight: 900 !important;
+  color: rgba(255, 255, 255, 0.38) !important;
+  line-height: 30px !important;
+  display: block !important;
+}
+
+.ejs_virtualGamepad_button.b_l:active,
+.ejs_virtualGamepad_button.b_r:active,
+.ejs_virtualGamepad_button.b_l.ejs_virtualGamepad_button_down,
+.ejs_virtualGamepad_button.b_r.ejs_virtualGamepad_button_down {
+  background: rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-50%) scale(0.95) !important;
+}
+.ejs_virtualGamepad_button.b_l:active::after,
+.ejs_virtualGamepad_button.b_r:active::after {
+  color: #ffffff !important;
+}
+
+/* 8. D-Pad Super Nintendo: Disco Circular e Cruz 3D com Pivô Central */
 .ejs_virtualGamepad_left {
   position: absolute !important;
-  bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
-  left: max(8px, env(safe-area-inset-left, 8px)) !important;
-  width: 124px !important;
-  height: 124px !important;
+  bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
+  left: max(10px, env(safe-area-inset-left, 10px)) !important;
+  width: 154px !important;
+  height: 154px !important;
   z-index: 999999 !important;
 }
 
 .ejs_dpad_main {
-  width: 124px !important;
-  height: 124px !important;
+  width: 154px !important;
+  height: 154px !important;
   position: relative !important;
-  opacity: 1 !important;
-  filter: drop-shadow(0 0 1.2px rgba(255, 255, 255, 0.48)) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.6)) !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle at center, #232733 0%, #151821 65%, #0d0f15 100%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.ejs_dpad_main::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  border-radius: 50% !important;
+  background: conic-gradient(
+    transparent 43deg, rgba(255, 255, 255, 0.12) 45deg, transparent 47deg,
+    transparent 133deg, rgba(255, 255, 255, 0.12) 135deg, transparent 137deg,
+    transparent 223deg, rgba(255, 255, 255, 0.12) 225deg, transparent 227deg,
+    transparent 313deg, rgba(255, 255, 255, 0.12) 315deg, transparent 317deg
+  ) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
 }
 
 .ejs_dpad_vertical,
 .ejs_dpad_horizontal {
-  background: rgba(28, 35, 49, 0.72) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  background: #111319 !important;
   border: none !important;
-  border-radius: 8px !important;
-  box-shadow: none !important;
+  border-radius: 6px !important;
+  box-shadow: inset 1.5px 1.5px 1px rgba(255, 255, 255, 0.22), inset -1.5px -1.5px 2px rgba(0, 0, 0, 0.9) !important;
   overflow: visible !important;
   position: absolute !important;
+  z-index: 2 !important;
 }
 
 .ejs_dpad_vertical {
-  width: 38px !important;
-  height: 124px !important;
-  left: 43px !important;
-  top: 0 !important;
+  width: 42px !important;
+  height: 120px !important;
+  left: 56px !important;
+  top: 17px !important;
   transform: none !important;
 }
 
 .ejs_dpad_horizontal {
-  width: 124px !important;
-  height: 38px !important;
-  left: 0 !important;
-  top: 43px !important;
+  width: 120px !important;
+  height: 42px !important;
+  left: 17px !important;
+  top: 56px !important;
   transform: none !important;
 }
 
@@ -876,310 +1215,181 @@ canvas.ejs_canvas {
   display: none !important;
 }
 
-/* Setas gravadas no D-Pad */
-.ejs_dpad_vertical::before {
-  content: "\25B2" !important;
+.ejs_dpad_main::after {
+  content: '' !important;
   position: absolute !important;
-  top: 6px !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle, #0b0c10 0%, #171922 100%) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.95), 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+  z-index: 5 !important;
+  pointer-events: none !important;
+}
+
+.ejs_dpad_vertical::before {
+  content: "▲" !important;
+  position: absolute !important;
+  top: 5px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  width: auto !important;
-  height: auto !important;
-  border: none !important;
-  color: rgba(255, 255, 255, 0.75) !important;
-  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 11px !important;
   line-height: 1 !important;
-  z-index: 2 !important;
+  z-index: 3 !important;
 }
 
 .ejs_dpad_vertical::after {
-  content: "\25BC" !important;
+  content: "▼" !important;
   position: absolute !important;
-  bottom: 6px !important;
+  bottom: 5px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  width: auto !important;
-  height: auto !important;
-  border: none !important;
-  color: rgba(255, 255, 255, 0.75) !important;
-  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 11px !important;
   line-height: 1 !important;
-  z-index: 2 !important;
+  z-index: 3 !important;
 }
 
 .ejs_dpad_horizontal::before {
-  content: "\25C0" !important;
+  content: "◄" !important;
   position: absolute !important;
-  left: 6px !important;
+  left: 5px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  width: auto !important;
-  height: auto !important;
-  border: none !important;
-  color: rgba(255, 255, 255, 0.75) !important;
-  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 11px !important;
   line-height: 1 !important;
-  z-index: 2 !important;
+  z-index: 3 !important;
 }
 
 .ejs_dpad_horizontal::after {
-  content: "\25B6" !important;
+  content: "►" !important;
   position: absolute !important;
-  right: 6px !important;
+  right: 5px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  width: auto !important;
-  height: auto !important;
-  border: none !important;
-  color: rgba(255, 255, 255, 0.75) !important;
-  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 11px !important;
   line-height: 1 !important;
-  z-index: 2 !important;
+  z-index: 3 !important;
 }
 
-/* Feedback visual ao pressionar */
 .ejs_dpad_up_pressed .ejs_dpad_vertical {
-  background: rgba(45, 55, 75, 0.9) !important;
+  background: #252a38 !important;
 }
-.ejs_dpad_up_pressed .ejs_dpad_vertical::before {
-  color: #ffffff !important;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 15px #00f0ff !important;
-}
-
 .ejs_dpad_down_pressed .ejs_dpad_vertical {
-  background: rgba(45, 55, 75, 0.9) !important;
+  background: #252a38 !important;
 }
-.ejs_dpad_down_pressed .ejs_dpad_vertical::after {
-  color: #ffffff !important;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 15px #00f0ff !important;
-}
-
 .ejs_dpad_left_pressed .ejs_dpad_horizontal {
-  background: rgba(45, 55, 75, 0.9) !important;
+  background: #252a38 !important;
 }
-.ejs_dpad_left_pressed .ejs_dpad_horizontal::before {
-  color: #ffffff !important;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 15px #00f0ff !important;
-}
-
 .ejs_dpad_right_pressed .ejs_dpad_horizontal {
-  background: rgba(45, 55, 75, 0.9) !important;
-}
-.ejs_dpad_right_pressed .ejs_dpad_horizontal::after {
-  color: #ffffff !important;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 15px #00f0ff !important;
+  background: #252a38 !important;
 }
 
-/* 4. Botoes de Acao (Y, X, B, A) mais Proximos da Margem Direita e Espacamento Otimizado */
+/* 9. Botões de Ação Super Nintendo (Cápsula Inclinada + 4 Cores Autênticas: X, Y, A, B) */
 .ejs_virtualGamepad_right {
   position: absolute !important;
-  bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
-  right: max(8px, env(safe-area-inset-right, 8px)) !important;
-  width: 148px !important;
-  height: 148px !important;
+  bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
+  right: max(12px, env(safe-area-inset-right, 12px)) !important;
+  width: 156px !important;
+  height: 156px !important;
   z-index: 999999 !important;
 }
 
+.ejs_virtualGamepad_right::before {
+  content: '' !important;
+  position: absolute !important;
+  width: 160px !important;
+  height: 104px !important;
+  top: 26px !important;
+  left: -2px !important;
+  background: rgba(40, 44, 56, 0.72) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+  border-radius: 52px !important;
+  transform: rotate(-38deg) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
 .ejs_virtualGamepad_button {
-  width: 46px !important;
-  height: 46px !important;
-  line-height: 42px !important;
+  width: 48px !important;
+  height: 48px !important;
+  line-height: 44px !important;
   text-align: center !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background: rgba(25, 32, 46, 0.68) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.42) !important;
   border-radius: 50% !important;
-  color: #ffffff !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
-  font-size: 18px !important;
-  font-weight: 700 !important;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
-  transition: transform 0.08s ease, background 0.08s ease !important;
+  border: none !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 21px !important;
+  font-weight: 900 !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.65), inset 0 2.5px 3px rgba(255, 255, 255, 0.55), inset 0 -2.5px 3px rgba(0, 0, 0, 0.45) !important;
+  transition: transform 0.06s ease, filter 0.06s ease !important;
+  z-index: 10 !important;
+  cursor: pointer !important;
 }
 
 .ejs_virtualGamepad_button:active,
 .ejs_virtualGamepad_button_down {
-  background: rgba(255, 255, 255, 0.3) !important;
-  border-color: #ffffff !important;
-  color: #ffffff !important;
   transform: scale(0.92) !important;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7), inset 0 3px 6px rgba(0, 0, 0, 0.6) !important;
+  filter: brightness(0.88) !important;
 }
 
-/* Diamante Compacto e Acolhedor - Botao Y recuado da tela do jogo */
+/* X - Azul (Topo) */
 .ejs_virtualGamepad_button.b_x {
   position: absolute !important;
-  top: 5px !important;
-  left: 51px !important;
+  top: 6px !important;
+  left: 54px !important;
   right: auto !important;
   bottom: auto !important;
+  background: radial-gradient(circle at 35% 30%, #3584e4 0%, #1c71d8 55%, #1a5fb4 100%) !important;
+  color: #0b2247 !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.35) !important;
 }
 
-.ejs_virtualGamepad_button.b_b {
-  position: absolute !important;
-  top: 97px !important;
-  left: 51px !important;
-  right: auto !important;
-  bottom: auto !important;
-}
-
+/* Y - Verde (Esquerda) */
 .ejs_virtualGamepad_button.b_y {
   position: absolute !important;
-  top: 51px !important;
-  left: 5px !important;
+  top: 54px !important;
+  left: 6px !important;
   right: auto !important;
   bottom: auto !important;
+  background: radial-gradient(circle at 35% 30%, #57e389 0%, #33d17a 55%, #26a269 100%) !important;
+  color: #0c381c !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.35) !important;
 }
 
+/* A - Vermelho (Direita) */
 .ejs_virtualGamepad_button.b_a {
   position: absolute !important;
-  top: 51px !important;
-  left: 97px !important;
+  top: 54px !important;
+  left: 102px !important;
   right: auto !important;
   bottom: auto !important;
+  background: radial-gradient(circle at 35% 30%, #f66151 0%, #e01b24 55%, #a51d2d 100%) !important;
+  color: #44070a !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.35) !important;
 }
 
-/* 5. Botoes Select e Start 100% Centralizados no Rodape (Abaixo da tela do jogo, sem cobrir nada) */
-.ejs_virtualGamepad_bottom {
-  position: fixed !important;
-  bottom: 8px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  width: auto !important;
-  height: 28px !important;
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 14px !important;
-  z-index: 999999 !important;
-  pointer-events: none !important;
-}
-
-.ejs_virtualGamepad_bottom .b_select {
-  order: 1 !important;
-}
-
-.ejs_virtualGamepad_bottom .b_start {
-  order: 2 !important;
-}
-
-.ejs_virtualGamepad_bottom .b_select,
-.ejs_virtualGamepad_bottom .b_start {
-  position: static !important;
-  top: auto !important;
-  left: auto !important;
+/* B - Amarelo (Baixo) */
+.ejs_virtualGamepad_button.b_b {
+  position: absolute !important;
+  top: 102px !important;
+  left: 54px !important;
   right: auto !important;
   bottom: auto !important;
-  width: auto !important;
-  min-width: 68px !important;
-  height: 26px !important;
-  line-height: 24px !important;
-  padding: 0 12px !important;
-  font-size: 11px !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.5px !important;
-  color: #ffffff !important;
-  background: rgba(25, 32, 46, 0.72) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.42) !important;
-  border-radius: 6px !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
-  pointer-events: auto !important;
-  text-align: center !important;
+  background: radial-gradient(circle at 35% 30%, #f9f06b 0%, #f6d32d 55%, #e5a50a 100%) !important;
+  color: #573a00 !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4) !important;
 }
 
-.b_speed_fast,
-.b_speed_slow,
-.b_speed_rewind {
-  display: none !important;
-}
-
-/* 6. Botoes L e R (Gatilhos ESQ e DIR) Estilo Capsula Transparente nas Extremidades */
-.ejs_virtualGamepad_button.b_l,
-.ejs_virtualGamepad_button.b_r {
-  position: fixed !important;
-  width: auto !important;
-  min-width: 58px !important;
-  height: 32px !important;
-  line-height: 30px !important;
-  padding: 0 14px !important;
-  font-size: 11px !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  font-weight: 800 !important;
-  border-radius: 8px !important;
-  background: rgba(25, 32, 46, 0.68) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.42) !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  text-align: center !important;
-}
-
-.ejs_virtualGamepad_button.b_l {
-  top: max(10px, env(safe-area-inset-top, 10px)) !important;
-  left: max(8px, env(safe-area-inset-left, 8px)) !important;
-  right: auto !important;
-}
-
-.ejs_virtualGamepad_button.b_r {
-  top: max(10px, env(safe-area-inset-top, 10px)) !important;
-  right: max(8px, env(safe-area-inset-right, 8px)) !important;
-  left: auto !important;
-}
-
-/* 7. Botao Sair e 3 Barrinhas no Topo Direito (Dispostos Lado a Lado sem Sobreposicao) */
-.btn-floating-exit {
-  position: fixed !important;
-  top: max(10px, env(safe-area-inset-top, 10px)) !important;
-  right: calc(max(8px, env(safe-area-inset-right, 8px)) + 66px) !important;
-  height: 32px !important;
-  padding: 0 12px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-  font-family: 'Outfit', sans-serif !important;
-  font-size: 0.8rem !important;
-  font-weight: 800 !important;
-  color: #fff !important;
-  background: rgba(25, 32, 46, 0.75) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.42) !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
-  backdrop-filter: blur(8px) !important;
-  z-index: 999999 !important;
-  cursor: pointer !important;
-  pointer-events: auto !important;
-}
-
-.ejs_virtualGamepad_open {
-  position: fixed !important;
-  top: max(10px, env(safe-area-inset-top, 10px)) !important;
-  right: calc(max(8px, env(safe-area-inset-right, 8px)) + 146px) !important;
-  width: 34px !important;
-  height: 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: rgba(25, 32, 46, 0.75) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.42) !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
-  backdrop-filter: blur(8px) !important;
-  z-index: 999999 !important;
-  cursor: pointer !important;
-  pointer-events: auto !important;
-}
-
-.ejs_virtualGamepad_open svg {
-  width: 18px !important;
-  height: 18px !important;
-  fill: #ffffff !important;
-}

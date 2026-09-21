@@ -1,3 +1,69 @@
+
+function setupRetroGamepadEnhancements() {
+  const parentGamepad = document.querySelector('.ejs_virtualGamepad_parent');
+  if (!parentGamepad) return;
+
+  // 1. Garante que os botoes OPTION e EXIT estejam dentro da camada do controle virtual
+  let retroNav = document.getElementById('retro-nav-left');
+  if (!retroNav) {
+    retroNav = document.createElement('div');
+    retroNav.id = 'retro-nav-left';
+    retroNav.className = 'retro-nav-left';
+    retroNav.innerHTML = `
+      <button id="btn-retro-option" class="btn-retro-pill" title="Configurações do Emulador">OPTION</button>
+      <button id="btn-retro-exit" class="btn-retro-pill" title="Voltar para a Loja">EXIT</button>
+    `;
+    parentGamepad.appendChild(retroNav);
+  } else if (!parentGamepad.contains(retroNav)) {
+    parentGamepad.appendChild(retroNav);
+  }
+
+  // Configura listeners dos botoes OPTION e EXIT
+  const optBtn = document.getElementById('btn-retro-option');
+  if (optBtn && !optBtn.dataset.bound) {
+    optBtn.dataset.bound = 'true';
+    optBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (window.EJS_emulator && window.EJS_emulator.menu) {
+        window.EJS_emulator.menu.toggle();
+      } else {
+        const menuOpen = document.querySelector('.ejs_virtualGamepad_open') || document.querySelector('.ejs_menu_toggle');
+        if (menuOpen) menuOpen.click();
+      }
+    });
+  }
+
+  const exitBtn = document.getElementById('btn-retro-exit');
+  if (exitBtn && !exitBtn.dataset.bound) {
+    exitBtn.dataset.bound = 'true';
+    exitBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.href = 'index.html';
+    });
+  }
+
+  // 2. Remove botoes de velocidade indesejados (ex: Rapido / Speed)
+  const speedElements = document.querySelectorAll('.b_speed_fast, .b_speed_slow, .b_speed_rewind, [class*="speed"], .ejs_speed');
+  speedElements.forEach(el => el.remove());
+
+  // 3. Ajusta os textos de START e SELECT para caixa alta
+  const startBtn = document.querySelector('.b_start');
+  if (startBtn) startBtn.textContent = 'START';
+  const selectBtn = document.querySelector('.b_select');
+  if (selectBtn) selectBtn.textContent = 'SELECT';
+
+  // 4. Ajusta os gatilhos para L e R
+  const lBtn = document.querySelector('.b_l');
+  if (lBtn) lBtn.textContent = 'L';
+  const rBtn = document.querySelector('.b_r');
+  if (bR) rBtn.textContent = 'R';
+
+  // 5. Oculta barra de ferramentas inferior nativa se aberta
+  const controlBar = document.querySelector('.ejs_control_bar');
+  if (controlBar) controlBar.style.display = 'none';
+}
+
 ﻿/**
  * RetroNFC.com.br — Player Script (play.html) v2.0
  * Leitor de Parâmetros NFC, Inicializador do EmulatorJS e Controles Virtuais
@@ -294,7 +360,7 @@ if (typeof GAMES_DATABASE !== 'undefined') {
 }
 
 let currentGame = null;
-let crtActive = true;
+let crtActive = false;
 
 
 function isMobileOrSimulator() {
@@ -843,3 +909,37 @@ window.addEventListener('orientationchange', () => {
 });
 document.addEventListener('DOMContentLoaded', syncRealViewportHeight);
 syncRealViewportHeight();
+
+
+// Conexao dos Botoes OPTION e EXIT do layout Super Nintendo (v13.0)
+document.addEventListener('DOMContentLoaded', () => {
+  const optBtn = document.getElementById('btn-retro-option');
+  if (optBtn) {
+    optBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Abre o menu de configuracoes do EmulatorJS
+      if (window.EJS_emulator && window.EJS_emulator.menu) {
+        window.EJS_emulator.menu.toggle();
+      } else {
+        const menuOpen = document.querySelector('.ejs_virtualGamepad_open') || document.querySelector('.ejs_menu_toggle');
+        if (menuOpen) menuOpen.click();
+      }
+    });
+  }
+
+  const exitBtn = document.getElementById('btn-retro-exit');
+  if (exitBtn) {
+    exitBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.href = 'index.html';
+    });
+  }
+
+  // Tenta travar a orientacao em paisagem caso a API seja suportada
+  try {
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('landscape').catch(() => {});
+    }
+  } catch (e) {}
+});
