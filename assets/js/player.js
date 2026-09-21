@@ -1,4 +1,4 @@
-function setupRetroGamepadEnhancements() {
+﻿﻿function setupRetroGamepadEnhancements() {
   const parentGamepad = document.querySelector('.ejs_virtualGamepad_parent');
   let retroNav = document.getElementById('retro-nav-left');
 
@@ -73,6 +73,119 @@ function setupRetroGamepadEnhancements() {
   if (lBtn && lBtn.textContent !== 'L') lBtn.textContent = 'L';
   const rBtn = document.querySelector('.b_r');
   if (rBtn && rBtn.textContent !== 'R') rBtn.textContent = 'R';
+
+  // Ajustes por console (Genesis, Arcade)
+  const currentConsole = document.body.dataset.console || 'snes';
+
+  // MEGA DRIVE / SEGA GENESIS: 6 botoes em 2 fileiras X Y Z / A B C
+  if (currentConsole === 'segaMD') {
+    const vgRight = document.querySelector('.ejs_virtualGamepad_right');
+    if (vgRight && !vgRight.dataset.genesisLayout) {
+      vgRight.dataset.genesisLayout = '1';
+      vgRight.style.setProperty('width', '230px', 'important');
+      vgRight.style.setProperty('height', '160px', 'important');
+    }
+    const btnsList = document.querySelectorAll('.ejs_virtualGamepad_button');
+    let btnX = null, btnY = null, btnZ = null, btnA = null, btnB = null, btnC = null;
+    btnsList.forEach(function(b) {
+      if (b.classList.contains('b_x')) btnX = b;
+      else if (b.classList.contains('b_y')) btnY = b;
+      else if (b.classList.contains('b_z')) btnZ = b;
+      else if (b.classList.contains('b_a')) btnA = b;
+      else if (b.classList.contains('b_b')) btnB = b;
+      else if (b.classList.contains('b_c')) btnC = b;
+    });
+    function styleGenesisBtn(btn, top, left, label, bg, textColor) {
+      if (!btn) return;
+      btn.style.setProperty('position', 'absolute', 'important');
+      btn.style.setProperty('top', top + 'px', 'important');
+      btn.style.setProperty('left', left + 'px', 'important');
+      btn.style.setProperty('right', 'auto', 'important');
+      btn.style.setProperty('bottom', 'auto', 'important');
+      btn.style.setProperty('width', '46px', 'important');
+      btn.style.setProperty('height', '46px', 'important');
+      btn.style.setProperty('line-height', '46px', 'important');
+      btn.style.setProperty('font-size', '15px', 'important');
+      btn.style.setProperty('font-weight', '900', 'important');
+      btn.style.setProperty('border-radius', '50%', 'important');
+      btn.style.setProperty('background', bg, 'important');
+      btn.style.setProperty('color', textColor, 'important');
+      btn.style.setProperty('box-shadow', '0 5px 14px rgba(0,0,0,0.65), inset 0 3px 3px rgba(255,255,255,0.5), inset 0 -3px 3px rgba(0,0,0,0.4)', 'important');
+      if (btn.textContent !== label) btn.textContent = label;
+    }
+    styleGenesisBtn(btnX, 6,  12,  'X', 'radial-gradient(circle at 35% 30%, #5e97d8 0%, #3584e4 55%, #1c71d8 100%)', '#0b2247');
+    styleGenesisBtn(btnY, 6,  72,  'Y', 'radial-gradient(circle at 35% 30%, #57e389 0%, #33d17a 55%, #26a269 100%)', '#0c381c');
+    styleGenesisBtn(btnZ, 6,  132, 'Z', 'radial-gradient(circle at 35% 30%, #f9f06b 0%, #f6d32d 55%, #e5a50a 100%)', '#573a00');
+    styleGenesisBtn(btnA, 76, 12,  'A', 'radial-gradient(circle at 35% 30%, #f66151 0%, #e01b24 55%, #a51d2d 100%)', '#44070a');
+    styleGenesisBtn(btnB, 76, 72,  'B', 'radial-gradient(circle at 35% 30%, #c061cb 0%, #9141ac 55%, #613583 100%)', '#2a0a3d');
+    styleGenesisBtn(btnC, 76, 132, 'C', 'radial-gradient(circle at 35% 30%, #ff8c5a 0%, #e66100 55%, #b04b00 100%)', '#3d1600');
+  }
+
+  // ARCADE (Neo Geo / MAME): botoes A,B,C,D + joystick funcional
+  if (currentConsole === 'arcade') {
+    var arcMap = [
+      { sel: '.b_y', label: 'A', bg: 'radial-gradient(circle at 35% 30%, #f66151 0%, #e01b24 55%, #a51d2d 100%)', color: '#44070a' },
+      { sel: '.b_b', label: 'B', bg: 'radial-gradient(circle at 35% 30%, #f9f06b 0%, #f6d32d 55%, #e5a50a 100%)', color: '#573a00' },
+      { sel: '.b_x', label: 'C', bg: 'radial-gradient(circle at 35% 30%, #57e389 0%, #33d17a 55%, #26a269 100%)', color: '#0c381c' },
+      { sel: '.b_a', label: 'D', bg: 'radial-gradient(circle at 35% 30%, #5e97d8 0%, #3584e4 55%, #1c71d8 100%)', color: '#0b2247' }
+    ];
+    arcMap.forEach(function(m) {
+      var btn = document.querySelector('.ejs_virtualGamepad_button' + m.sel);
+      if (!btn) return;
+      if (btn.textContent !== m.label) btn.textContent = m.label;
+      btn.style.setProperty('background', m.bg, 'important');
+      btn.style.setProperty('color', m.color, 'important');
+    });
+
+    var joyCont = document.querySelector('.ejs_virtualGamepad_left');
+    if (joyCont && !joyCont.dataset.joystickFixed) {
+      joyCont.dataset.joystickFixed = '1';
+      joyCont.style.setProperty('touch-action', 'none', 'important');
+      joyCont.style.setProperty('pointer-events', 'auto', 'important');
+      var joyBall = joyCont.querySelector('.ejs_joystick_ball') || joyCont.querySelector('.b_joystick_0') || joyCont;
+      if (joyBall !== joyCont) {
+        joyBall.style.setProperty('touch-action', 'none', 'important');
+        joyBall.style.setProperty('pointer-events', 'auto', 'important');
+        joyBall.style.setProperty('transition', 'transform 0.05s ease', 'important');
+      }
+      function joyCenter() {
+        var r = joyCont.getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+      }
+      function sendKey(key, down) {
+        var t = down ? 'keydown' : 'keyup';
+        document.dispatchEvent(new KeyboardEvent(t, { key: key, bubbles: true, cancelable: true }));
+        window.dispatchEvent(new KeyboardEvent(t, { key: key, bubbles: true, cancelable: true }));
+      }
+      var joyState = { up: false, down: false, left: false, right: false };
+      function joyMove(cx, cy) {
+        var c = joyCenter(); var dx = cx - c.x; var dy = cy - c.y; var dead = 16;
+        var up = dy < -dead; var dn = dy > dead; var lf = dx < -dead; var rt = dx > dead;
+        if (up !== joyState.up)    { sendKey('ArrowUp',    up); joyState.up    = up; }
+        if (dn !== joyState.down)  { sendKey('ArrowDown',  dn); joyState.down  = dn; }
+        if (lf !== joyState.left)  { sendKey('ArrowLeft',  lf); joyState.left  = lf; }
+        if (rt !== joyState.right) { sendKey('ArrowRight', rt); joyState.right = rt; }
+        var max = 36;
+        joyBall.style.setProperty('transform', 'translate(' + Math.max(-max,Math.min(max,dx)) + 'px,' + Math.max(-max,Math.min(max,dy)) + 'px)', 'important');
+      }
+      function joyEnd() {
+        joyBall.style.setProperty('transform', 'translate(0px,0px)', 'important');
+        if (joyState.up)    { sendKey('ArrowUp',    false); joyState.up    = false; }
+        if (joyState.down)  { sendKey('ArrowDown',  false); joyState.down  = false; }
+        if (joyState.left)  { sendKey('ArrowLeft',  false); joyState.left  = false; }
+        if (joyState.right) { sendKey('ArrowRight', false); joyState.right = false; }
+      }
+      joyCont.addEventListener('touchstart',  function(e) { e.preventDefault(); }, { passive: false });
+      joyCont.addEventListener('touchmove',   function(e) { e.preventDefault(); var t = e.touches[0]; joyMove(t.clientX, t.clientY); }, { passive: false });
+      joyCont.addEventListener('touchend',    function() { joyEnd(); }, { passive: false });
+      joyCont.addEventListener('touchcancel', function() { joyEnd(); }, { passive: false });
+      var pDown = false;
+      joyCont.addEventListener('pointerdown', function(e) { e.preventDefault(); pDown = true; try { joyCont.setPointerCapture(e.pointerId); } catch(err) {} joyMove(e.clientX, e.clientY); });
+      joyCont.addEventListener('pointermove', function(e) { if (!pDown) return; e.preventDefault(); joyMove(e.clientX, e.clientY); });
+      joyCont.addEventListener('pointerup',     function() { pDown = false; joyEnd(); });
+      joyCont.addEventListener('pointercancel', function() { pDown = false; joyEnd(); });
+    }
+  }
 }
 
 
@@ -724,6 +837,8 @@ function loadEmulatorEngine(game) {
   if (targetCore === 'fba' || targetCore === 'neogeo' || targetCore === 'fbneo') {
     targetCore = 'arcade';
   }
+  // Marca o console no body para CSS scoping por console
+  document.body.dataset.console = game.console || 'snes';
   window.EJS_core = targetCore;
   window.EJS_gameUrl = absoluteRomUrl;
   window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';

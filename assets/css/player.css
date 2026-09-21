@@ -1439,3 +1439,108 @@ canvas.ejs_canvas {
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4) !important;
 }
 
+
+
+/* ============================================================
+   MEGA DRIVE / SEGA GENESIS - Layout 6 Botoes (X Y Z / A B C)
+   Isolado por body[data-console="segaMD"]
+   ============================================================ */
+
+body[data-console="segaMD"] .ejs_virtualGamepad_right {
+  width: 230px !important;
+  height: 160px !important;
+}
+
+/* Capsula inclinada Genesis */
+body[data-console="segaMD"] .ejs_virtualGamepad_right::before {
+  width: 226px !important;
+  height: 138px !important;
+  top: 10px !important;
+  left: 0px !important;
+  background: rgba(28, 32, 44, 0.78) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  border-radius: 22px !important;
+  transform: none !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Todos os botoes Genesis: override de posicao para 46px circular */
+body[data-console="segaMD"] .ejs_virtualGamepad_button {
+  width: 46px !important;
+  height: 46px !important;
+  line-height: 46px !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.65), inset 0 3px 3px rgba(255, 255, 255, 0.5), inset 0 -3px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Override das posicoes SNES para Genesis (serao sobrepostos pelo JS) */
+body[data-console="segaMD"] .ejs_virtualGamepad_button.b_x {
+  top: 6px !important;
+  left: 12px !important;
+  background: radial-gradient(circle at 35% 30%, #5e97d8 0%, #3584e4 55%, #1c71d8 100%) !important;
+  color: #0b2247 !important;
+}
+body[data-console="segaMD"] .ejs_virtualGamepad_button.b_y {
+  top: 6px !important;
+  left: 72px !important;
+  background: radial-gradient(circle at 35% 30%, #57e389 0%, #33d17a 55%, #26a269 100%) !important;
+  color: #0c381c !important;
+}
+body[data-console="segaMD"] .ejs_virtualGamepad_button.b_a {
+  top: 76px !important;
+  left: 12px !important;
+  background: radial-gradient(circle at 35% 30%, #f66151 0%, #e01b24 55%, #a51d2d 100%) !important;
+  color: #44070a !important;
+}
+body[data-console="segaMD"] .ejs_virtualGamepad_button.b_b {
+  top: 76px !important;
+  left: 72px !important;
+  background: radial-gradient(circle at 35% 30%, #c061cb 0%, #9141ac 55%, #613583 100%) !important;
+  color: #2a0a3d !important;
+}
+
+/* ============================================================
+   ARCADE (Neo Geo / MAME / Capcom)
+   Isolado por body[data-console="arcade"]
+   ============================================================ */
+
+/* Joystick container: touch-action none para receber touch */
+body[data-console="arcade"] .ejs_virtualGamepad_left {
+  touch-action: none !important;
+  pointer-events: auto !important;
+}
+
+body[data-console="arcade"] .ejs_joystick,
+body[data-console="arcade"] .b_joystick_0 {
+  touch-action: none !important;
+  pointer-events: auto !important;
+  cursor: grab !important;
+}
+
+body[data-console="arcade"] .ejs_joystick_ball {
+  touch-action: none !important;
+  pointer-events: auto !important;
+  transition: transform 0.05s ease !important;
+}
+
+/* Botoes Arcade Neo Geo: 4 botoes com cores canonicas A=Vermelho B=Amarelo C=Verde D=Azul */
+body[data-console="arcade"] .ejs_virtualGamepad_button.b_y {
+  background: radial-gradient(circle at 35% 30%, #f66151 0%, #e01b24 55%, #a51d2d 100%) !important;
+  color: #44070a !important;
+}
+body[data-console="arcade"] .ejs_virtualGamepad_button.b_b {
+  background: radial-gradient(circle at 35% 30%, #f9f06b 0%, #f6d32d 55%, #e5a50a 100%) !important;
+  color: #573a00 !important;
+}
+body[data-console="arcade"] .ejs_virtualGamepad_button.b_x {
+  background: radial-gradient(circle at 35% 30%, #57e389 0%, #33d17a 55%, #26a269 100%) !important;
+  color: #0c381c !important;
+}
+body[data-console="arcade"] .ejs_virtualGamepad_button.b_a {
+  background: radial-gradient(circle at 35% 30%, #5e97d8 0%, #3584e4 55%, #1c71d8 100%) !important;
+  color: #0b2247 !important;
+}
