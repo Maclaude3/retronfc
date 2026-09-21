@@ -445,7 +445,7 @@ function checkAdminTestAccess() {
     }
   } catch (e) {}
 
-  return isAdminParam && isAdminSession;
+  return isAdminParam && (isAdminSession || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 }
 
 function showAdminTestBadge(gameTitle) {
@@ -809,3 +809,22 @@ function bootFromLocalFile(input, consoleCore) {
   script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
   document.body.appendChild(script);
 }
+
+// Sincronizacao Dinamica de Viewport para iOS Safari e Android
+function syncRealViewportHeight() {
+  const vh = window.innerHeight;
+  document.documentElement.style.setProperty('--real-vh', `${vh}px`);
+  const viewport = document.getElementById('player-viewport');
+  if (viewport) {
+    viewport.style.height = `${vh}px`;
+  }
+}
+window.addEventListener('resize', syncRealViewportHeight);
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    syncRealViewportHeight();
+    window.dispatchEvent(new Event('resize'));
+  }, 200);
+});
+document.addEventListener('DOMContentLoaded', syncRealViewportHeight);
+syncRealViewportHeight();
