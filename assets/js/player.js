@@ -22,6 +22,7 @@ const MULTIPLAYER_GAMES_SUPPORTED = {
 };
 
 let currentMpRoomCode = '';
+let currentGameKey = null;
 
 function generateRandomRoomCode() {
   return String(Math.floor(1000 + Math.random() * 9000));
@@ -574,6 +575,12 @@ const GAMES_MAP = {
   }
 };
 
+// Garante que todo jogo no GAMES_MAP possui romParam e id definidos
+for (const [k, v] of Object.entries(GAMES_MAP)) {
+  if (!v.romParam) v.romParam = k;
+  if (!v.id) v.id = k;
+}
+
 // Sincroniza automaticamente com o Mega Catálogo (games-data.js)
 if (typeof GAMES_DATABASE !== 'undefined') {
   GAMES_DATABASE.forEach(g => {
@@ -814,6 +821,7 @@ async function parseUrlAndBoot() {
 
   // Sanitiza a chave do jogo recebida na URL
   gameKey = resolveGameKey(gameKey);
+  currentGameKey = gameKey;
 
   // Se for o Administrador testando a partir do painel
   if (isAdministrator) {
@@ -904,6 +912,10 @@ function bootGame(game) {
 function showStartPrompt(game) {
   const loader = document.getElementById('nfc-loader');
   const statusText = document.getElementById('loader-status-text');
+  const subtext = document.querySelector('.loader-subtext');
+  const progressWrap = document.querySelector('.progress-bar-wrap');
+  if (subtext) subtext.style.display = 'none';
+  if (progressWrap) progressWrap.style.display = 'none';
   const resolvedKey = resolveGameKey(game?.romParam || game?.id || currentGameKey);
   const isMultiplayerGame = !!MULTIPLAYER_GAMES_SUPPORTED[resolvedKey];
   const hasInvitedRoom = !!currentMpRoomCode;
