@@ -1,3 +1,104 @@
+
+// ==========================================================================
+// ⚔️ RETRONFC MULTIPLAYER ONLINE (NETPLAY WEBRTC 2 PLAYERS)
+// ==========================================================================
+const MULTIPLAYER_GAMES_SUPPORTED = {
+  'kof_2002': { id: 102, name: 'The King of Fighters 2002', type: 'Versus 1v1 (Luta)' },
+  'kof2002': { id: 102, name: 'The King of Fighters 2002', type: 'Versus 1v1 (Luta)' },
+  'kof_98': { id: 103, name: 'The King of Fighters 98', type: 'Versus 1v1 (Luta)' },
+  'kof98': { id: 103, name: 'The King of Fighters 98', type: 'Versus 1v1 (Luta)' },
+  'metal_slug': { id: 101, name: 'Metal Slug Super Vehicle', type: 'Cooperativo 2P (Arcade)' },
+  'metal_slug_x': { id: 101, name: 'Metal Slug Super Vehicle', type: 'Cooperativo 2P (Arcade)' },
+  'mslug': { id: 101, name: 'Metal Slug Super Vehicle', type: 'Cooperativo 2P (Arcade)' },
+  'street_fighter': { id: 104, name: 'Street Fighter II Turbo', type: 'Versus 1v1 (Luta)' },
+  'sf2': { id: 104, name: 'Street Fighter II Turbo', type: 'Versus 1v1 (Luta)' },
+  'super_mario_kart': { id: 105, name: 'Super Mario Kart', type: 'Corrida e Batalha 1v1' },
+  'top_gear': { id: 106, name: 'Top Gear', type: 'Corrida Tela Dividida 2P' },
+  'cadillacs': { id: 107, name: 'Cadillacs and Dinosaurs', type: 'Cooperativo 2P (Arcade)' },
+  'mortal_kombat_2': { id: 108, name: 'Mortal Kombat II', type: 'Versus 1v1 (Luta)' },
+  'sonic_2': { id: 109, name: 'Sonic the Hedgehog 2', type: 'Versus / Coop 2P' },
+  'streets_of_rage_2': { id: 110, name: 'Streets of Rage 2', type: 'Cooperativo 2P' },
+  'golden_axe': { id: 111, name: 'Golden Axe', type: 'Cooperativo 2P' }
+};
+
+let currentMpRoomCode = '';
+
+function generateRandomRoomCode() {
+  return String(Math.floor(1000 + Math.random() * 9000));
+}
+
+function openMultiplayerModal() {
+  const modal = document.getElementById('multiplayer-lobby-modal');
+  if (!modal) return;
+
+  const resolved = resolveGameKey(currentGame?.romParam || currentGame?.id || currentGameKey || 'kof_2002');
+  const info = MULTIPLAYER_GAMES_SUPPORTED[resolved] || { name: currentGame?.title || 'Jogo Clássico', type: 'Multiplayer 2P' };
+  
+  const displayEl = document.getElementById('mp-game-name-display');
+  if (displayEl) {
+    displayEl.innerHTML = `Jogo: <strong>${info.name}</strong> (${info.type})`;
+  }
+
+  if (!currentMpRoomCode) {
+    currentMpRoomCode = generateRandomRoomCode();
+  }
+
+  const roomDisplay = document.getElementById('mp-room-code-display');
+  if (roomDisplay) {
+    roomDisplay.textContent = `SALA-${currentMpRoomCode}`;
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeMultiplayerModal() {
+  const modal = document.getElementById('multiplayer-lobby-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function shareRoomInviteWhatsApp() {
+  const resolved = resolveGameKey(currentGame?.romParam || currentGame?.id || currentGameKey || 'kof_2002');
+  const title = (MULTIPLAYER_GAMES_SUPPORTED[resolved] && MULTIPLAYER_GAMES_SUPPORTED[resolved].name) ? MULTIPLAYER_GAMES_SUPPORTED[resolved].name : (currentGame?.title || 'RetroNFC');
+  const roomCode = currentMpRoomCode || '8888';
+
+  const inviteUrl = `https://retronfc.com.br/play.html?game=${encodeURIComponent(resolved)}&room=${roomCode}&role=guest`;
+  const msg = `⚔️ *DESAFIO RETRONFC MULTIPLAYER ONLINE!*\n\nBora jogar *${title}* agora comigo de 2 Players no celular?\n\n👉 Clique no link para entrar na minha sala:\n${inviteUrl}\n\nOu abra o jogo e digite o Código da Sala: *SALA-${roomCode}*\n\n⚠️ *Dica:* Ambos precisam ter o RetroPass ativo no aparelho! Bom jogo! 🕹️`;
+
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function startHostGame() {
+  closeMultiplayerModal();
+  const loader = document.getElementById('nfc-loader');
+  if (loader) loader.style.display = 'none';
+
+  // Trava orientação horizontal
+  if (screen.orientation && screen.orientation.lock) {
+    try { screen.orientation.lock('landscape').catch(() => {}); } catch(err) {}
+  }
+
+  loadEmulatorEngine(currentGame, true, 'host', currentMpRoomCode);
+}
+
+function startGuestGame() {
+  const input = document.getElementById('mp-join-room-input');
+  let roomCode = input ? input.value.trim().replace(/[^0-9]/g, '') : '';
+  if (!roomCode) {
+    alert('Por favor, digite o código da sala de 4 dígitos recebido do seu amigo!');
+    return;
+  }
+
+  closeMultiplayerModal();
+  const loader = document.getElementById('nfc-loader');
+  if (loader) loader.style.display = 'none';
+
+  if (screen.orientation && screen.orientation.lock) {
+    try { screen.orientation.lock('landscape').catch(() => {}); } catch(err) {}
+  }
+
+  loadEmulatorEngine(currentGame, true, 'guest', roomCode);
+}
+
 ﻿﻿function setupRetroGamepadEnhancements() {
   const parentGamepad = document.querySelector('.ejs_virtualGamepad_parent');
   let retroNav = document.getElementById('retro-nav-left');
@@ -699,6 +800,14 @@ function showAdminTestBadge(gameTitle) {
 async function parseUrlAndBoot() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get('pass') || params.get('token') || params.get('p');
+  const roomParam = params.get('room');
+  if (roomParam) {
+    currentMpRoomCode = roomParam.replace(/[^0-9]/g, '');
+    setTimeout(() => {
+      const input = document.getElementById('mp-join-room-input');
+      if (input) input.value = currentMpRoomCode;
+    }, 500);
+  }
   let gameKey = params.get('game') || params.get('jogo') || params.get('rom');
 
   const isAdministrator = checkAdminTestAccess();
@@ -795,17 +904,40 @@ function bootGame(game) {
 function showStartPrompt(game) {
   const loader = document.getElementById('nfc-loader');
   const statusText = document.getElementById('loader-status-text');
+  const resolvedKey = resolveGameKey(game?.romParam || game?.id || currentGameKey);
+  const isMultiplayerGame = !!MULTIPLAYER_GAMES_SUPPORTED[resolvedKey];
+  const hasInvitedRoom = !!currentMpRoomCode;
   
   if (statusText) {
     statusText.innerHTML = `
-      <div style="font-size: 1.2rem; color: #67e8f9; font-weight: 800; margin-bottom: 18px; text-shadow: 0 0 15px rgba(0,240,255,0.7);">
+      <div style="font-size: 1.15rem; color: #67e8f9; font-weight: 800; margin-bottom: 16px; text-shadow: 0 0 15px rgba(0,240,255,0.7);">
         🎮 ${game.title} Sincronizado!
       </div>
-      <button id="btn-start-play" class="btn btn-cyan btn-lg" style="font-size: 1.25rem; font-weight: 900; padding: 20px 40px; border-radius: 9999px; background: #00f0ff; color: #05070d; border: 2px solid #fff; box-shadow: 0 0 35px rgba(0, 240, 255, 0.95); cursor: pointer; animation: pulse 1.5s infinite; letter-spacing: 0.5px;">
-        ▶️ TOQUE PARA JOGAR
-      </button>
-      <div style="margin-top: 14px; font-size: 0.85rem; color: #94a3b8;">
-        📱 Abre automaticamente em Tela Cheia com controles touch!
+      ${(isMultiplayerGame && hasInvitedRoom) ? `
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: center; max-width: 380px; margin: 0 auto;">
+          <button id="btn-start-multiplayer" class="btn btn-pink btn-lg" onclick="startGuestGame()" style="width: 100%; font-size: 1.15rem; font-weight: 900; padding: 16px 24px; border-radius: 9999px; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: #fff; border: 2px solid #fbcfe8; box-shadow: 0 0 25px rgba(236, 72, 153, 0.85); cursor: pointer; letter-spacing: 0.5px;">
+            ⚔️ ENTRAR NA SALA DO AMIGO (SALA-${currentMpRoomCode})
+          </button>
+          <button id="btn-start-play" class="btn btn-cyan btn-lg" style="width: 100%; font-size: 1rem; font-weight: 800; padding: 12px 20px; border-radius: 9999px; background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid #00f0ff; cursor: pointer;">
+            ▶️ JOGAR SOLO (1 PLAYER)
+          </button>
+        </div>
+      ` : isMultiplayerGame ? `
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: center; max-width: 380px; margin: 0 auto;">
+          <button id="btn-start-play" class="btn btn-cyan btn-lg" style="width: 100%; font-size: 1.15rem; font-weight: 900; padding: 16px 24px; border-radius: 9999px; background: #00f0ff; color: #05070d; border: 2px solid #fff; box-shadow: 0 0 25px rgba(0, 240, 255, 0.85); cursor: pointer; letter-spacing: 0.5px;">
+            ▶️ JOGAR SOLO (1 PLAYER)
+          </button>
+          <button id="btn-start-multiplayer" class="btn btn-pink btn-lg" onclick="openMultiplayerModal()" style="width: 100%; font-size: 1.15rem; font-weight: 900; padding: 16px 24px; border-radius: 9999px; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: #fff; border: 2px solid #fbcfe8; box-shadow: 0 0 25px rgba(236, 72, 153, 0.85); cursor: pointer; letter-spacing: 0.5px;">
+            ⚔️ JOGAR ONLINE (2 PLAYERS)
+          </button>
+        </div>
+      ` : `
+        <button id="btn-start-play" class="btn btn-cyan btn-lg" style="font-size: 1.25rem; font-weight: 900; padding: 20px 40px; border-radius: 9999px; background: #00f0ff; color: #05070d; border: 2px solid #fff; box-shadow: 0 0 35px rgba(0, 240, 255, 0.95); cursor: pointer; animation: pulse 1.5s infinite; letter-spacing: 0.5px;">
+          ▶️ TOQUE PARA JOGAR
+        </button>
+      `}
+      <div style="margin-top: 14px; font-size: 0.82rem; color: #94a3b8;">
+        📱 Tela Cheia automática com controles touch virtuais!
       </div>
     `;
 
@@ -843,7 +975,7 @@ function showStartPrompt(game) {
 }
 
 // Carregamento Seguro do EmulatorJS com Controles Touch Mobile e Tela Cheia
-function loadEmulatorEngine(game) {
+function loadEmulatorEngine(game, isMultiplayer = false, role = 'solo', roomId = null) {
   const container = document.getElementById('game-container');
   if (container) container.innerHTML = '';
 
@@ -866,6 +998,26 @@ function loadEmulatorEngine(game) {
   }
   window.EJS_gameName = game.title;
   window.EJS_startOnLoaded = true;
+
+  // Configuração Inteligente de Netplay e Game ID único
+  const resolvedKey = resolveGameKey(game?.romParam || game?.id || currentGameKey);
+  const netplayGameId = (MULTIPLAYER_GAMES_SUPPORTED[resolvedKey] && MULTIPLAYER_GAMES_SUPPORTED[resolvedKey].id) 
+    ? MULTIPLAYER_GAMES_SUPPORTED[resolvedKey].id 
+    : 100;
+  window.EJS_gameID = netplayGameId;
+
+  // Servidor de Sinalização Netplay Oficial
+  const configuredNetplayServer = localStorage.getItem('retronfc_netplay_server') || 'https://retronfc-netplay.onrender.com';
+  window.EJS_netplayServer = configuredNetplayServer;
+  window.EJS_netplayUrl = configuredNetplayServer;
+
+  // Servidores STUN/TURN gratuitos para transposição de NAT 4G/5G
+  window.EJS_netplayICEServers = [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
+  ];
   window.EJS_fullscreenOnLoaded = true;
   window.EJS_color = '#00f0ff';
   window.EJS_language = 'pt-BR';
