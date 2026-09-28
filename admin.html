@@ -340,12 +340,23 @@
               </div>
             </div>
 
-            <!-- Tabela de Passes -->
+            <!-- Filtros de RetroPasses (Tabs de Navegação) -->
+            <div class="orders-filter-bar" style="margin-bottom: 18px;">
+              <div class="filter-buttons" id="pass-filter-buttons">
+                <button type="button" class="filter-btn active" onclick="filterPasses('all', this)">📋 Todos os Passes (<span id="count-pass-all">0</span>)</button>
+                <button type="button" class="filter-btn" onclick="filterPasses('stock', this)">🟡 Em Estoque Livre (<span id="count-pass-stock">0</span>)</button>
+                <button type="button" class="filter-btn" onclick="filterPasses('sold', this)">🟢 Passes Vendidos (Clientes) (<span id="count-pass-sold">0</span>)</button>
+                <button type="button" class="filter-btn" onclick="filterPasses('active', this)">📱 Ativados no Celular (<span id="count-pass-active">0</span>)</button>
+              </div>
+            </div>
+
+            <!-- Tabela de Passes com Coluna de Clientes -->
             <div class="table-responsive">
               <table class="admin-table">
                 <thead>
                   <tr>
                     <th>Token</th>
+                    <th>Cliente & Contato</th>
                     <th>Jogo & Console</th>
                     <th>Status</th>
                     <th>Vínculo Anti-Pirataria</th>
@@ -355,7 +366,7 @@
                 </thead>
                 <tbody id="passes-table-body">
                   <tr>
-                    <td colspan="6" style="text-align: center; color: #94a3b8; padding: 30px;">
+                    <td colspan="7" style="text-align: center; color: #94a3b8; padding: 30px;">
                       ⏳ Carregando passes do Supabase...
                     </td>
                   </tr>

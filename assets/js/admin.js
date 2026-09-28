@@ -283,6 +283,25 @@ function parseJarvisOrderText() {
   if (stateMatch) document.getElementById('form-state').value = stateMatch[1].trim().toUpperCase();
   if (zipMatch) document.getElementById('form-zip').value = zipMatch[1].trim();
 
+  // Extração automática de RetroPass se enviado na mensagem
+  const passMatch = text.match(/(?:token|passe|retropass|pass)[:\s]+(PASS-[A-Z0-9\-]+)/i);
+  if (passMatch) {
+    const extractedToken = passMatch[1].trim();
+    try {
+      let sold = JSON.parse(localStorage.getItem('retronfc_sold_passes') || '[]');
+      sold = sold.filter(s => s.token !== extractedToken);
+      sold.unshift({
+        token: extractedToken,
+        customerName: nameMatch ? nameMatch[1].trim() : '',
+        customerPhone: phoneMatch ? phoneMatch[1].trim() : '',
+        customerCity: cityMatch ? cityMatch[1].trim() : '',
+        customerState: stateMatch ? stateMatch[1].trim().toUpperCase() : '',
+        date: new Date().toISOString()
+      });
+      localStorage.setItem('retronfc_sold_passes', JSON.stringify(sold.slice(0, 200)));
+    } catch (e) {}
+  }
+
   if (gameMatch) {
     const rawGame = gameMatch[1].toLowerCase();
     const select = document.getElementById('form-game');
@@ -999,13 +1018,30 @@ function escapePassHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+let currentPassFilter = 'all';
+let cachedSupabasePasses = [];
+
+function filterPasses(filter, btn) {
+  currentPassFilter = filter;
+  document.querySelectorAll('#pass-filter-buttons .filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderPassesTable();
+}
+
+function sendPassToCustomerWpp(token, gameKey, phone, customerName, gameTitle) {
+  const cleanPhone = phone.replace(/\D/g, '');
+  const url = `https://retronfc.com.br/play.html?game=${encodeURIComponent(gameKey)}&pass=${encodeURIComponent(token)}`;
+  const msg = `Olá, *${customerName}*! 🎮\n\nAqui está o seu acesso exclusivo da *RetroNFC* para jogar *${gameTitle}* direto no seu celular:\n\n👉 ${url}\n\n⚠️ *IMPORTANTE:* Abra no smartphone onde você vai jogar. O passe é pessoal e se vincula automaticamente ao seu aparelho no primeiro escaneamento! Bom jogo! 🕹️`;
+  window.open(`https://wa.me/${cleanPhone.startsWith('55') ? cleanPhone : '55' + cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
 async function loadSupabasePasses() {
   const tbody = document.getElementById('passes-table-body');
   if (!tbody) return;
 
   tbody.innerHTML = `
     <tr>
-      <td colspan="6" style="text-align: center; color: #94a3b8; padding: 20px;">
+      <td colspan="7" style="text-align: center; color: #94a3b8; padding: 20px;">
         🔄 Carregando RetroPasses do Supabase...
       </td>
     </tr>
@@ -1023,85 +1059,187 @@ async function loadSupabasePasses() {
       throw new Error(`Status ${resp.status}`);
     }
 
-    const passes = await resp.json();
-
-    if (!passes || passes.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="6" style="text-align: center; color: #94a3b8; padding: 24px;">
-            Nenhum RetroPass cadastrado ainda. Clique em "+ Gerar Novo RetroPass" para criar o primeiro!
-          </td>
-        </tr>
-      `;
-      return;
-    }
-
-    const now = new Date();
-    tbody.innerHTML = passes.map(pass => {
-      let statusBadge = '<span class="status-badge pending">🟡 Disponível</span>';
-      const isExpired = pass.expira_em && now > new Date(pass.expira_em);
-
-      if (isExpired) {
-        statusBadge = '<span class="status-badge expired">🔴 Expirado</span>';
-      } else if (pass.device_id || pass.status === 'ativo') {
-        statusBadge = '<span class="status-badge recorded">🟢 Ativo (Vinculado)</span>';
-      }
-
-      let validadeText = `${pass.validade_meses || 6} meses (Ao ativar)`;
-      if (pass.expira_em) {
-        const d = new Date(pass.expira_em);
-        validadeText = `Até ${d.toLocaleDateString('pt-BR')}`;
-      }
-
-      const deviceText = pass.device_id 
-        ? `<span title="${escapePassHtml(pass.device_id)}" style="font-family: monospace; font-size: 0.8rem; color: #38bdf8;">📱 ${escapePassHtml(pass.device_id.substring(0, 14))}...</span>`
-        : `<span style="color: #64748b; font-size: 0.8rem;">Aguardando 1º uso</span>`;
-
-      const displayTitle = (pass.game_title && pass.game_title !== pass.game_key)
-        ? pass.game_title
-        : (RETRO_GAME_TITLES[pass.game_key] || pass.game_title || pass.game_key);
-      const safeTitle = escapePassHtml(displayTitle);
-      const safeToken = escapePassHtml(pass.token);
-      const safeKey = escapePassHtml(pass.game_key);
-
-      const resetBtn = pass.device_id ? `
-        <button type="button" onclick="resetPassDevice('${safeToken}')" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 8px; color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);" title="Liberar vínculo de celular se o cliente trocou de aparelho">
-          🔄 Liberar Aparelho
-        </button>
-      ` : '';
-
-      return `
-        <tr>
-          <td><code style="background: rgba(0,240,255,0.1); color: #00f0ff; padding: 3px 8px; border-radius: 4px; font-weight: bold;">${safeToken}</code></td>
-          <td><strong>${safeTitle}</strong></td>
-          <td>${statusBadge}</td>
-          <td style="font-size: 0.85rem;">${validadeText}</td>
-          <td>${deviceText}</td>
-          <td>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <button type="button" onclick="openQrModal('${safeToken}', '${safeKey}', '${safeTitle.replace(/'/g, "\\'")}')" class="btn-primary" style="font-size: 0.75rem; padding: 4px 8px;">
-                📱 QR Code
-              </button>
-              <button type="button" onclick="copyPassLink('${safeToken}', '${safeKey}')" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 8px;">
-                🔗 Copiar Link
-              </button>
-              ${resetBtn}
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
+    cachedSupabasePasses = await resp.json() || [];
+    renderPassesTable();
 
   } catch (err) {
     console.error('Erro ao carregar passes do Supabase:', err);
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" style="text-align: center; color: #ef4444; padding: 20px;">
+        <td colspan="7" style="text-align: center; color: #ef4444; padding: 20px;">
           ⚠️ Erro ao consultar passes no Supabase. Verifique a conexão com a internet ou credenciais da API.
         </td>
       </tr>
     `;
   }
+}
+
+function renderPassesTable() {
+  const tbody = document.getElementById('passes-table-body');
+  if (!tbody) return;
+
+  if (!cachedSupabasePasses || cachedSupabasePasses.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; color: #94a3b8; padding: 24px;">
+          Nenhum RetroPass cadastrado ainda. Clique em "+ Gerar Novo RetroPass" para criar o primeiro!
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  // 1. Mapeia clientes associados aos passes (de orders e retronfc_sold_passes)
+  const soldMap = {};
+  try {
+    const storedSold = JSON.parse(localStorage.getItem('retronfc_sold_passes') || '[]');
+    storedSold.forEach(s => {
+      if (s.token) soldMap[s.token] = s;
+    });
+  } catch (e) {}
+
+  if (typeof orders !== 'undefined' && Array.isArray(orders)) {
+    orders.forEach(o => {
+      if (o.passToken) {
+        soldMap[o.passToken] = {
+          customerName: o.customerName,
+          customerPhone: o.phone,
+          customerCity: o.city,
+          customerState: o.state,
+          orderId: o.id
+        };
+      }
+    });
+  }
+
+  // 2. Calcula as contagens para as abas
+  const totalCount = cachedSupabasePasses.length;
+  const stockCount = cachedSupabasePasses.filter(p => !soldMap[p.token] && !p.device_id && p.status !== 'ativo').length;
+  const soldCount = cachedSupabasePasses.filter(p => !!soldMap[p.token]).length;
+  const activeCount = cachedSupabasePasses.filter(p => !!p.device_id || p.status === 'ativo').length;
+
+  const elAll = document.getElementById('count-pass-all');
+  const elStock = document.getElementById('count-pass-stock');
+  const elSold = document.getElementById('count-pass-sold');
+  const elActive = document.getElementById('count-pass-active');
+
+  if (elAll) elAll.textContent = totalCount;
+  if (elStock) elStock.textContent = stockCount;
+  if (elSold) elSold.textContent = soldCount;
+  if (elActive) elActive.textContent = activeCount;
+
+  // 3. Aplica o filtro selecionado
+  const filtered = cachedSupabasePasses.filter(p => {
+    const isSold = !!soldMap[p.token];
+    const isActive = !!p.device_id || p.status === 'ativo';
+
+    if (currentPassFilter === 'stock') {
+      return !isSold && !isActive;
+    }
+    if (currentPassFilter === 'sold') {
+      return isSold;
+    }
+    if (currentPassFilter === 'active') {
+      return isActive;
+    }
+    return true; // 'all'
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; color: #94a3b8; padding: 24px;">
+          Nenhum passe encontrado para esta aba selecionada.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  const now = new Date();
+  tbody.innerHTML = filtered.map(pass => {
+    const cust = soldMap[pass.token];
+    const isExpired = pass.expira_em && now > new Date(pass.expira_em);
+    const isActive = pass.device_id || pass.status === 'ativo';
+
+    let statusBadge = '<span class="status-badge pending">🟡 Em Estoque</span>';
+    if (isExpired) {
+      statusBadge = '<span class="status-badge expired">🔴 Expirado</span>';
+    } else if (isActive) {
+      statusBadge = '<span class="status-badge recorded">🟢 Ativo (Vinculado)</span>';
+    } else if (cust) {
+      statusBadge = '<span class="status-badge pending" style="background: rgba(34, 197, 94, 0.15); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.4);">🟢 Vendido (Aguardando uso)</span>';
+    }
+
+    let validadeText = `${pass.validade_meses || 6} meses (Ao ativar)`;
+    if (pass.expira_em) {
+      const d = new Date(pass.expira_em);
+      validadeText = `Até ${d.toLocaleDateString('pt-BR')}`;
+    }
+
+    const deviceText = pass.device_id 
+      ? `<span title="${escapePassHtml(pass.device_id)}" style="font-family: monospace; font-size: 0.8rem; color: #38bdf8;">📱 ${escapePassHtml(pass.device_id.substring(0, 14))}...</span>`
+      : `<span style="color: #64748b; font-size: 0.8rem;">Aguardando 1º uso</span>`;
+
+    const displayTitle = (pass.game_title && pass.game_title !== pass.game_key)
+      ? pass.game_title
+      : (RETRO_GAME_TITLES[pass.game_key] || pass.game_title || pass.game_key);
+
+    const safeTitle = escapePassHtml(displayTitle);
+    const safeToken = escapePassHtml(pass.token);
+    const safeKey = escapePassHtml(pass.game_key);
+
+    // Célula do Cliente
+    let customerCell = '';
+    if (cust && cust.customerName) {
+      const cleanPhone = cust.customerPhone ? cust.customerPhone.replace(/\D/g, '') : '';
+      const wppLink = cleanPhone ? `https://wa.me/${cleanPhone.startsWith('55') ? cleanPhone : '55' + cleanPhone}` : '#';
+      customerCell = `
+        <div>
+          <strong style="color: #fff; display: block; font-size: 0.88rem;">${escapePassHtml(cust.customerName)}</strong>
+          ${cust.customerPhone ? `<a href="${wppLink}" target="_blank" style="color: #22c55e; font-size: 0.78rem; text-decoration: none; font-weight: 700;">💬 ${escapePassHtml(cust.customerPhone)}</a>` : ''}
+          ${cust.customerCity ? `<div style="font-size: 0.72rem; color: #94a3b8;">${escapePassHtml(cust.customerCity)}${cust.customerState ? '/' + escapePassHtml(cust.customerState) : ''}</div>` : ''}
+        </div>
+      `;
+    } else {
+      customerCell = `<span style="color: #64748b; font-size: 0.8rem; font-style: italic;">🟡 Em Estoque (Livre)</span>`;
+    }
+
+    const resetBtn = pass.device_id ? `
+      <button type="button" onclick="resetPassDevice('${safeToken}')" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 8px; color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);" title="Liberar vínculo de celular se o cliente trocou de aparelho">
+        🔄 Liberar
+      </button>
+    ` : '';
+
+    const wppBtn = (cust && cust.customerPhone) ? `
+      <button type="button" onclick="sendPassToCustomerWpp('${safeToken}', '${safeKey}', '${cust.customerPhone}', '${cust.customerName.replace(/'/g, "\\'")}', '${safeTitle.replace(/'/g, "\\'")}')" class="btn-top-action btn-top-green" style="font-size: 0.75rem; padding: 4px 8px;" title="Reenviar Acesso ao WhatsApp do Cliente">
+        💬 WhatsApp
+      </button>
+    ` : '';
+
+    return `
+      <tr>
+        <td><code style="background: rgba(0,240,255,0.1); color: #00f0ff; padding: 3px 8px; border-radius: 4px; font-weight: bold;">${safeToken}</code></td>
+        <td>${customerCell}</td>
+        <td><strong>${safeTitle}</strong></td>
+        <td>${statusBadge}</td>
+        <td style="font-size: 0.85rem;">${validadeText}</td>
+        <td>${deviceText}</td>
+        <td>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button type="button" onclick="openQrModal('${safeToken}', '${safeKey}', '${safeTitle.replace(/'/g, "\\'")}')" class="btn-primary" style="font-size: 0.75rem; padding: 4px 8px;">
+              📱 QR Code
+            </button>
+            <button type="button" onclick="copyPassLink('${safeToken}', '${safeKey}')" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 8px;">
+              🔗 Link
+            </button>
+            ${wppBtn}
+            ${resetBtn}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function openNewPassModal() {

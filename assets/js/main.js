@@ -1,3 +1,115 @@
+
+// ==========================================================================
+// 🎟️ AUTOMAÇÃO RETROPASS SUPABASE (GERAÇÃO INSTANTÂNEA NO CHECKOUT)
+// ==========================================================================
+const SUPABASE_CONFIG = {
+  url: 'https://wxgyhxwykspgdtszhuen.supabase.co',
+  key: 'sb_publishable_fhnF2vvyh0f-kP1GSTB8Xg_Rb-Bk-WG'
+};
+
+async function autoGenerateOrReserveRetroPass(cartItems, customerData) {
+  if (!cartItems || cartItems.length === 0) return [];
+  const assignedPasses = [];
+
+  for (const item of cartItems) {
+    const rawGameKey = item.romParam || item.id || 'super_mario';
+    const gameKey = (typeof GAME_ALIASES !== 'undefined' && GAME_ALIASES[rawGameKey]) ? GAME_ALIASES[rawGameKey] : rawGameKey;
+    const gameTitle = item.title || item.name || 'Jogo Clássico';
+
+    try {
+      // 1. Tenta buscar no Supabase se já existe passe livre 'disponivel' em estoque para este jogo
+      let passRecord = null;
+      try {
+        const checkResp = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/retronfc_passes?game_key=eq.${encodeURIComponent(gameKey)}&status=eq.disponivel&select=*&limit=1`, {
+          headers: {
+            'apikey': SUPABASE_CONFIG.key,
+            'Authorization': `Bearer ${SUPABASE_CONFIG.key}`
+          }
+        });
+        if (checkResp.ok) {
+          const rows = await checkResp.json();
+          if (rows && rows.length > 0 && !rows[0].device_id) {
+            passRecord = rows[0];
+          }
+        }
+      } catch (checkErr) {
+        console.warn('Busca de passe existente falhou, gerando novo:', checkErr);
+      }
+
+      // 2. Se não achou em estoque, cria novo automaticamente no Supabase
+      if (!passRecord) {
+        const prefix = gameKey.replace(/[^a-zA-Z0-9]/g, '').substring(0, 3).toUpperCase() || 'PAS';
+        const rand = Math.floor(1000 + Math.random() * 9000);
+        const newToken = `PASS-${prefix}-${rand}`;
+
+        const createResp = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/retronfc_passes`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_CONFIG.key,
+            'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({
+            token: newToken,
+            game_key: gameKey,
+            game_title: gameTitle,
+            status: 'disponivel',
+            validade_meses: 6,
+            criado_em: new Date().toISOString()
+          })
+        });
+
+        if (createResp.ok) {
+          const createdRows = await createResp.json();
+          passRecord = (createdRows && createdRows.length > 0) ? createdRows[0] : { token: newToken, game_key: gameKey, game_title: gameTitle };
+        } else {
+          passRecord = { token: newToken, game_key: gameKey, game_title: gameTitle };
+        }
+      }
+
+      const passUrl = `https://retronfc.com.br/play.html?game=${encodeURIComponent(passRecord.game_key || gameKey)}&pass=${encodeURIComponent(passRecord.token)}`;
+      
+      const passInfo = {
+        token: passRecord.token,
+        gameKey: passRecord.game_key || gameKey,
+        gameTitle: passRecord.game_title || gameTitle,
+        passUrl: passUrl,
+        customerName: customerData.name || 'Cliente RetroNFC',
+        customerPhone: customerData.phone || '',
+        customerCity: customerData.city || '',
+        customerState: customerData.state || '',
+        date: new Date().toISOString()
+      };
+
+      assignedPasses.push(passInfo);
+
+      // 3. Salva no localStorage compartilhado da loja / admin
+      try {
+        let sold = JSON.parse(localStorage.getItem('retronfc_sold_passes') || '[]');
+        sold = sold.filter(s => s.token !== passInfo.token);
+        sold.unshift(passInfo);
+        localStorage.setItem('retronfc_sold_passes', JSON.stringify(sold.slice(0, 200)));
+      } catch (err) {}
+
+    } catch (e) {
+      console.error('Erro na automação do RetroPass:', e);
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      const fallbackToken = `PASS-${gameKey.substring(0, 3).toUpperCase()}-${rand}`;
+      assignedPasses.push({
+        token: fallbackToken,
+        gameKey: gameKey,
+        gameTitle: gameTitle,
+        passUrl: `https://retronfc.com.br/play.html?game=${encodeURIComponent(gameKey)}&pass=${encodeURIComponent(fallbackToken)}`,
+        customerName: customerData.name || '',
+        customerPhone: customerData.phone || ''
+      });
+    }
+  }
+
+  return assignedPasses;
+}
+
 ﻿/**
  * RetroNFC.com.br — Script Principal v3.0
  * Lógica do Simulador NFC, Mega Catálogo com Filtros de Console e Gênero,
@@ -1488,11 +1600,20 @@ async function handleCheckoutSubmit(e) {
     return;
   }
 
+  // Gera ou reserva automaticamente o RetroPass no Supabase
+  let autoPasses = [];
+  try {
+    autoPasses = await autoGenerateOrReserveRetroPass(cart, customerData);
+  } catch (err) {
+    console.warn('Erro ao gerar passes automáticos:', err);
+  }
+  currentPixOrderData.passes = autoPasses;
+
   // Se escolheu PIX (Padrão, Instantâneo)
-  showPixDisplayScreen(totalAmount, customerData);
+  showPixDisplayScreen(totalAmount, customerData, autoPasses);
 }
 
-function showPixDisplayScreen(totalAmount, customerData) {
+function showPixDisplayScreen(totalAmount, customerData, autoPasses = []) {
   currentPixPayloadString = generateBacenPixPayload(PIX_CONFIG.key, PIX_CONFIG.name, PIX_CONFIG.city, totalAmount);
 
   const amountEl = document.getElementById('pix-display-amount');
@@ -1516,6 +1637,21 @@ function showPixDisplayScreen(totalAmount, customerData) {
   if (pixStep) {
     pixStep.style.display = 'block';
     pixStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Atualiza card de RetroPass Digital Pré-Gerado se disponível
+  const passBox = document.getElementById('pix-retropass-preview-box');
+  const passTitleEl = document.getElementById('pix-retropass-game-title');
+  const passTokenEl = document.getElementById('pix-retropass-token-code');
+
+  const passesToShow = (autoPasses && autoPasses.length > 0) ? autoPasses : (currentPixOrderData && currentPixOrderData.passes ? currentPixOrderData.passes : []);
+  if (passBox && passesToShow.length > 0) {
+    const firstPass = passesToShow[0];
+    if (passTitleEl) passTitleEl.textContent = passesToShow.map(p => '🎮 ' + p.gameTitle).join(', ');
+    if (passTokenEl) passTokenEl.textContent = passesToShow.map(p => p.token).join(' | ');
+    passBox.style.display = 'block';
+  } else if (passBox) {
+    passBox.style.display = 'none';
   }
 
   if (typeof SoundFX !== 'undefined' && SoundFX.playLaser) SoundFX.playLaser();
@@ -1581,7 +1717,21 @@ function confirmPixPaymentToWhatsApp() {
   msg += `• *Bairro:* ${cust.neighborhood}\n`;
   msg += `• *Cidade/UF:* ${cust.city}/${cust.state} - CEP ${cust.zip}\n`;
   if (cust.notes) msg += `• *Obs:* ${cust.notes}\n`;
-  msg += `\nSegui as instruções do site e estou enviando este comprovante para você me enviar o *Card Colecionável Oficial com QR Code* para eu jogar agora no celular! Valeu!`;
+  // Anexa os RetroPasses gerados automaticamente para o Jarvis
+  const passes = (currentPixOrderData && currentPixOrderData.passes && currentPixOrderData.passes.length > 0) 
+    ? currentPixOrderData.passes 
+    : [];
+
+  if (passes.length > 0) {
+    msg += `\n🎟️ *RETROPASS DIGITAL GERADO AUTOMATICAMENTE:*`;
+    passes.forEach(p => {
+      msg += `\n• *Token:* ${p.token}`;
+      msg += `\n• *Jogo:* ${p.gameTitle}`;
+      msg += `\n• *Link de Acesso do Cliente:*\n👉 ${p.passUrl}\n`;
+    });
+  }
+
+  msg += `\nSegui as instruções do site e estou enviando este comprovante para liberação imediata do meu RetroPass! Valeu!`;
 
   const cleanPhone = CONFIG.whatsappNumber.replace(/\D/g, '');
   const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
