@@ -201,10 +201,16 @@
 const GAME_ALIASES = {
   'sonic': 'sonic_2',
   'sonic2': 'sonic_2',
+  'sonic_2': 'sonic_2',
   'kof2002': 'kof_2002',
+  'kof_2002': 'kof_2002',
   'kof': 'kof_2002',
+  'kof98': 'kof_98',
+  'kof_98': 'kof_98',
   'metal_slug_x': 'metal_slug',
   'metalslug': 'metal_slug',
+  'metal_slug': 'metal_slug',
+  'mslug': 'metal_slug',
   'cadillacs': 'cadillacs',
   'cadillac': 'cadillacs',
   'dino': 'cadillacs',
@@ -213,7 +219,9 @@ const GAME_ALIASES = {
   'smw': 'super_mario',
   'mk2': 'mortal_kombat_2',
   'sor2': 'streets_of_rage_2',
-  'zelda': 'zelda_alttp'
+  'zelda': 'zelda_alttp',
+  'zelda_minish': 'zelda_minish_cap',
+  'zelda_minish_cap': 'zelda_minish_cap'
 };
 
 function resolveGameKey(rawKey) {
@@ -548,12 +556,21 @@ async function validateRetroPass(token, requestedGameKey) {
 
     const pass = rows[0];
 
+    // Normaliza tanto a chave pedida na URL quanto a chave salva no Supabase (suporta aliases como kof2002 -> kof_2002)
+    const normRequested = resolveGameKey(requestedGameKey);
+    const normPassKey = resolveGameKey(pass.game_key);
+
     // Se o passe tiver jogo específico vinculado e o link pedir outro jogo diferente
-    if (requestedGameKey && pass.game_key && requestedGameKey !== pass.game_key) {
-      showBlock('🚫', 'JOGO INCOMPATÍVEL', `Este RetroPass pertence exclusivamente ao jogo <strong>${pass.game_title}</strong> e não pode ser transferido para outro clássico.`);
+    if (normRequested && normPassKey && normRequested !== normPassKey) {
+      const displayTitle = (pass.game_title && pass.game_title !== pass.game_key)
+        ? pass.game_title
+        : (GAMES_MAP[normPassKey] ? GAMES_MAP[normPassKey].title : (pass.game_title || pass.game_key));
+
+      showBlock('🚫', 'JOGO INCOMPATÍVEL', `Este RetroPass pertence exclusivamente ao jogo <strong>${displayTitle}</strong> e não pode ser transferido para outro clássico.`);
       return false;
     }
 
+    const targetGameKey = normPassKey || normRequested || requestedGameKey;
     const now = new Date();
 
     // CASO 1: Primeiro acesso (Ativação automática e vinculação ao aparelho)
@@ -577,7 +594,7 @@ async function validateRetroPass(token, requestedGameKey) {
       });
 
       console.log(`[RetroPass] Passe ${token} ativado com sucesso! Válido até ${expDate.toLocaleDateString('pt-BR')}.`);
-      return pass.game_key || requestedGameKey;
+      return targetGameKey;
     }
 
     // CASO 2: Passe expirado após os 6 meses
@@ -593,7 +610,7 @@ async function validateRetroPass(token, requestedGameKey) {
     }
 
     // Dono legítimo no aparelho original dentro do prazo!
-    return pass.game_key || requestedGameKey;
+    return targetGameKey;
 
   } catch (err) {
     console.error('Erro na validação do RetroPass:', err);

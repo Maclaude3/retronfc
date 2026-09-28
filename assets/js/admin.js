@@ -971,11 +971,22 @@ const RETRO_GAME_TITLES = {
   'street_fighter': 'Street Fighter II Turbo (SNES)',
   'moonwalker': "Michael Jackson's Moonwalker (Mega Drive)",
   'sonic_2': 'Sonic the Hedgehog 2 (Mega Drive)',
+  'sonic': 'Sonic the Hedgehog 2 (Mega Drive)',
   'mortal_kombat_2': 'Mortal Kombat II (Mega Drive)',
   'zelda_alttp': 'The Legend of Zelda: A Link to the Past (SNES)',
   'mega_man_x': 'Mega Man X (SNES)',
   'streets_of_rage_2': 'Streets of Rage 2 (Mega Drive)',
-  'golden_axe': 'Golden Axe (Mega Drive)'
+  'golden_axe': 'Golden Axe (Mega Drive)',
+  'aladdin': "Disney's Aladdin (SNES)",
+  'pokemon_emerald': 'Pokémon Emerald (GBA)',
+  'zelda_minish': 'The Legend of Zelda: The Minish Cap (GBA)',
+  'zelda_minish_cap': 'The Legend of Zelda: The Minish Cap (GBA)',
+  'kof2002': 'The King of Fighters 2002 (Neo Geo)',
+  'kof_2002': 'The King of Fighters 2002 (Neo Geo)',
+  'kof_98': 'The King of Fighters 98 (Neo Geo)',
+  'metal_slug': 'Metal Slug Super Vehicle (Neo Geo)',
+  'metal_slug_x': 'Metal Slug X (Neo Geo)',
+  'cadillacs': 'Cadillacs and Dinosaurs (Capcom Arcade)'
 };
 
 function escapePassHtml(str) {
@@ -1046,7 +1057,10 @@ async function loadSupabasePasses() {
         ? `<span title="${escapePassHtml(pass.device_id)}" style="font-family: monospace; font-size: 0.8rem; color: #38bdf8;">📱 ${escapePassHtml(pass.device_id.substring(0, 14))}...</span>`
         : `<span style="color: #64748b; font-size: 0.8rem;">Aguardando 1º uso</span>`;
 
-      const safeTitle = escapePassHtml(pass.game_title || pass.game_key);
+      const displayTitle = (pass.game_title && pass.game_title !== pass.game_key)
+        ? pass.game_title
+        : (RETRO_GAME_TITLES[pass.game_key] || pass.game_title || pass.game_key);
+      const safeTitle = escapePassHtml(displayTitle);
       const safeToken = escapePassHtml(pass.token);
       const safeKey = escapePassHtml(pass.game_key);
 
