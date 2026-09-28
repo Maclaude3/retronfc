@@ -68,7 +68,16 @@ function shareRoomInviteWhatsApp() {
   window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
+function enterFullscreenSafe() {
+  const elem = document.documentElement;
+  const req = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.mozRequestFullScreen || elem.msRequestFullscreen;
+  if (req) {
+    try { req.call(elem).catch(() => {}); } catch(err) {}
+  }
+}
+
 function startHostGame() {
+  enterFullscreenSafe();
   closeMultiplayerModal();
   const loader = document.getElementById('nfc-loader');
   if (loader) loader.style.display = 'none';
@@ -97,6 +106,7 @@ function startGuestGame() {
     try { screen.orientation.lock('landscape').catch(() => {}); } catch(err) {}
   }
 
+  enterFullscreenSafe();
   loadEmulatorEngine(currentGame, true, 'guest', roomCode);
 }
 
@@ -1042,6 +1052,7 @@ function loadEmulatorEngine(game, isMultiplayer = false, role = 'solo', roomId =
   // Garante controles touch e menu de 3 barrinhas visíveis e ativos no smartphone
   window.EJS_onGameStart = () => {
     setupRetroGamepadEnhancements();
+    const mpNav = document.getElementById('btn-retro-mp'); if (mpNav) mpNav.style.display = 'none';
     setInterval(setupRetroGamepadEnhancements, 400);
     if (window.EJS_emulator) {
       window.EJS_emulator.touch = true;

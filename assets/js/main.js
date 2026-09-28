@@ -191,7 +191,12 @@ function renderCatalog() {
   if (!grid) return;
 
   const filtered = GAMES_DATABASE.filter(game => {
-    const matchConsole = currentFilter === 'all' || game.console === currentFilter;
+    const isMultiplayerGame = !!game.multiplayer || ['kof_2002','kof_98','metal_slug','street_fighter','super_mario_kart','top_gear','mortal_kombat_2','sonic_2','streets_of_rage_2','golden_axe','cadillacs'].includes(game.id || game.romParam);
+    const matchConsole = currentFilter === 'all' 
+      ? true 
+      : currentFilter === 'multiplayer' 
+        ? isMultiplayerGame 
+        : game.console === currentFilter;
     const matchGenre = currentGenre === 'all' || game.genre === currentGenre;
     const matchSearch = currentSearchTerm === '' || 
       game.title.toLowerCase().includes(currentSearchTerm) ||
@@ -251,7 +256,7 @@ function renderCatalog() {
         <div class="product-specs">
           <span class="spec-pill">Chip NFC</span>
           <span class="spec-pill">${game.genre.toUpperCase()}</span>
-          <span class="spec-pill">PLA Premium</span>
+          ${(game.multiplayer || ['kof_2002','kof_98','metal_slug','street_fighter','super_mario_kart','top_gear','mortal_kombat_2','sonic_2','streets_of_rage_2','golden_axe','cadillacs'].includes(game.id || game.romParam)) ? `<span class="spec-pill spec-pill-mp" style="background: rgba(236, 72, 153, 0.22); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.5); font-weight: 800;">⚔️ 2P ONLINE</span>` : `<span class="spec-pill">PLA Premium</span>`}
         </div>
 
         <div class="product-footer">

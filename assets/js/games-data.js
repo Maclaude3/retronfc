@@ -33,7 +33,8 @@ const GAMES_DATABASE = [
     desc: 'O início da maior franquia de corrida da história com cascos, moedas e o incrível chip Mode 7.',
     romParam: 'super_mario_kart',
     price: 24.99, passPrice: 9.99,
-    tags: 'kart corrida mario nintendo snes casco'
+    multiplayer: true,
+    tags: 'kart corrida mario nintendo snes casco multiplayer 2p online versus coop'
   },
   {
     id: 'yoshis_island',
@@ -61,7 +62,8 @@ const GAMES_DATABASE = [
     desc: 'Aqueça os motores com a trilha sonora mais nostálgica dos 16-bits. Corridas em pistas clássicas!',
     romParam: 'top_gear',
     price: 24.99, passPrice: 9.99,
-    tags: 'corrida carro velocidade nitro snes top gear'
+    multiplayer: true,
+    tags: 'corrida carro velocidade nitro snes top gear multiplayer 2p online versus coop'
   },
   {
     id: 'top_gear_2',
@@ -159,7 +161,8 @@ const GAMES_DATABASE = [
     desc: 'Hadouken no bolso! O jogo de luta definitivo com Ryu, Ken, Chun-Li e todos os guerreiros mundiais.',
     romParam: 'street_fighter',
     price: 24.99, passPrice: 9.99,
-    tags: 'luta fight ryu ken hadouken capcom snes'
+    multiplayer: true,
+    tags: 'luta fight ryu ken hadouken capcom snes multiplayer 2p online versus coop'
   },
   {
     id: 'mortal_kombat_2',
@@ -173,7 +176,8 @@ const GAMES_DATABASE = [
     desc: 'Fatality no seu smartphone! Sub-Zero, Scorpion, Raiden e toda a brutalidade do torneio.',
     romParam: 'mortal_kombat_2',
     price: 24.99, passPrice: 9.99,
-    tags: 'luta fatality scorpion subzero sangue snes'
+    multiplayer: true,
+    tags: 'luta fatality scorpion subzero sangue snes multiplayer 2p online versus coop'
   },
   {
     id: 'umk3',
@@ -665,7 +669,8 @@ const GAMES_DATABASE = [
     desc: 'Velocidade máxima em 16-bits com Sonic & Tails na clássica carcaça preta do Mega Drive!',
     romParam: 'sonic_2',
     price: 24.99, passPrice: 9.99,
-    tags: 'sega sonic tails velocidade genesis'
+    multiplayer: true,
+    tags: 'sega sonic tails velocidade genesis multiplayer 2p online versus coop'
   },
   {
     id: 'sonic_3_knuckles',
@@ -693,7 +698,8 @@ const GAMES_DATABASE = [
     desc: 'O beat em up definitivo da Sega. Trilha sonora inesquecível de Yuzo Koshiro e porrada estancando!',
     romParam: 'streets_of_rage_2',
     price: 24.99, passPrice: 9.99,
-    tags: 'briga rua sega yuzo koshiro soco genesis'
+    multiplayer: true,
+    tags: 'briga rua sega yuzo koshiro soco genesis multiplayer 2p online versus coop'
   },
   {
     id: 'golden_axe',
@@ -707,7 +713,8 @@ const GAMES_DATABASE = [
     desc: 'Magias devastadoras, dragões montáveis e bárbaros vingando seus reinos contra Death Adder.',
     romParam: 'golden_axe',
     price: 24.99, passPrice: 9.99,
-    tags: 'golden axe barbaro magia sega mega drive'
+    multiplayer: true,
+    tags: 'golden axe barbaro magia sega mega drive multiplayer 2p online versus coop'
   },
   {
     id: 'shinobi_3',
@@ -753,7 +760,8 @@ const GAMES_DATABASE = [
     desc: 'O maior torneio dos fliperamas de shopping e rodoviária! Iori Yagami, Kyo Kusanagi e Rugal.',
     romParam: 'kof_98',
     price: 24.99, passPrice: 9.99,
-    tags: 'kof 98 snk iori kyo rugal arcade luta fliperama'
+    multiplayer: true,
+    tags: 'kof 98 snk iori kyo rugal arcade luta fliperama multiplayer 2p online versus coop'
   },
   {
     id: 'kof_2002',
@@ -767,7 +775,8 @@ const GAMES_DATABASE = [
     desc: 'A rainha dos combos! O fliperama mais competitivo do Brasil onde quem perdia passava a ficha.',
     romParam: 'kof_2002',
     price: 24.99, passPrice: 9.99,
-    tags: 'kof 2002 snk arcade fliperama luta rugal'
+    multiplayer: true,
+    tags: 'kof 2002 snk arcade fliperama luta rugal multiplayer 2p online versus coop'
   },
   {
     id: 'metal_slug',
@@ -781,7 +790,8 @@ const GAMES_DATABASE = [
     desc: 'Heavy Machine Gun! Destruição desenfreada com tanques, prisioneiros e explosões em pixel art.',
     romParam: 'metal_slug',
     price: 24.99, passPrice: 9.99,
-    tags: 'metal slug tiro snk heavy machine gun tanque arcade'
+    multiplayer: true,
+    tags: 'metal slug tiro snk heavy machine gun tanque arcade multiplayer 2p online versus coop'
   },
   {
     id: 'cadillacs_dinosaurs',

@@ -303,6 +303,21 @@
         </p>
       </div>
 
+            <!-- Banner Informativo Multiplayer Online Oficial -->
+      <div class="multiplayer-info-banner" style="max-width: 920px; margin: 0 auto 30px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.12) 0%, rgba(0, 240, 255, 0.08) 100%); border: 1.5px solid rgba(236, 72, 153, 0.45); border-radius: 16px; padding: 22px 26px; display: flex; align-items: center; gap: 20px; box-shadow: 0 0 35px rgba(236, 72, 153, 0.15);">
+        <div style="font-size: 2.5rem; flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.5));">⚔️</div>
+        <div>
+          <h4 style="margin: 0 0 6px; color: #f472b6; font-size: 1.15rem; font-weight: 900; letter-spacing: 0.5px;">MODO MULTIPLAYER ONLINE (2 PLAYERS)</h4>
+          <p style="margin: 0 0 10px; color: #e2e8f0; font-size: 0.9rem; line-height: 1.5;">
+            Dispute partidas <strong>Versus 1v1</strong> ou jogue no modo <strong>Cooperativo</strong> em tempo real com amigos pelo celular, direto no navegador e sem instalar nenhum app!
+          </p>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #67e8f9; background: rgba(0, 240, 255, 0.1); padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(0, 240, 255, 0.3);">
+            <span>⚠️</span>
+            <span><strong>Regra do Jogo:</strong> Para jogarem juntos à distância, cada amigo deve possuir um <strong>RetroPass ativo</strong> ou mini cartucho NFC individual em seu respectivo smartphone.</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Quick Search Bar -->
       <div style="max-width: 480px; margin: 0 auto 30px; position: relative;">
         <input type="text" id="catalog-search-input" placeholder="🔍 Buscar clássico (ex: Mario, Sonic, Zelda, Luta)..." style="width: 100%; padding: 14px 22px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glow); border-radius: 9999px; color: #fff; font-size: 0.95rem; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
@@ -311,6 +326,8 @@
       <!-- Filters -->
       <div class="catalog-filters">
         <button class="filter-btn active" onclick="filterCatalog('all', this)">Todos os Consoles</button>
+        <button class="filter-btn filter-btn-mp" onclick="filterCatalog('multiplayer', this)" style="border-color: rgba(236, 72, 153, 0.6); color: #f472b6; font-weight: 800;">⚔️ 2 Players Online</button>
+        
         <button class="filter-btn" onclick="filterCatalog('snes', this)">Super Nintendo (SNES)</button>
         <button class="filter-btn" onclick="filterCatalog('ps1', this)">PlayStation 1 (PS1)</button>
         <button class="filter-btn" onclick="filterCatalog('n64', this)">Nintendo 64 (N64)</button>
@@ -1032,9 +1049,9 @@
   </a>
 
   <!-- Script Principal -->
-  <script src="assets/js/games-data.js?v=4.0"></script>
+  <script src="assets/js/games-data.js?v=5.0"></script>
   <script src="assets/js/gameplay-preview.js"></script>
-  <script src="assets/js/main.js?v=14.0"></script>
+  <script src="assets/js/main.js?v=15.0"></script>
 
   
 
