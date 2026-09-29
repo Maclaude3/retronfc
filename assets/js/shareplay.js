@@ -1,36 +1,8 @@
 /**
- * RetroNFC — WebRTC P2P Share Play (Versus & Coop 2 Players)
- * Permite que o Player 1 transmita o jogo em tempo real (60 FPS)
- * e o Player 2 jogue no segundo controle (Player 2) pelo próprio celular.
+ * RetroNFC — WebRTC P2P Share Play Otimizado (Versus & Coop 2 Players)
+ * Permite que o Player 1 jogue com desempenho máximo nativo (sem sobrecarga de CPU)
+ * enquanto transmite a tela de forma leve e recebe os comandos do Player 2 em tempo real.
  */
-
-// Hook global para capturar o áudio do emulador do Player 1 e transmitir ao Player 2
-(function initAudioCaptureHook() {
-  try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx || window.__retroAudioHooked) return;
-    window.__retroAudioHooked = true;
-
-    const origConnect = AudioNode.prototype.connect;
-    AudioNode.prototype.connect = function(dest, ...rest) {
-      if (dest && (dest === this.context.destination || dest.numberOfInputs === 1)) {
-        if (!this.__streamDest && this.context && this.context.createMediaStreamDestination) {
-          try {
-            const streamDest = this.context.createMediaStreamDestination();
-            this.__streamDest = streamDest;
-            origConnect.call(this, streamDest);
-            if (window.RetroSharePlay) {
-              window.RetroSharePlay.setHostAudioStream(streamDest.stream);
-            }
-          } catch(e) {}
-        }
-      }
-      return origConnect.call(this, dest, ...rest);
-    };
-  } catch(err) {
-    console.warn('[SharePlay] Áudio hook opcional não ativado:', err);
-  }
-})();
 
 const RetroSharePlay = {
   serverUrl: 'https://retronfc-netplay.onrender.com',
@@ -48,22 +20,11 @@ const RetroSharePlay = {
   hostSocketId: null,
   guestSocketId: null,
   isGuestConnected: false,
-  pendingCandidates: [],
-  hostAudioStream: null,
+  pendingRemoteCandidates: [],
+  pendingLocalCandidates: [],
   joinRetryTimer: null,
 
-  setHostAudioStream(stream) {
-    this.hostAudioStream = stream;
-    if (this.pc && stream) {
-      try {
-        stream.getAudioTracks().forEach(track => {
-          this.pc.addTrack(track, stream);
-        });
-      } catch(e) {}
-    }
-  },
-
-  // HUD elegante e discreto de status
+  // HUD discreto e moderno de status
   showHud(msg, status = 'info') {
     let hud = document.getElementById('shareplay-hud');
     if (!hud) {
@@ -101,12 +62,33 @@ const RetroSharePlay = {
     hud.style.opacity = '1';
   },
 
+  // Gerenciador de candidatos ICE com fila para evitar rejeições de estado
+  handleRemoteCandidate(candidate) {
+    if (this.pc && this.pc.remoteDescription && this.pc.remoteDescription.type) {
+      this.pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(e => console.warn('[SharePlay] addIceCandidate:', e));
+    } else {
+      this.pendingRemoteCandidates.push(candidate);
+    }
+  },
+
+  flushRemoteCandidates() {
+    if (this.pc && this.pc.remoteDescription && this.pendingRemoteCandidates.length > 0) {
+      console.log(`[SharePlay] Aplicando ${this.pendingRemoteCandidates.length} candidatos ICE em fila...`);
+      this.pendingRemoteCandidates.forEach(cand => {
+        this.pc.addIceCandidate(new RTCIceCandidate(cand)).catch(e => console.warn('[SharePlay] addIceCandidate em fila:', e));
+      });
+      this.pendingRemoteCandidates = [];
+    }
+  },
+
   // ========================================================
   // 1. MODO HOST (PLAYER 1 - EMULAÇÃO PRINCIPAL)
   // ========================================================
   async startHost(roomId, game) {
     this.role = 'host';
     this.roomId = roomId;
+    this.pendingRemoteCandidates = [];
+    this.pendingLocalCandidates = [];
     this.showHud(`Aguardando Player 2... (Sala: ${roomId})`, 'waiting');
 
     if (this.socket) {
@@ -122,7 +104,7 @@ const RetroSharePlay = {
     const userId = 'host_' + Math.random().toString(36).substring(2, 9);
 
     this.socket.on('connect', () => {
-      console.log('[SharePlay] Host conectado ao servidor de sinalização. Criando sala:', roomId);
+      console.log('[SharePlay] Host conectado ao servidor. Criando sala:', roomId);
       this.socket.emit('open-room', {
         extra: {
           sessionid: roomId,
@@ -145,7 +127,7 @@ const RetroSharePlay = {
       const guest = userList.find(u => u.userid !== userId);
       if (guest && guest.socketId && (!this.isGuestConnected || this.guestSocketId !== guest.socketId)) {
         this.guestSocketId = guest.socketId;
-        console.log('[SharePlay] Player 2 detectado (Socket:', guest.socketId, '). Iniciando conexão WebRTC...');
+        console.log('[SharePlay] Player 2 conectado (Socket:', guest.socketId, '). Iniciando P2P...');
         await this.initHostWebRTC(guest.socketId);
       }
     });
@@ -157,15 +139,12 @@ const RetroSharePlay = {
         console.log('[SharePlay] Host recebeu Answer do Player 2.');
         try {
           await this.pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+          this.flushRemoteCandidates();
         } catch(err) {
           console.error('[SharePlay] Erro ao aplicar Answer no Host:', err);
         }
       } else if (data.candidate) {
-        try {
-          await this.pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-        } catch (e) {
-          console.error('[SharePlay] Erro ao adicionar ICE candidate no Host:', e);
-        }
+        this.handleRemoteCandidate(data.candidate);
       }
     });
   },
@@ -177,6 +156,16 @@ const RetroSharePlay = {
 
     this.isGuestConnected = true;
     this.pc = new RTCPeerConnection({ iceServers: this.iceServers });
+
+    // Monitoramento da qualidade da conexão
+    this.pc.oniceconnectionstatechange = () => {
+      console.log('[SharePlay] ICE Connection State (Host):', this.pc.iceConnectionState);
+      if (this.pc.iceConnectionState === 'connected' || this.pc.iceConnectionState === 'completed') {
+        this.showHud('🟢 VERSUS ATIVO (P2P CONECTADO)', 'connected');
+      } else if (this.pc.iceConnectionState === 'failed') {
+        this.showHud('Reconectando P2P...', 'waiting');
+      }
+    };
 
     // Envia ICE candidates para o Player 2
     this.pc.onicecandidate = (event) => {
@@ -204,7 +193,7 @@ const RetroSharePlay = {
       this.isGuestConnected = false;
     };
 
-    // Processa os toques de botões enviados pelo Player 2
+    // Injeta inputs do Player 2 no Controle 2 do emulador
     this.dataChannel.onmessage = (event) => {
       try {
         const input = JSON.parse(event.data);
@@ -217,45 +206,62 @@ const RetroSharePlay = {
           }
         }
       } catch (err) {
-        console.error('[SharePlay] Erro ao injetar input do Player 2:', err);
+        console.error('[SharePlay] Erro ao injetar input:', err);
       }
     };
 
-    // Aguarda o canvas do emulador estar pronto e captura o vídeo a 60 FPS
-    let attempts = 0;
-    const waitForCanvas = () => {
+    // Captura o canvas de forma otimizada (30 FPS, leve e sem travamento)
+    let checkAttempts = 0;
+    const captureStreamWhenReady = () => {
       const canvas = document.querySelector('#game-container canvas');
-      if (canvas) {
+      const isReady = canvas && canvas.width > 0 && (
+        (window.EJS_emulator && window.EJS_emulator.started) || checkAttempts > 15
+      );
+
+      if (isReady) {
         try {
-          const stream = canvas.captureStream ? canvas.captureStream(60) : (canvas.mozCaptureStream ? canvas.mozCaptureStream(60) : null);
+          let stream = null;
+          if (canvas.captureStream) {
+            stream = canvas.captureStream(30);
+          } else if (canvas.mozCaptureStream) {
+            stream = canvas.mozCaptureStream(30);
+          }
+
           if (stream) {
-            // Adiciona vídeo
-            stream.getVideoTracks().forEach(track => this.pc.addTrack(track, stream));
-            // Adiciona áudio capturado se disponível
-            if (this.hostAudioStream) {
-              this.hostAudioStream.getAudioTracks().forEach(track => this.pc.addTrack(track, this.hostAudioStream));
-            }
-            console.log('[SharePlay] Canvas stream capturado com sucesso a 60 FPS.');
+            stream.getVideoTracks().forEach(track => {
+              const sender = this.pc.addTrack(track, stream);
+              // Otimização de bitrate para não sobrecarregar o processador do celular
+              if (sender && sender.getParameters) {
+                try {
+                  const params = sender.getParameters();
+                  if (!params.encodings) params.encodings = [{}];
+                  params.encodings[0].maxBitrate = 1200000; // 1.2 Mbps (ideal para Pixel Art 2D)
+                  params.encodings[0].maxFramerate = 30;
+                  sender.setParameters(params).catch(() => {});
+                } catch(e) {}
+              }
+            });
+            console.log('[SharePlay] Stream de vídeo capturada e otimizada a 30 FPS.');
           }
           this.createAndSendOffer(guestSocketId);
-        } catch (err) {
-          console.error('[SharePlay] Falha ao capturar canvas stream:', err);
+        } catch(err) {
+          console.error('[SharePlay] Erro ao capturar canvas:', err);
           this.createAndSendOffer(guestSocketId);
         }
-      } else if (attempts < 60) {
-        attempts++;
-        setTimeout(waitForCanvas, 300);
       } else {
-        console.warn('[SharePlay] Timeout aguardando canvas do emulador.');
-        this.createAndSendOffer(guestSocketId);
+        checkAttempts++;
+        setTimeout(captureStreamWhenReady, 350);
       }
     };
-    waitForCanvas();
+    captureStreamWhenReady();
   },
 
   async createAndSendOffer(guestSocketId) {
     try {
-      const offer = await this.pc.createOffer();
+      const offer = await this.pc.createOffer({
+        offerToReceiveVideo: false,
+        offerToReceiveAudio: false
+      });
       await this.pc.setLocalDescription(offer);
       this.socket.emit('webrtc-signal', {
         target: guestSocketId,
@@ -273,10 +279,11 @@ const RetroSharePlay = {
   async startGuest(roomId, game) {
     this.role = 'guest';
     this.roomId = roomId;
-    this.pendingCandidates = [];
+    this.pendingRemoteCandidates = [];
+    this.pendingLocalCandidates = [];
     this.showHud(`Conectando à Sala ${roomId}...`, 'waiting');
 
-    // Monta a tela de recepção do vídeo e os botões virtuais P2
+    // Prepara tela de exibição do vídeo e botões virtuais P2
     this.setupGuestScreen();
 
     if (this.socket) {
@@ -292,7 +299,7 @@ const RetroSharePlay = {
     const userId = 'guest_' + Math.random().toString(36).substring(2, 9);
 
     this.socket.on('connect', () => {
-      console.log('[SharePlay] Guest conectado ao servidor de sinalização. Entrando na sala:', roomId);
+      console.log('[SharePlay] Guest conectado ao servidor. Entrando na sala:', roomId);
       
       const tryJoin = () => {
         this.socket.emit('join-room', {
@@ -323,6 +330,13 @@ const RetroSharePlay = {
 
     this.pc = new RTCPeerConnection({ iceServers: this.iceServers });
 
+    this.pc.oniceconnectionstatechange = () => {
+      console.log('[SharePlay] ICE Connection State (Guest):', this.pc.iceConnectionState);
+      if (this.pc.iceConnectionState === 'connected' || this.pc.iceConnectionState === 'completed') {
+        this.showHud('🟢 CONECTADO AO HOST! VOCÊ É O PLAYER 2', 'connected');
+      }
+    };
+
     // Envia ICE candidates para o Host
     this.pc.onicecandidate = (event) => {
       if (event.candidate) {
@@ -332,20 +346,28 @@ const RetroSharePlay = {
             candidate: event.candidate
           });
         } else {
-          this.pendingCandidates.push(event.candidate);
+          this.pendingLocalCandidates.push(event.candidate);
         }
       }
     };
 
-    // Recebe o stream de vídeo do Player 1 em 60 FPS
+    // Recebe a stream de vídeo do Player 1
     this.pc.ontrack = (event) => {
-      console.log('[SharePlay] Guest recebeu track de mídia do Host:', event.track.kind);
+      console.log('[SharePlay] Guest recebeu track de mídia:', event.track.kind);
       const video = document.getElementById('guest-video-stream');
       if (video) {
         if (video.srcObject !== event.streams[0]) {
           video.srcObject = event.streams[0];
         }
-        video.play().catch(e => console.log('Autoplay com som silenciado:', e));
+        video.muted = true;
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => {
+            console.warn('[SharePlay] Autoplay precisa de toque:', err);
+            const overlay = document.getElementById('guest-tap-to-play');
+            if (overlay) overlay.style.display = 'flex';
+          });
+        }
       }
       this.showHud('🟢 CONECTADO AO HOST! VOCÊ É O PLAYER 2', 'connected');
       setTimeout(() => {
@@ -354,28 +376,24 @@ const RetroSharePlay = {
       }, 5000);
     };
 
-    // Recebe o DataChannel para os controles
+    // Recebe o canal de dados para controles
     this.pc.ondatachannel = (event) => {
       this.dataChannel = event.channel;
       console.log('[SharePlay] DataChannel recebido pelo Guest!');
-      this.dataChannel.onopen = () => {
-        console.log('[SharePlay] Canal de controles P2 aberto e pronto!');
-      };
     };
 
     // Sinais WebRTC enviados pelo Host
     this.socket.on('webrtc-signal', async (data) => {
       if (data.sender) {
         this.hostSocketId = data.sender;
-        // Envia candidatos pendentes acumulados
-        if (this.pendingCandidates.length > 0) {
-          this.pendingCandidates.forEach(cand => {
+        if (this.pendingLocalCandidates.length > 0) {
+          this.pendingLocalCandidates.forEach(cand => {
             this.socket.emit('webrtc-signal', {
               target: this.hostSocketId,
               candidate: cand
             });
           });
-          this.pendingCandidates = [];
+          this.pendingLocalCandidates = [];
         }
       }
 
@@ -383,6 +401,8 @@ const RetroSharePlay = {
         console.log('[SharePlay] Guest recebeu Offer do Host. Respondendo com Answer...');
         try {
           await this.pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+          this.flushRemoteCandidates();
+
           const answer = await this.pc.createAnswer();
           await this.pc.setLocalDescription(answer);
           this.socket.emit('webrtc-signal', {
@@ -394,24 +414,47 @@ const RetroSharePlay = {
           console.error('[SharePlay] Erro ao responder offer no Guest:', err);
         }
       } else if (data.candidate) {
-        try {
-          await this.pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-        } catch (e) {
-          console.error('[SharePlay] Erro ao adicionar ICE candidate no Guest:', e);
-        }
+        this.handleRemoteCandidate(data.candidate);
       }
     });
   },
 
-  // Monta a tela de vídeo e controles touch virtuais para o Player 2
+  // Monta a tela de exibição remota e botões
   setupGuestScreen() {
     const container = document.getElementById('game-container');
     if (!container) return;
     container.innerHTML = `
       <div id="guest-screen-wrap" style="position:fixed; inset:0; background:#000; display:flex; align-items:center; justify-content:center; z-index:10; overflow:hidden;">
-        <video id="guest-video-stream" autoplay playsinline muted style="height:100vh; height:100dvh; max-height:100vh; width:calc(100vh * (4/3)); max-width:100vw; aspect-ratio:4/3; object-fit:contain; margin:0 auto; box-shadow:0 0 50px rgba(0,0,0,0.95);"></video>
+        <video id="guest-video-stream" autoplay playsinline muted webkit-playsinline style="width:100vw; height:100vh; height:100dvh; max-height:100vh; aspect-ratio:4/3; object-fit:contain; margin:0 auto; background:#000;"></video>
+        <div id="guest-tap-to-play" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.85); z-index:20; flex-direction:column; align-items:center; justify-content:center; gap:16px;">
+          <div style="font-size:1.1rem; color:#67e8f9; font-weight:800; text-shadow:0 0 10px rgba(0,240,255,0.7);">📺 Transmissão Pronta!</div>
+          <button id="btn-unlock-guest-video" style="padding:14px 28px; border-radius:9999px; background:#00f0ff; color:#05070d; font-weight:900; font-size:1.1rem; border:2px solid #fff; box-shadow:0 0 25px rgba(0,240,255,0.8); cursor:pointer;">
+            ▶️ TOQUE PARA VER O JOGO
+          </button>
+        </div>
       </div>
     `;
+
+    const unlockBtn = document.getElementById('btn-unlock-guest-video');
+    if (unlockBtn) {
+      unlockBtn.onclick = () => {
+        const vid = document.getElementById('guest-video-stream');
+        if (vid) {
+          vid.play().then(() => {
+            const overlay = document.getElementById('guest-tap-to-play');
+            if (overlay) overlay.style.display = 'none';
+          }).catch(e => console.warn(e));
+        }
+      };
+    }
+
+    const vid = document.getElementById('guest-video-stream');
+    if (vid) {
+      vid.onplaying = () => {
+        const overlay = document.getElementById('guest-tap-to-play');
+        if (overlay) overlay.style.display = 'none';
+      };
+    }
 
     // Renderiza controles touch virtuais para o Player 2
     this.renderGuestGamepad();
@@ -426,7 +469,7 @@ const RetroSharePlay = {
     }
   },
 
-  // Controles virtuais do Player 2 com visual Arcade Neo Geo e feedback tátil
+  // Controles virtuais do Player 2 com visual Arcade Neo Geo
   renderGuestGamepad() {
     let pad = document.getElementById('guest-gamepad-overlay');
     if (pad) pad.remove();
@@ -444,10 +487,9 @@ const RetroSharePlay = {
     `;
 
     pad.innerHTML = `
-      <!-- Botões de Topo: Sair e Ativar Som -->
-      <div style="position:fixed; top:12px; left:14px; display:flex; gap:8px; pointer-events:auto; z-index:100000;">
-        <button id="gpad-btn-exit" style="padding:6px 12px; border-radius:14px; background:rgba(15,23,42,0.85); border:1px solid #ef4444; color:#fca5a5; font-weight:800; font-size:11px; cursor:pointer;">SAIR</button>
-        <button id="gpad-btn-sound" style="padding:6px 12px; border-radius:14px; background:rgba(15,23,42,0.85); border:1px solid #00f0ff; color:#67e8f9; font-weight:800; font-size:11px; cursor:pointer;">🔊 SOM</button>
+      <!-- Botão Sair (Topo Esquerdo) -->
+      <div style="position:fixed; top:12px; left:14px; pointer-events:auto; z-index:100000;">
+        <button id="gpad-btn-exit" style="padding:6px 14px; border-radius:14px; background:rgba(15,23,42,0.85); border:1px solid #ef4444; color:#fca5a5; font-weight:800; font-size:11px; cursor:pointer;">SAIR</button>
       </div>
 
       <!-- D-Pad Direcional do Player 2 (Esquerda) -->
@@ -485,21 +527,6 @@ const RetroSharePlay = {
       exitBtn.onclick = () => {
         if (confirm('Deseja sair da partida de Player 2?')) {
           window.location.href = 'index.html';
-        }
-      };
-    }
-
-    // Botão Ativar Som
-    const soundBtn = document.getElementById('gpad-btn-sound');
-    if (soundBtn) {
-      soundBtn.onclick = () => {
-        const vid = document.getElementById('guest-video-stream');
-        if (vid) {
-          vid.muted = !vid.muted;
-          vid.volume = 1.0;
-          soundBtn.textContent = vid.muted ? '🔇 MUDO' : '🔊 SOM ON';
-          soundBtn.style.borderColor = vid.muted ? '#64748b' : '#22c55e';
-          soundBtn.style.color = vid.muted ? '#94a3b8' : '#86efac';
         }
       };
     }
