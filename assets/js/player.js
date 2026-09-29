@@ -62,7 +62,8 @@ function shareRoomInviteWhatsApp() {
   const title = (MULTIPLAYER_GAMES_SUPPORTED[resolved] && MULTIPLAYER_GAMES_SUPPORTED[resolved].name) ? MULTIPLAYER_GAMES_SUPPORTED[resolved].name : (currentGame?.title || 'RetroNFC');
   const roomCode = currentMpRoomCode || '8888';
 
-  const inviteUrl = `https://retronfc.com.br/play.html?game=${encodeURIComponent(resolved)}&room=${roomCode}&role=guest`;
+  const baseUrl = window.location.origin + window.location.pathname;
+  const inviteUrl = `${baseUrl}?game=${encodeURIComponent(resolved)}&room=${roomCode}&role=guest`;
   const msg = `⚔️ *DESAFIO RETRONFC MULTIPLAYER ONLINE!*\n\nBora jogar *${title}* agora comigo de 2 Players no celular?\n\n👉 Clique no link para entrar na minha sala:\n${inviteUrl}\n\nOu abra o jogo e digite o Código da Sala: *SALA-${roomCode}*\n\n⚠️ *Dica:* Ambos precisam ter o RetroPass ativo no aparelho! Bom jogo! 🕹️`;
 
   window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
@@ -88,16 +89,21 @@ function startHostGame() {
   }
 
   loadEmulatorEngine(currentGame, true, 'host', currentMpRoomCode);
+  if (window.RetroSharePlay) {
+    window.RetroSharePlay.startHost(currentMpRoomCode, currentGame);
+  }
 }
 
 function startGuestGame() {
   const input = document.getElementById('mp-join-room-input');
   let roomCode = input ? input.value.trim().replace(/[^0-9]/g, '') : '';
+  if (!roomCode && currentMpRoomCode) roomCode = currentMpRoomCode;
   if (!roomCode) {
     alert('Por favor, digite o código da sala de 4 dígitos recebido do seu amigo!');
     return;
   }
 
+  enterFullscreenSafe();
   closeMultiplayerModal();
   const loader = document.getElementById('nfc-loader');
   if (loader) loader.style.display = 'none';
@@ -106,11 +112,12 @@ function startGuestGame() {
     try { screen.orientation.lock('landscape').catch(() => {}); } catch(err) {}
   }
 
-  enterFullscreenSafe();
-  loadEmulatorEngine(currentGame, true, 'guest', roomCode);
+  if (window.RetroSharePlay) {
+    window.RetroSharePlay.startGuest(roomCode, currentGame);
+  }
 }
 
-﻿﻿function setupRetroGamepadEnhancements() {
+function setupRetroGamepadEnhancements() {
   const parentGamepad = document.querySelector('.ejs_virtualGamepad_parent');
   let retroNav = document.getElementById('retro-nav-left');
 
